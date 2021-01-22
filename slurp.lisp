@@ -5,10 +5,19 @@
  (setf *print-vector-length* nil)
  (setf *print-length* 50)
  (defparameter *rom-data* (read-rom "slime.gba"))
- (defparameter *pointer-table-data* (apply #'subseq *rom* pointer-table-pos))
+ (defparameter *pointer-table-data* (apply #'subseq *rom-data* pointer-table-pos))
  (defparameter *pointer-table* (parse-pointer-table *pointer-table-data*))
- (defparameter *translation-table* (load-translation-table "SlimeDialogJIS.tbl"))
+ (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
+ (defparameter *translation-table* (reverse (load-translation-table "SlimeDialogJIS.tbl")))
+ (defparameter *all-texts*
+   (mapcar (lambda (x)
+             (cons (car x) (decode-string *translation-table* (text-at-pointer *rom-data* (cdr x)))))
+           *pointer-table2*))
  )
+
+(defun invert-alist (alist)
+  (loop for (a . b) in alist
+        collect (cons b a)))
 
 (defun my-split (string delimiterp)
   (loop :for beg = (position-if-not delimiterp string)
@@ -27,20 +36,27 @@
           while line
           collect (parse-translation-table-entry line))))
 
-(defun decode-string* (translation-table string)
-  (unless (null string)
+(defun decode-string (translation-table string &optional (cur-str ""))
+  (if (null string) (if (string= cur-str "") nil (list cur-str))
     (let ((cur (car string))
           (nxt (cadr string))
           mapped-char)
       (cond
         ((and nxt (setf mapped-char (assoc (logior (ash cur 8) nxt) translation-table)))
-         (cons (cdr mapped-char) (decode-string* translation-table (cddr string))))
+         (decode-string translation-table (cddr string) (concatenate 'string cur-str (cdr mapped-char))))
         ((setf mapped-char (assoc cur translation-table))
-         (cons (cdr mapped-char) (decode-string* translation-table (cdr string))))
-        (t (cons (format nil "($~2,'0X)" cur) (decode-string* translation-table (cdr string))))))))
+         (decode-string translation-table (cdr string) (concatenate 'string cur-str (cdr mapped-char))))
+        ((string= cur-str "") (cons `(byte ,cur) (decode-string translation-table (cdr string))))
+        (t (list* cur-str `(byte ,cur) (decode-string translation-table (cdr string))))))))
 
-(defun decode-string (translation-table string)
-  (apply #'concatenate 'string (decode-string* translation-table string)))
+(defun encode-string (inv-translation-table string)
+  (flet ((encode-str (string)
+           (loop for char across string
+                 collect (cdr (assoc char inv-translation-table :test #'string=)))))
+    (cond
+      ((null string) '(0))
+      ((stringp (car string)) (append (encode-str (car string)) (encode-string inv-translation-table (cdr string))))
+      ((equal (caar string) 'byte) (cons (cadar string) (encode-string inv-translation-table (cdr string)))))))
 
 (defun extract-pointer-table (rom outfile)
   (with-open-file (stream outfile :direction :output
@@ -56,9 +72,11 @@
           do (progn (write-sequence (text-at-pointer rom ptr) stream)))))
 
 (defun text-at-pointer (rom ptr)
-  (loop for i = ptr then (1+ i)
-        until (= (elt rom i) 0)
-        collect (elt rom i)))
+  (if (= ptr 15214352)
+      '(1 1 1 1) ;hack
+      (loop for i = ptr then (1+ i)
+            until (= (elt rom i) 0)
+            collect (elt rom i))))
 
 (defun nums->pointer (b1 b2 b3 b4)
   (logior (ash b3 16)
@@ -66,13 +84,23 @@
           b1))
 (defun parse-pointer-table (table-data)
   (loop for i from 0 below (length table-data) by 4
-        collect (nums->pointer (elt table-data (+ i 0))
-                               (elt table-data (+ i 1))
-                               (elt table-data (+ i 2))
-                               (elt table-data (+ i 3)))))
+        for j = 0 then (1+ j)
+        collect (cons j (nums->pointer (elt table-data (+ i 0))
+                                       (elt table-data (+ i 1))
+                                       (elt table-data (+ i 2))
+                                       (elt table-data (+ i 3))))))
 
-(defun read-rom (rom)
+(defun read-rom (rom &optional (expansion #x100000)) ;expand by 1MB
   (with-open-file (stream rom :element-type '(unsigned-byte 8))
-    (let ((arr (make-array (file-length stream) :element-type '(unsigned-byte 8))))
+    (let ((arr (make-array (+ (file-length stream) expansion)
+                           :element-type '(unsigned-byte 8)
+                           :fill-pointer (file-length stream))))
       (read-sequence arr stream)
       arr)))
+
+(defun dump-rom (rom file)
+  (with-open-file (stream file
+                          :element-type '(unsigned-byte 8)
+                          :direction :output
+                          :if-exists :supersede)
+    (write-sequence rom stream)))

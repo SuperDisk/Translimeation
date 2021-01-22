@@ -1,0 +1,665 @@
+
+
+
+[Wed Jan 20 2021]
+*** You have joined channel #lisp                                       [20:43]
+*** Topic for #lisp: Common Lisp, the #1=(programmable . #1#) programming
+    language | <https://irclog.tymoon.eu/freenode/%23lisp>
+    <https://irclog.whitequark.org/lisp>
+    <http://ccl.clozure.com/irc-logs/lisp/> | offtopic --> #lispcafe
+*** #lisp: topic set by jackdaniel!~jack@turtleware.eu, 2020-08-04 08:40:20
+*** Users on #lisp: npfaro wxie jedii nullman ludston Nilby igemnace edgar-rft
+    troydm nightfly emaczen mindCrime swflint ebrasca` okflo` judson_ ukari
+    matijja Kingsy charles` amb007 bilegeek hendursaga mrcom_ kini
+    Aurora_v_kosmose galex-713 hnOsmium0001 villanella jealousmonk Bike
+    cyraxjoe amk totoro2021 X-Scale gabiruh zerno lowryder anticrisis mathrick
+    summerisle karlosz_ mrchampion devon Lord_of_Life euandreh_ trocado
+    IPmonger aeth brandflake11 waleee-cl albusp matryoshka Josh_2
+*** Users on #lisp: fitzsim CrazyEddy frgo_ mtd_ perrier-jouet frodef
+    kaftejiman johnjay jello_pudding ex_nihilo iskander Madvax mood jbgg rme
+    froggey zaquest jprajzne ralt luckless_ xanderle _whitelogger __jrjsmrtn__
+    Alfr lottaquestions loli Codaraxis__ jonatack epony moon-child madage
+    leo_song paul0 [d] theBlackDragon jerme_ kilimanjaro parjanya gum
+    posthuman_egrego thijso elflng christopheroei[m Lord_Nightmare cross
+    emacsomancer tumdum thecoffemaker ggoes brandonz SlashLife
+*** Users on #lisp: spacebat2 mr_yogurt vsync cpape joga Khisanth saturn2
+    flip214 vhost- zmagii srji jurov rwcom60280385034 Sauvin hiroaki fourier
+    cantstanya quazimodo hineios grobe0ba aindilis dvdmuckle ym Jesin n3t
+    Krystof dilated_dinosaur Yardanico HDurer dmiles[m] arichiardi[m] chipk[m]
+    stargazesparkle backinaweek[m] keizerrijk[m] even4void[m] solideogloria[m]
+    cairn dieggsy santiagopim[m] malaclyps_ etimmons MrtnDk[m] Gnuxie[m]
+    anotherone9999[m jdormit[m] katco susam ThaEwat
+*** Users on #lisp: quanta[m] ms[m] deselby infra_red[m] Lolicon[m] ey[m]
+    ey[m]1 kaisyu[m] ecm eymebolofscrumpe ey[m]2 jonas[m]2 mgsk phantomics
+    jasom datajerk specbot phoe6245 samebchase dwts flazh vaporatorius__
+    Ziemas Xach jackhill ane slyrus1 cg505 penguwin beach luna_is_here
+    mikecheck rlp10 fiddlerwoaroof mgsk_ dim madnificent OlCe Oddity- rixard
+    xantoz tomaw fengshaun pyc sm2n_ HiRE snits copec eschatologist gabot
+    mister_m sxmx CEnnis91 nckx ptr_0x0001 hhdave kapil_ tinga
+*** Users on #lisp: gutter Walex nmg glamas Nikotiini hdasch wooden
+    herlocksholmes justinmcp Fade cgay Mandus greeb lieven minion opcode ramus
+    nydel @fe[nl]ix Blkt acolarh dale Papa SumoSud0 azrazalea ozzloy gingerale
+    rvirding stylewarning phoe beaky madand johs ffwacom gjnoonan selwyn
+    chewbranca alanz splittist conjunctive griffinbyatt bytesighs Inoperable
+    dyelar Iolo FennecCode scymtym bitmapper bjorkintosh joast tessier
+    drmeister entel Balooga yottabyte winny jgkamat [df]
+*** Users on #lisp: eagleflo jfb4 kingcons mseddon simplegauss Patternmaster
+    zigpaw10 pok MetaYan add^_ antoszka sebboh creat brass _death aap gensym
+    interruptinuse ferada eMBee Ankhers trn Kabriel parisienne p_l jsatk z0d
+    zymurgy sukaeto bkst |3b| mtd jackdaniel ft zagura samebchase- micro
+    AdmiralBumbleBee ski shoshin White_Flame pent abbe_ jlpeters russell--
+    thonkpod devrtz heredoc hiredman kbtr esotericalgo billstclair shenghi1
+    idxu jdz gaze__ diamondbond XachX ecraven eta jxy
+*** Users on #lisp: phadthai MrFantastik physpi krjst avicenna dnm shinohai
+    shrysr bonz060 xristos kim\ felideon markasoftware xi stux|RC-only loke
+    lad Firedancer_ ineiros APic cyberlard lavaflow alandipert ck_ daniel1302
+    mfiano stux|RC astronavt ccl-logbot gpiero malm lukego natj212 seisatsu
+    d4ryus banjiewen_ tychoish grfn sgithens karstensrage gendl jmercouris
+    mrSpec spal mpontillo myall Grauwolf rotty emma travv0 plisp docl
+    me_at_drewc_ca lonjil grumble Ekho Colleen cognemo
+*** Users on #lisp: buoy49 Grue`` himmAllRight terpri terrorjack jonathan|
+    chrpape luis jrm ravndal dddddd jibanes SAL9000 xlei lansiir ark tmf v3ga
+    pranavats greaser|q gigetoo larme TMA remexre Oladon nopf iamFIREcracker
+    ioa Tordek vert2 flatheap deltab mgxm voidlily midre yonkunas easye dxtr
+    drot mjl ilmu gko Patzy sveit femi cpt_nemo knobo sbryant mgr_ guaqua
+    Cthulhux Demosthenex Posterdati wigust borodust nitrix bmansurov_ hvxgr
+    norserob nullheroes
+*** #lisp modes: +Ccntz
+*** #lisp was created on 2003-08-03 17:30:32
+<npfaro> hi
+<npfaro> i have a problem with slime/emacs. When i put the cursor inside a
+         form where the auto-complete would kick in, it puts the Common Lisp
+         one provided from slime in the minibuffer, but then about half a
+         second later it's overwritten by the ELisp one                 [20:44]
+<npfaro> which is quite annoying
+<npfaro> has this happened to anyone else
+<ludston> npfaro: Are you using the lastest version of Emacs/slime/your lisp
+          implementation? What auto-complete package are you using in emacs?
+                                                                        [20:47]
+<npfaro> ludston: not really auto-complete but rather the little function
+         signature that appears in the minibuffer. I think it's called eldoc?
+         I just disabled eldoc-mode in the lisp buffer though and it's still
+         doing it so idk                                                [20:48]
+<npfaro> I can try updating my stuff 
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has quit: Quit:
+    My MacBook has gone to sleep. ZZZzzz…                               [20:50]
+<npfaro> i should be on the latest slime now                            [20:53]
+<npfaro> no difference
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has joined
+    channel #lisp                                                       [20:55]
+<ludston> Probably something in your .emacs file is hooking elisp to the same
+          auto-complete lib? I assume you are coding in both elisp and CL?
+<npfaro> https://i.imgur.com/bwEKemF.gif                                [20:56]
+<npfaro> Here's a gif of the issue
+<npfaro> watch the minibuffer
+<npfaro> I'm not actually coding in elisp, just CL
+<ludston> Oh my that's annoying
+<Bike> i've never seen that before. was eldoc-mode the only elisp mode?
+                                                                        [20:58]
+<npfaro> eldoc mode isn't actually an elisp mode i don't believe        [20:59]
+<npfaro> it's for any language
+<npfaro> also, disabling it doesn't get rid of the issue
+<npfaro> so it might be unrelated to eldoc
+<Bike> i'm just wondering if there's some other mode doing it.
+<npfaro> is lisp-mode the correct mode to be editing CL in?             [21:00]
+<ludston> To me it smells like there is some hook in your .emacs file like
+          (add-to-list 'some-elmacs-buffer-hook 'some-elisp-fn-lookup)
+<Bike> on my system lisp files are edited in the lisp major mode, yes.
+<npfaro> https://pastebin.com/cuTWWvEG                                  [21:01]
+<Bike> it looks like i have both eldoc and global-eldoc minor modes on but
+       loop displays correctly
+<Bike> oh, you have... quite a few more minor modes than i do
+<Bike> same slime minor modes as me tho                                 [21:02]
+<npfaro> yeah, i use spacemacs :p
+*** zerno (~zerno@45.10.140.177) has quit: Quit: This computer has gone to
+    sleep                                                               [21:03]
+<ludston> You might be better off asking a spacemacs channel if there is one
+<npfaro> alright. as far as i can tell, there's nothing touching elisp or
+         slime in my config file                                        [21:04]
+<ludston> I'm assuming that slime-autodoc mode is what is bugging out   [21:06]
+*** kaftejiman (~kaftejima@88.230.153.71) has quit: Remote host closed the
+    connection                                                          [21:07]
+*** kaftejiman (~kaftejima@88.230.153.71) has joined channel #lisp
+<ludston> Could be a conflict between company and slime-autodoc?        [21:08]
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has quit: Quit:
+    My MacBook has gone to sleep. ZZZzzz…                               [21:09]
+<ludston> It's weird that you have company, but not slime-company
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has joined
+    channel #lisp                                                       [21:10]
+*** pillton (~user@124.170.17.67) has joined channel #lisp
+*** fourier (~user@fsf/member/fourier) has quit: Read error: Connection reset
+    by peer
+*** brandflake11 (~user@2601:5c0:c380:83e0:33a0:a65e:a0c5:d0b) has quit:
+    Remote host closed the connection
+*** fourier (~user@fsf/member/fourier) has joined channel #lisp         [21:11]
+<Nilby> I ran into problems like this. But I'm not sure I solved them. I just
+        turned off slime-autodoc.
+<npfaro> aha. it's "semantic-mode" that's causing the issue
+<Nilby> But I have some code like this
+        https://plaster.tymoon.eu/view/2248#2248 in my start up.        [21:12]
+<npfaro> looks like global-semantic-idle-summary is the culprit         [21:15]
+<npfaro> Do any of you folks use that mode successfully
+*** kaftejiman (~kaftejima@88.230.153.71) has quit: Remote host closed the
+    connection
+<npfaro> or is it even worth having turned on
+*** iskander (~iskander@45.135.187.22) has quit: Ping timeout: 264 seconds
+                                                                        [21:16]
+<Nilby> I realized all kinds of auto messages on timers annoyed me.     [21:19]
+<Bike> i don't use semantic.                                            [21:21]
+<charles`> If I want to change directory, load file, then change back, why
+           doesn't this work. It doesn't seem to change directory properly?
+                                                                        [21:23]
+<charles`> (let ((cwd (uiop:getcwd)))                                   [21:24]
+<charles`>     (uiop:chdir "new-dir")
+<charles`>     (load "file.lisp")
+<charles`>     (uiop:chdir cwd)))
+<Nilby> charles`: **default-pathname-defaults*
+<charles`> instead of uiop:chdir I change that variable?                [21:25]
+<Nilby> I'm sorry to say it's complicated and slightly implementation
+        dependent. On some implementations you can just chdir, on some you
+        have to set *default-pathname-defaults*, on some maybe both?    [21:28]
+*** luckless_ (~luckless@gateway/tor-sasl/luckless) has quit: Quit: luckless_
+                                                                        [21:29]
+<Nilby> If you want I can share a thing that does it on most implementations?
+                                                                        [21:31]
+<charles`> That would be cool. I have seen shcl though
+<charles`> I assume they figured it out
+<Nilby> https://plaster.tymoon.eu/view/2249#2249                        [21:34]
+<Nilby> You'll probably have to take out the (syscall ..) wrapper .     [21:35]
+<Nilby> I'd say this code is wrong, but it works.                       [21:36]
+<Nilby> Also you can change safe-namestring to namestring
+<charles`> you seem very knowledgeable about different implementations
+<Nilby> I'm not. I don't even remember writing code.                    [21:38]
+<Nilby> Or maybe I stole it?
+*** luckless (~luckless@gateway/tor-sasl/luckless) has joined channel #lisp
+<Nilby> Oh, I forgot shcl is the other shell. I use the asdf path for loading,
+        but I guess "cd" and load still works.                          [21:48]
+*** devon (~user@pool-72-83-171-228.washdc.east.verizon.net) has quit: Ping
+    timeout: 246 seconds                                                [21:50]
+*** ralt (uid32607@gateway/web/irccloud.com/x-uqkzpacbqhyyhgff) has quit:
+    Quit: Connection closed for inactivity                              [21:53]
+*** ludston (~ludston@119-18-2-5.771202.syd.nbn.aussiebb.net) has quit: Remote
+    host closed the connection                                          [21:59]
+*** ludston (~ludston@119-18-2-5.771202.syd.nbn.aussiebb.net) has joined
+    channel #lisp
+<npfaro> how do I set the value of a parameter/var without having the repl
+         display the value                                              [22:13]
+<npfaro> I'm reading a multi-megabyte file into an array and I think slime is
+         crashing every time it tries to print it
+<npfaro> I'm C-x C-e'ing (setf x (read-my-massive-array))
+<Bike> (progn (setf x (read-my-massive-array)) nil)                     [22:14]
+<npfaro> that's just goofy
+<Bike> yes
+<Bike> sorry, do you mean for this to be like code in a file?
+<Bike> the progn thing is just what i do when i'm in the repl
+<Bike> and nobody can see this shame
+<npfaro> what do you do in a file then                                  [22:15]
+<Bike> i don't usually write that kind of procedural code in files, i suppose
+<npfaro> hrmmmm
+<Bike> let me see if slime has some kind of hook                        [22:16]
+<Bike> doesn't look like it, i don't think
+<Bike> if you do M-- C-x C-e it will save it to the kill ring rather than
+       print it                                                         [22:18]
+<Bike> i don't know if that actually helps with huge output
+<Bike> well, seems like it works for me for a ten thousand element list, at
+       least                                                            [22:19]
+<npfaro> looks like there's a param called *print-vector-length*
+<Bike> oh, yeah, you can just set *print-length*
+<Bike> i do that in my sbclrc
+<Bike> that's a CL variable, not slime                                  [22:20]
+<edgar-rft> there's *PRINT-LENGTH* to limit the number of elements printed
+<npfaro> neato
+<npfaro> perfect, thanks
+<edgar-rft> oh, I just see that Bike won by a nose :-)                  [22:21]
+*** kini (~kini@unaffiliated/kini) has quit: Ping timeout: 264 seconds  [22:23]
+*** kini (~kini@unaffiliated/kini) has joined channel #lisp             [22:24]
+*** mindCrime
+    (~prhodes@2603-6080-5900-001c-33e9-8731-abb2-ef1d.res6.spectrum.com) has
+    quit: Ping timeout: 264 seconds                                     [22:29]
+*** iskander (~iskander@aftr-88-152-185-24.unity-media.net) has joined channel
+    #lisp
+*** kini (~kini@unaffiliated/kini) has quit: Ping timeout: 264 seconds  [22:30]
+*** kini (~kini@unaffiliated/kini) has joined channel #lisp
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has quit: Quit:
+    My MacBook has gone to sleep. ZZZzzz…
+*** madage (~madage@gateway/tor-sasl/madage) has quit: Remote host closed the
+    connection                                                          [22:32]
+*** madage (~madage@gateway/tor-sasl/madage) has joined channel #lisp
+*** aspr (~aspr123@240d:1a:67f:1f00:adc0:9ed5:db28:37dd) has joined channel
+    #lisp                                                               [22:33]
+<shinohai> ////////////                                                 [22:36]
+*** Lycurgus (~niemand@cpe-45-46-139-165.buffalo.res.rr.com) has joined
+    channel #lisp                                                       [22:37]
+<pillton> (setf *print-array* nil) ?                                    [22:38]
+* pillton has had to wait for the REPL to print out a high-definition image a
+  few times.                                                            [22:40]
+<npfaro> Can i ask a dumb loop question                                 [22:48]
+<Bike> sure.
+<npfaro> I have an array of values such that there are groups of 4. so I want
+         to loop over them in groups
+<npfaro> Say I have #(1 2 3 4 5 6 7 8) I'd like to loop over them so that I
+         can treat them as '((1 2 3 4) (5 6 7 8))                       [22:49]
+<Bike> you mean like you have #(0 1 2 3 4 5 6 7 ...) and you want to work with
+       0 1 2 3 first, then 4 5 6 7, etc?
+<npfaro> yeah
+<Bike> right.
+<Bike> you could do (loop for (a b c d) in (coerce vector 'list) ...), but
+       that conses.                                                     [22:50]
+<ludston> (loop for i = 0 then (+ 4 i) <someaggregate> (loop for j from i to
+          (+ 3 j)) ?
+<Bike> i don't think there's a way to do it with the vector directly. you
+       could cook up something with indices like that.
+<Bike> er, "on (coerce ...)" i meant
+<Bike> and then "by"... whatever, that code sucks anyway                [22:51]
+<npfaro> i can live with consing
+<Bike> (loop for (a b c d) on vector by #'cddddr ...) then
+<npfaro> I thought cdr doesn't work on vector
+<Bike> on (coerce vector 'list) i mean                                  [22:52]
+<Bike> i am scatterbrained to-nite
+<ludston> I'd just do it via the indices so that you don't get the O(n) copy
+<npfaro> hrm ok                                                         [22:53]
+<Bike> i would also do it with the indices. if you want nicer syntax, you
+       could probably design your own clause if you used ITERATE instead of
+       loop
+<Bike> but i don't know much about that library
+<npfaro> I'm trying to stick to vanilla CL atm
+<Bike> fair enough
+<Bike> also, this wasn't a stupid question, so don't worry about that
+<Nilby> or something like  (loop with a = #(1 2 3 4 5 6 7 8) for i from 0
+        below (length a) by 4 do (format t "~s~%" (subseq a  i (+ i 4))))
+<npfaro> thanks                                                         [22:54]
+<Bike> you can throw in like "for a = (aref vector i) for b = (aref vector (1+
+       i)) ..." etc
+<ludston> Again though, with subseq you are having O(n) copy            [22:55]
+<ludston> Avoiding memory allocation in GC'd languages I think is a good habit
+                                                                        [22:56]
+<ludston> Contraversial opinion though?
+<edgar-rft> I think displaced arrays are meant to be used for sub-arrays of
+            big arrays but I need to fiddle out the syntax.             [22:57]
+<Bike> using displaced arrays usually involves consing, also.           [22:59]
+<Bike> and implementations may not optimize their use well
+<Nilby> sbcl seems to use about the same memory for displaced as subseq
+                                                                        [23:00]
+*** orivej (orivej@gateway/vpn/mullvad/orivej) has joined channel #lisp
+                                                                        [23:01]
+*** Alfr_ (~Alfr@p200300d317182901e99bf15441aae2bc.dip0.t-ipconnect.de) has
+    joined channel #lisp                                                [23:02]
+<Bike> for large sections the displaced array probably uses less memory than
+       subseq and involves less copying time                            [23:03]
+*** Alfr (~Alfr@p200300d317123e01e57b603e95c0d576.dip0.t-ipconnect.de) has
+    quit: Ping timeout: 260 seconds                                     [23:05]
+<Nilby> weirdly my test on sbcl runs faster for subseq on an array of 10000
+                                                                        [23:06]
+<Bike> you mean the array you're taking chunks out of is 10000 long?    [23:07]
+<Nilby> yes
+<Nilby> i suppose i should test bigger chunks
+<Bike> if the chunks are pretty short, i would guess that the copying overhead
+       doesn't matter, and instead you hit slowness because you're using aref
+       on a non simple array
+<ludston> What is a good word for destructuring a collection into chunks of n
+          length? If it was pairs, you would say "zipping and unzipping"?
+<Bike> sbcl is probably smart enough to realize that if you're doing aref on
+       subseq it's a simple aref                                        [23:08]
+<aeth> Almost everything has a start/end in CL, which helps a lot to avoid
+       consing.
+<beach> Good morning everyone!
+<aeth> However, what I personally do in this situation is use the array
+       macros/functions/etc. that I wrote.
+       https://gitlab.com/zombie-raptor/zr-utils/-/blob/adfe5751a2b327569efb55e0d1c89c7aea9c61f7/array.lisp
+<Nilby> about the same results for bigger chunks                        [23:09]
+<aeth> I can decompose an array of length 4 into multiple values, to avoid
+       additional consing (in most circumstances)
+<Nilby> Good morning beach!
+<aeth> So e.g. (zr-utils:array-of-4 (vector 1 2 3 4)) => 1 2 3 4        [23:10]
+<aeth> This can compose well with most things, but LOOP doesn't afaik have a
+       way to bind multiple values at once (without a SETF in the body, of
+       course) so it might not be the best kind of iteration for that.  [23:11]
+<Bike> it does not, no.
+<aeth> I just recently extended my function to support offsets, so it can
+       solve this problem in particular, e.g. (zr-utils:array-of-4 (vector 1 2
+       3 4 5 6 7 8) 4) => 5 6 7 8                                       [23:12]
+<aeth> Unfortunately, the API isn't stable yet and it's not in QL
+<Nilby> sbcl allows me to write atrociously slow code
+<Bike> as the gods intended.
+<Nilby> :)                                                              [23:13]
+<Bike> a really fancy compiler could probably elide actually consing a
+       displaced array for certain uses. i don't think any implementation
+       actually bothers, though.
+<aeth> The problem is that "displaced arrays are slow" is common knowledge, so
+       it's not idiomatic to use it, and non-idiomatic things aren't optimized
+       because it's not worth the time.                                 [23:14]
+<aeth> If CL was as popular as JS, every corner would see optimizations,
+       including that.                                                  [23:15]
+*** emaczen (~user@unaffiliated/emaczen) has quit: Ping timeout: 264 seconds
+                                                                        [23:16]
+<Bike> i dunno if displaced arrays are even a nicer way of expressing things,
+       though
+<Bike> at least the kind of immediate cursor i'm imagining being optimizable
+       could just be done pretty straightforwardly with indices         [23:17]
+<Bike> passing them between functions could be nicer, but then interfunctional
+       optimization is harder
+*** bitmapper (uid464869@gateway/web/irccloud.com/x-vuttdldiuuoxfimh) has
+    quit: Quit: Connection closed for inactivity                        [23:18]
+<aeth> For 2-4 values, I love the compositional possibilities with the
+       multiple-values route, although the syntax is pretty awkward. At the
+       function boundary, you're basically forced to multiple-value-call. And
+       it's not going to help you if you're calling a non-inline function that
+       uses double-floats (or similarly boxed things).
+<aeth> Obviously if it's closer to, say, 20+ or especially 200+, then
+       something like displaced arrays would be way better.             [23:19]
+*** anewuser (~anewuser@unaffiliated/anewuser) has joined channel #lisp
+                                                                        [23:20]
+*** anewuser (~anewuser@unaffiliated/anewuser) has quit: Remote host closed
+    the connection
+<Nilby> If displaced arrays are optimized away inside a function, then they're
+        probably fine as just a struct for passing indices around.
+<pillton> beach: I had a read of your call-site optimization paper. I like it.
+          I think the information about the callers would be useful for
+          editors or reflection. I also think you could perhaps mention if it
+          is possible to compile the callee more than once to suit the type
+          information provided by the caller.
+<Nilby> Why isn't there an nsubseq for arrays?                          [23:21]
+<Bike> what would nsubseq do?
+<Nilby> I know it's not really the same concept. Just make a displaced array
+        if it can.
+<pillton> beach: I wonder if the word "type" in the last sentence of the
+          second paragraph of page 2 should be "class"?                 [23:22]
+<aeth> Nilby: The problem is, most of the heavy optimizations are going to be
+       inside of a function, or at least inside of a file, and the time when
+       you'd really, really want to used displaced arrays is to treat a random
+       subarray as an array when calling a general purpose function that
+       expects the latter
+<Nilby> aeth: Right. But if your stuff is non-mutating maybe it's okay.
+                                                                        [23:24]
+<aeth> I suppose it could still help if those functions were inline, which
+       could be a surprising amount of vector math stuff, especially if they
+       were designed for this.
+*** ZharX242 (~user@140.119.43.43) has joined channel #lisp             [23:27]
+<Nilby> Yes. And then have it work with shareable vectors so the gpu or os can
+        have it.                                                        [23:28]
+<pillton> aeth: I'd rather compilers focus on eliminating indice checks for
+          vector math stuff.
+<charles`> is there a way to read a file that has lisp code and get what the
+           result is? if a file contains (+ 1 2), (return-load "file") => 3
+                                                                        [23:29]
+*** emaczen (~user@unaffiliated/emaczen) has joined channel #lisp       [23:30]
+<beach> pillton: Thanks!
+<beach> I'll look into the "type" thing.
+<aeth> Nilby: https://github.com/sionescu/static-vectors/               [23:31]
+<aeth> Nilby: Certain (1D) arrays can be bilingual CFFI/CL, which is all you
+       need for the GPU
+<aeth> The downside is that you have to manually free them.             [23:32]
+*** jedii (~g@209.6.150.53) has quit: Remote host closed the connection
+<beach> pillton: I don't think it would be necessary to compile the callee
+        more than once.  It would typically have the structure so that a
+        prefix would test the types, and part of that prefix can then be
+        skipped so that the snippet jumps to the middle of the callee.
+<pillton> beach: For most cases yes, but there are unique cases where it is
+          important e.g.
+          https://github.com/markcox80/template-function/wiki/Motivating-the-Template-Function-System
+                                                                        [23:34]
+*** mrcom_ (~mrcom@99-73-215-70.lightspeed.irvnca.sbcglobal.net) has quit:
+    Ping timeout: 265 seconds                                           [23:35]
+<beach> pillton: Yes, I'll change "type" to "class".
+*** adam4567 (~user@121.98.229.241) has joined channel #lisp            [23:37]
+<beach> pillton: I am not quite awake yet.  Can you give me an executive
+        summary?
+<Nilby> aeth: Thanks. I should probably be using that.
+*** Bike (~Glossina@71.69.170.70) has quit: Quit: Lost terminal
+*** iskander- (~iskander@185.51.134.230) has joined channel #lisp       [23:39]
+*** mrcom (~mrcom@99-73-215-70.lightspeed.irvnca.sbcglobal.net) has joined
+    channel #lisp                                                       [23:40]
+*** iskander (~iskander@aftr-88-152-185-24.unity-media.net) has quit: Ping
+    timeout: 246 seconds
+<pillton> beach: I can't at the moment as I have to go soon. I am in no hurry
+          for you to read the link. I think it highlights the issue I am
+          talking about better than I could explain it here.            [23:41]
+<beach> OK, I'll read it after I finished my coffee.  Thanks again!
+<pillton> beach: No problem. It reads well.                             [23:44]
+<Nilby> charles`: maybe (eval (read-from-string
+        (alexandria:read-file-into-string "foo.lisp")))                 [23:45]
+<Nilby> charles`: or maybe (eval (uiop:read-file-form "foo.lisp"))      [23:46]
+*** patience_ (~ludston@119-18-2-5.771202.syd.nbn.aussiebb.net) has joined
+    channel #lisp                                                       [23:50]
+*** edgar-xyz (~me@HSI-KBW-109-193-228-030.hsi7.kabel-badenwuerttemberg.de)
+    has joined channel #lisp                                            [23:51]
+*** bilegeek (~bilegeek@2600:1008:b056:576e:7d1e:f2d2:957b:9632) has quit:
+    Quit: Leaving
+*** pillton` (~user@124.170.17.67) has joined channel #lisp
+*** pillton` (~user@124.170.17.67) has quit: Client Quit                [23:52]
+*** amb007 (~a_bakic@23.184.126.78.rev.sfr.net) has quit: Ping timeout: 256
+    seconds
+*** jprajzne (~jprajzne@84.19.91.12) has quit: Ping timeout: 256 seconds
+*** pillton` (~user@124.170.17.67) has joined channel #lisp             [23:53]
+*** pillton` (~user@124.170.17.67) has quit: Client Quit
+*** Nilby (~user@c-73-83-161-147.hsd1.wa.comcast.net) has quit: Read error:
+    Connection reset by peer
+*** amb007 (~a_bakic@23.184.126.78.rev.sfr.net) has joined channel #lisp
+*** ludston (~ludston@119-18-2-5.771202.syd.nbn.aussiebb.net) has quit: Ping
+    timeout: 256 seconds
+*** pillton (~user@124.170.17.67) has quit: Ping timeout: 256 seconds
+*** edgar-rft (~me@HSI-KBW-109-193-228-030.hsi7.kabel-badenwuerttemberg.de)
+    has quit: Ping timeout: 256 seconds
+*** johnjay (~pi@38.120.10.99) has quit: Ping timeout: 256 seconds
+*** wxie (~Thunderbi@222.64.216.101) has quit: Ping timeout: 265 seconds
+*** Nilby (~user@c-73-83-161-147.hsd1.wa.comcast.net) has joined channel #lisp
+*** johnjay (~pi@38.120.10.99) has joined channel #lisp                 [23:54]
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has joined
+    channel #lisp                                                       [23:55]
+*** Lycurgus (~niemand@cpe-45-46-139-165.buffalo.res.rr.com) has quit: Quit:
+    Exeunt                                                              [23:56]
+*** eden (~nanoz@gateway/tor-sasl/nanoz) has joined channel #lisp       [23:58]
+*** pillton (~user@124.170.17.67) has joined channel #lisp
+
+[Thu Jan 21 2021]
+*** wxie (~Thunderbi@222.64.216.101) has joined channel #lisp           [00:04]
+<beach> pillton: I am not in favor of recompiling the callee according to the
+        information provided by the current callers, but I can very well see
+        compiling several versions of the callee according to the type
+        information that ANY caller could provide to make the callee faster.
+                                                                        [00:05]
+*** aeth (~Michael@wesnoth/umc-dev/developer/aethaeryn) has quit: Ping
+    timeout: 264 seconds
+*** aeth (~Michael@wesnoth/umc-dev/developer/aethaeryn) has joined channel
+    #lisp                                                               [00:07]
+*** ebrasca` (~user@librepanther.com) has quit: Remote host closed the
+    connection                                                          [00:09]
+*** yangby (~secret@125.120.165.53) has joined channel #lisp            [00:10]
+*** yangby (~secret@125.120.165.53) has quit: Client Quit
+<pillton> beach: Sure. That system I linked to provides a mechanism for users
+          to request a specific specialization of an operator. I found this to
+          be easier than trying to implement systems which handle all of the
+          subtypes of REAL and the corresponding array subtypes for every CL
+          implementation.
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has quit: Quit:
+    My MacBook has gone to sleep. ZZZzzz…                               [00:11]
+<beach> Yes, I see.
+
+[Thu Jan 21 2021]
+*** You have joined channel #lisp                                       [00:36]
+*** Topic for #lisp: Common Lisp, the #1=(programmable . #1#) programming
+    language | <https://irclog.tymoon.eu/freenode/%23lisp>
+    <https://irclog.whitequark.org/lisp>
+    <http://ccl.clozure.com/irc-logs/lisp/> | offtopic --> #lispcafe
+*** #lisp: topic set by jackdaniel!~jack@turtleware.eu, 2020-08-04 08:40:20
+*** Users on #lisp: npfaro mrcom aartaka aeth wxie pillton johnjay Nilby
+    amb007 edgar-xyz patience_ iskander- adam4567 emaczen ZharX242 Alfr_
+    orivej aspr madage kini luckless fourier nullman igemnace troydm nightfly
+    swflint okflo` ukari matijja Kingsy charles` hendursaga Aurora_v_kosmose
+    galex-713 hnOsmium0001 villanella jealousmonk cyraxjoe amk totoro2021
+    X-Scale gabiruh lowryder anticrisis mathrick summerisle karlosz_
+    mrchampion Lord_of_Life euandreh_ trocado IPmonger waleee-cl
+*** Users on #lisp: albusp matryoshka Josh_2 fitzsim CrazyEddy frgo_ mtd_
+    perrier-jouet frodef jello_pudding Madvax mood jbgg rme froggey zaquest
+    xanderle _whitelogger __jrjsmrtn__ lottaquestions loli Codaraxis__
+    jonatack epony moon-child leo_song paul0 [d] theBlackDragon jerme_
+    kilimanjaro gum posthuman_egrego thijso elflng christopheroei[m
+    Lord_Nightmare cross emacsomancer tumdum thecoffemaker ggoes brandonz
+    SlashLife spacebat2 mr_yogurt vsync cpape joga Khisanth saturn2 flip214
+*** Users on #lisp: vhost- zmagii srji jurov rwcom60280385034 Sauvin hiroaki
+    cantstanya quazimodo hineios grobe0ba aindilis dvdmuckle ym Jesin n3t
+    Krystof dilated_dinosaur Yardanico HDurer dmiles[m] arichiardi[m] chipk[m]
+    stargazesparkle backinaweek[m] keizerrijk[m] even4void[m] solideogloria[m]
+    cairn dieggsy santiagopim[m] malaclyps_ etimmons MrtnDk[m] Gnuxie[m]
+    anotherone9999[m jdormit[m] katco susam ThaEwat quanta[m] ms[m] deselby
+    infra_red[m] Lolicon[m] ey[m] ey[m]1 kaisyu[m]
+*** Users on #lisp: ecm eymebolofscrumpe ey[m]2 jonas[m]2 mgsk phantomics
+    jasom datajerk specbot phoe6245 samebchase dwts flazh vaporatorius__
+    Ziemas Xach jackhill ane slyrus1 cg505 penguwin beach luna_is_here
+    mikecheck rlp10 fiddlerwoaroof mgsk_ dim madnificent OlCe Oddity- rixard
+    xantoz tomaw fengshaun pyc sm2n_ HiRE snits copec eschatologist gabot
+    mister_m sxmx CEnnis91 nckx ptr_0x0001 hhdave kapil_ tinga gutter Walex
+    nmg glamas Nikotiini hdasch wooden herlocksholmes justinmcp
+*** Users on #lisp: Fade cgay Mandus greeb lieven minion opcode ramus nydel
+    @fe[nl]ix Blkt acolarh dale Papa SumoSud0 azrazalea ozzloy gingerale
+    rvirding stylewarning phoe beaky madand johs ffwacom gjnoonan selwyn
+    chewbranca alanz splittist conjunctive griffinbyatt bytesighs Inoperable
+    dyelar Iolo FennecCode scymtym bjorkintosh joast tessier drmeister entel
+    Balooga yottabyte winny jgkamat [df] eagleflo jfb4 kingcons mseddon
+    simplegauss Patternmaster zigpaw10 pok MetaYan add^_
+*** Users on #lisp: antoszka sebboh creat brass _death aap gensym
+    interruptinuse ferada eMBee Ankhers trn Kabriel parisienne p_l jsatk z0d
+    zymurgy sukaeto bkst |3b| mtd jackdaniel ft zagura samebchase- micro
+    AdmiralBumbleBee ski shoshin White_Flame pent abbe_ jlpeters russell--
+    thonkpod devrtz heredoc hiredman kbtr esotericalgo billstclair shenghi1
+    idxu jdz gaze__ diamondbond XachX ecraven eta jxy phadthai MrFantastik
+    physpi krjst avicenna dnm shinohai shrysr bonz060 xristos kim\
+*** Users on #lisp: felideon markasoftware xi stux|RC-only loke lad
+    Firedancer_ ineiros APic cyberlard lavaflow alandipert ck_ daniel1302
+    mfiano stux|RC astronavt ccl-logbot gpiero malm lukego natj212 seisatsu
+    d4ryus banjiewen_ tychoish grfn sgithens karstensrage gendl jmercouris
+    mrSpec spal mpontillo myall Grauwolf rotty emma travv0 plisp docl
+    me_at_drewc_ca lonjil grumble Ekho Colleen cognemo buoy49 Grue``
+    himmAllRight terpri terrorjack jonathan| chrpape luis jrm ravndal dddddd
+*** Users on #lisp: jibanes SAL9000 xlei lansiir ark tmf v3ga pranavats
+    greaser|q gigetoo larme TMA remexre Oladon nopf iamFIREcracker ioa Tordek
+    vert2 flatheap deltab mgxm voidlily midre yonkunas easye dxtr drot mjl
+    ilmu gko Patzy sveit femi cpt_nemo knobo sbryant mgr_ guaqua Cthulhux
+    Demosthenex Posterdati wigust borodust nitrix bmansurov_ hvxgr norserob
+    nullheroes
+*** #lisp modes: +Ccntz
+*** #lisp was created on 2003-08-03 17:30:32
+<charles`> Nilby: doesn't work because eval uses some other environment. I
+           tried putting *package* and *readtable* inside, but doesn't work
+           still
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has joined
+    channel #lisp                                                       [00:38]
+*** patience_ (~ludston@119-18-2-5.771202.syd.nbn.aussiebb.net) has quit: Ping
+    timeout: 240 seconds                                                [00:39]
+<Nilby> Hmmm. Maybe you could wrap it with (let ((*package* (find-package
+        :whatever)) (*readtable* (copy-readtable))) (eval (uiop:read-file-form
+        "foo")))                                                        [00:42]
+<Nilby> It seems like it's only a good technique for simple things.     [00:43]
+<charles`> I am trying (eval
+<charles`>                  `(let ((theme ,theme)
+<charles`>                         (*readtable* ,*readtable*)
+<charles`>                         (*package* ,*package*))
+<charles`>                     ,(read-from-string
+<charles`>                       (uiop:read-file-string body-file))))
+<beach> charles`: Please use a paste site for code with more than one line.
+                                                                        [00:44]
+<charles`> okay
+<beach> Like plaster.tymoon.eu for instance.
+*** andreyorst (~andreyors@85.249.192.46) has joined channel #lisp      [00:45]
+*** pillton (~user@124.170.17.67) has quit: Quit: ERC (IRC client for Emacs
+    27.1)                                                               [00:47]
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has quit: Quit:
+    My MacBook has gone to sleep. ZZZzzz…                               [00:57]
+<npfaro> Is there any way to advance a loop in the body of it
+<npfaro> Say I have a loop like (loop for (a b) on '(1 2 3 4)) and if a+b > 10
+         then move past both and onto the next pair
+<npfaro> otherwise continue as normal
+*** wxie (~Thunderbi@222.64.216.101) has quit: Quit: wxie
+*** phoe6245 (~phoe6@my.learntosolveit.com) has quit: Quit: The Lounge -
+    https://thelounge.github.io                                         [00:59]
+*** judson_ (~textual@2601:645:4001:f180:5ca9:c13f:b48e:9bb2) has joined
+    channel #lisp                                                       [01:00]
+*** jeosol (4ceebae4@76-238-186-228.lightspeed.hstntx.sbcglobal.net) has
+    joined channel #lisp
+*** aartaka (~aartaka@5.1.53.226) has quit: Ping timeout: 256 seconds   [01:03]
+*** wxie (~Thunderbi@222.64.216.101) has joined channel #lisp           [01:07]
+*** orivej (orivej@gateway/vpn/mullvad/orivej) has quit: Ping timeout: 265
+    seconds                                                             [01:12]
+*** orivej (orivej@gateway/vpn/mullvad/orivej) has joined channel #lisp
+*** zerno (~zerno@45.10.140.177) has joined channel #lisp               [01:14]
+*** madage (~madage@gateway/tor-sasl/madage) has quit: Ping timeout: 268
+    seconds                                                             [01:16]
+*** madage (~madage@gateway/tor-sasl/madage) has joined channel #lisp   [01:17]
+<beach> npfaro: I think you would have to use FOR THEN for that.        [01:21]
+<npfaro> i ended up just writing a recursive function
+*** Stanley00 (~stanley00@unaffiliated/stanley00) has joined channel #lisp
+                                                                        [01:26]
+*** waleee-cl (uid373333@gateway/web/irccloud.com/x-gdpxxsrjlbfrhpbp) has
+    quit: Quit: Connection closed for inactivity                        [01:28]
+*** karlosz_
+    (~karlosz@2603-6080-6a04-4100-0000-0000-0000-0001.res6.spectrum.com) has
+    quit: Quit: karlosz_                                                [01:29]
+<npfaro> Any way to make it in SBCL so that when you type a string at the repl
+         it doesn't respond with #<(SIMPLE-ARRAY CHARACTER (9)) foo...
+         {1004DCC80F}>                                                  [01:35]
+<beach> If you type a string literal, it should print that same literal,
+        because string literals are self-evaluating objects, and they are
+        printed as usual.                                               [01:37]
+<npfaro> 
+<npfaro> "wello"
+<npfaro> #<(SIMPLE-ARRAY CHARACTER (5)) wel... {1004E44C3F}>
+<beach> You must have somehow clobbered print-object, or you have some printer
+        variable set wrong.                                             [01:38]
+<npfaro> I fixed it, had to set *print-vector-length* back to nil
+<npfaro> my bad!
+<npfaro> while you're here, do you know how to convert a vector to a (VECTOR
+         (UNSIGNED-BYTE 8)) easily                                      [01:39]
+<npfaro> I'm trying to use sb-ext:octets-to-string but it ain't workin'
+<npfaro> (sb-ext:octets-to-string #(72 101 108 108 111) :external-format
+         :utf-8) says
+<npfaro> The value
+<npfaro>   #(72 101 108 108 111)
+<npfaro> is not of type
+<npfaro>   (VECTOR (UNSIGNED-BYTE 8))
+<npfaro> when binding VECTOR
+<npfaro>    [Condition of type TYPE-ERROR]
+*** ebrasca (~user@librepanther.com) has joined channel #lisp           [01:40]
+<beach> Yes, when you use #(...) it creates a simple vector as I recall.
+<beach> It is not the contents that determine the type of an array.  It's how
+        it was created.                                                 [01:41]
+*** karlosz (~karlosz@cpe-71-70-231-26.nc.res.rr.com) has joined channel #lisp
+<beach> Try something like (make-array 5 :element-type '(unsigned-byte 8)
+        :initial-contents '(72 101 ...))
+<ebrasca> Good morning!                                                 [01:43]
+<beach> Hello ebrasca.                                                  [01:44]
+*** aartaka (~aartaka@176.59.214.7) has joined channel #lisp
+*** andreyorst` (~andreyors@85.249.192.46) has joined channel #lisp     [01:50]
+*** andreyorst` (~andreyors@85.249.192.46) has quit: Remote host closed the
+    connection
+<npfaro> @beach thanks, that worked :)                                  [01:51]
+<beach> Sure.                                                           [01:52]
+*** andreyorst (~andreyors@85.249.192.46) has quit: Ping timeout: 240 seconds
+                                                                        [01:53]
+*** zerno (~zerno@45.10.140.177) has quit: Quit: This computer has gone to
+    sleep                                                               [01:54]
+*** andreyorst` (~andreyors@85.249.192.46) has joined channel #lisp
+*** zerno (~zerno@45.10.140.177) has joined channel #lisp               [01:56]
+*** karlosz (~karlosz@cpe-71-70-231-26.nc.res.rr.com) has quit: Ping timeout:
+    264 seconds                                                         [01:59]
+*** khisanth_ (~Khisanth@24.sub-174-244-147.myvzw.com) has joined channel
+    #lisp                                                               [02:00]
+<aeth> npfaro: COERCE also works, but you generally want to use MAKE-ARRAY
+       because the :initial-contents part can be optimized when it's a quoted
+       list like that...                                                [02:02]
+*** vaporatorius__ (~vaporator@160.red-88-16-57.dynamicip.rima-tde.net) has
+    quit: Ping timeout: 246 seconds
+<aeth> i.e. (coerce #(1 2 3 4) '(simple-array (unsigned-byte 8) (*))) where *
+       is the size wildcard so you don't have to specify it (you could say (4)
+       instead of (*))
+*** Khisanth (~Khisanth@24.sub-174-244-147.myvzw.com) has quit: Ping timeout:
+    265 seconds                                                         [02:04]
+<npfaro> thanks!                                                        [02:05]
+<npfaro> I'm htting it for the night, thank you all for the help :)
+<aeth> In other words, use MAKE-ARRAY with a literal list as the
+       initial-contents if you're making the array in the first place.
+       Otherwise, if you already have a sequence and just need to convert it
+       to another, COERCE.
+<aeth> good night
+*** npfaro (~user@63.134.185.50) has quit: Quit: ERC (IRC client for Emacs
+    26.3)
+ERC> 
