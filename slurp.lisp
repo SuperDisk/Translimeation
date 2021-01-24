@@ -1,4 +1,16 @@
-(defparameter pointer-table-pos '(#x71174c #x713ebc))
+(ql:quickload 'cl-json)
+(ql:quickload 'drakma)
+
+;; Text opcodes
+
+;; 02 = newline
+;; 07 08 = wait for new line?
+;; 00 = null terminator
+;; 0c = color codes (00 = normal)
+;; 0e = player name
+;; 0b = move textbox to bottom??
+
+(defparameter pointer-table-pos '(#x71174c #x713CC4))
 
 (defmacro comment (&rest rest) nil)
 (comment
@@ -31,9 +43,7 @@
          (translate-fragment element)
          element)))
 
- (drakma:http-request *ibm-api-endpoint* :method :post
-                                         :basic-authorization (list "apikey" *ibm-api-key*)
-                                         :content (jswrap "そんなことして だいじょうぶかな?"))
+ (translate-fragment "そんなことして だいじょうぶかな?")
 
  (defparameter reformd9 (mapcar (lambda (x) (hack-reformat (cons (car x) (reflow-string (cdr x))))) *all-text-translated*))
  (defparameter slime-patched (read-rom "slime_original.gba"))
@@ -76,9 +86,6 @@
      (print translated)
      (push translated *all-text-translated*)))
 
- (defun hack-reformat (x)
-   (cons (car x) (list (cdr x))))
-
  (defun reflow-string (string)
    (setf string (remove-if (lambda (x) (equal x '(byte 2))) string))
    (let (output (i 0))
@@ -103,16 +110,33 @@
 
  (setf *print-vector-length* nil)
  (setf *print-length* 50)
- (defparameter *rom-data* (read-rom "slime.gba"))
+ (defparameter *rom-data* (read-rom "slime_original.gba"))
  (defparameter *pointer-table-data* (apply #'subseq *rom-data* pointer-table-pos))
  (defparameter *pointer-table* (parse-pointer-table *pointer-table-data*))
  (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
  (defparameter *translation-table* (reverse (load-translation-table "SlimeDialogJIS.tbl")))
+ (defparameter *small-translation-table* (reverse (load-translation-table "Slime_SmallJIS.tbl")))
+ (defparameter *ignore* '(1982 1895 1897 1900 50))
  (defparameter *all-texts*
-   (mapcar (lambda (x)
-             (cons (car x) (decode-string *translation-table* (cdr x) *rom-data*)))
-           *pointer-table2*))
- )
+   (handler-bind ((malformed-string-error #'skip-malformed-string))
+     (load-all-texts *rom-data* *pointer-table* *translation-table* *small-translation-table* *ignore*)))
+
+ (defun find-ptr (x)
+   (+ (car pointer-table-pos) (* 4 x))))
+
+(define-condition malformed-string-error (error)
+  ((text :initarg :text :reader text)))
+(defun skip-malformed-string (c)
+  (invoke-restart 'skip-malformed-string))
+
+(defun load-all-texts (rom pointer-table translation-table small-translation-table &optional (ignore nil))
+  (loop for el in (remove-if (lambda (x) (member (car x) ignore)) pointer-table)
+        for (idx . addr) = el
+        for entry = (restart-case (decode-string translation-table small-translation-table addr rom)
+                      (skip-malformed-string ()
+                        (format t "Malformed string at table idx ~a: ~a~%" idx addr)
+                        nil))
+        when entry collect (cons idx entry)))
 
 (defun invert-alist (alist)
   (loop for (a . b) in alist
@@ -133,30 +157,78 @@
           while line
           collect (parse-translation-table-entry line))))
 
-(defun decode-string (translation-table offset rom &optional (cur-str ""))
+(defun remove-reflow-opcodes (string)
+  (let ((stripped (remove-if (lambda (x)
+                               (member x '((newline) (byte #x07) (byte #x08)) :test #'equal))
+                             string)))
+    (labels ((join-strs (ls &optional (cur-str ""))
+               (cond
+                 ((null ls) (if (string= cur-str "") nil (list cur-str)))
+                 ((stringp (car ls)) (join-strs (cdr ls) (concatenate 'string cur-str (car ls))))
+                 ((not (string= cur-str "")) (list* cur-str (car ls) (join-strs (cdr ls))))
+                 (t (cons (car ls) (join-strs (cdr ls)))))))
+      (join-strs stripped))))
+(defun decode-small-string (translation-table small-translation-table offset rom &optional (cur-str ""))
+  (let* ((cur (elt rom offset))
+         (translated (assoc cur small-translation-table)))
+    (cond
+      ((= cur #x05)
+       (cons (list 'name cur-str) (decode-string translation-table small-translation-table (1+ offset) rom)))
+      ((not translated)
+       (error 'malformed-string-error :text "yeah")
+       nil)
+      (t (decode-small-string translation-table small-translation-table (1+ offset) rom (concatenate 'string cur-str (cdr translated)))))))
+(defun decode-string (translation-table small-translation-table offset rom &optional (cur-str ""))
   (let ((cur (elt rom offset))
         (nxt (elt rom (1+ offset)))
         mapped-char)
     (cond
       ((zerop cur) (if (string= cur-str "") nil (list cur-str)))
       ((setf mapped-char (assoc (logior (ash cur 8) nxt) translation-table))
-       (decode-string translation-table (+ 2 offset) rom (concatenate 'string cur-str (cdr mapped-char))))
+       (decode-string translation-table small-translation-table (+ 2 offset) rom (concatenate 'string cur-str (cdr mapped-char))))
       ((setf mapped-char (assoc cur translation-table))
-       (decode-string translation-table (1+ offset) rom (concatenate 'string cur-str (cdr mapped-char))))
-      ((not (string= cur-str "")) (list* cur-str (decode-string translation-table offset rom "")))
+       (decode-string translation-table small-translation-table (1+ offset) rom (concatenate 'string cur-str (cdr mapped-char))))
+      ((not (string= cur-str "")) (list* cur-str (decode-string translation-table small-translation-table offset rom "")))
+      ((= cur #x05) ; name
+       (decode-small-string translation-table small-translation-table (1+ offset) rom))
       ((= cur #x0c) ; color codes
-       (cons `(color ,nxt) (decode-string translation-table (+ 2 offset) rom cur-str)))
-      (t (cons `(byte ,cur) (decode-string translation-table (1+ offset) rom cur-str))))))
-(defun encode-string (inv-translation-table string)
-  (flet ((encode-str (string)
+       (cons `(color ,nxt) (decode-string translation-table small-translation-table (+ 2 offset) rom cur-str)))
+      ((= cur #x02) ; new line
+       (cons '(newline) (decode-string translation-table small-translation-table (1+ offset) rom cur-str)))
+      ((= cur #x0e) ; player name
+       (cons '(player-name) (decode-string translation-table small-translation-table (1+ offset) rom cur-str)))
+      (t (cons `(byte ,cur) (decode-string translation-table small-translation-table (1+ offset) rom cur-str))))))
+(defun encode-string (inv-translation-table inv-translation-table-small string)
+  (flet ((encode-str (string tbl)
            (loop for char across string
-                 for encoded = (assoc char inv-translation-table :test #'string=)
+                 for encoded = (assoc char tbl :test #'string=)
                  collect (if encoded (cdr encoded) 94))))
     (cond
       ((null string) nil)
-      ((stringp (car string)) (append (encode-str (car string)) (encode-string inv-translation-table (cdr string))))
-      ((equal (caar string) 'color) (list* #x0c (cadar string) (encode-string inv-translation-table (cdr string))))
-      ((equal (caar string) 'byte) (cons (cadar string) (encode-string inv-translation-table (cdr string)))))))
+      ((stringp (car string))
+       (append
+        (encode-str (car string) inv-translation-table)
+        (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'newline)
+       (cons #x02 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'name)
+       (append '(#x05)
+               (encode-str (cadar string) inv-translation-table-small)
+               '(#x05)
+               (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'color)
+       (list* #x0c
+              (cadar string)
+              (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'player-name)
+       (cons #x0e (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'byte)
+       (cons (cadar string) (encode-string inv-translation-table inv-translation-table-small (cdr string))))))))
+(defun verify-isomorphic (string tt tts)
+  (let* ((encoded (encode-string (invert-alist tt) (invert-alist tts) string))
+         (decoded (decode-string tt tts 0 (append encoded '(0 0)))))
+    (if (not (equal decoded string))
+        string)))
 
 (defun parse-pointer-table (table-data)
   (flet ((nums->pointer (b1 b2 b3 b4)
@@ -174,7 +246,7 @@
   (flet ((insert-string (bytes)
            (loop for byte in bytes do
              (cond
-               ((= byte #x010c)
+               ((= byte #x010c) ; temporary hack to allow insertion of multi-byte character (W,w)
                 (vector-push #x01 rom)
                 (vector-push #x0c rom))
                ((= byte #x010b)
