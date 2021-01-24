@@ -11,6 +11,22 @@
 ;; 0b = move textbox to bottom??
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
+(defparameter *letter-sizes*
+  '((#\A . 9) (#\B . 8) (#\C . 9) (#\D . 8)
+    (#\E . 7) (#\F . 7) (#\G . 9) (#\H . 8)
+    (#\I . 6) (#\J . 7) (#\K . 8) (#\L . 7)
+    (#\M . 9) (#\N . 8) (#\O . 10) (#\P . 7)
+    (#\Q . 10) (#\R . 8) (#\S . 7) (#\T . 8)
+    (#\U . 8) (#\V . 9) (#\W . 11) (#\X . 8)
+    (#\Y . 9) (#\Z . 7) (#\a . 8) (#\b . 8)
+    (#\c . 8) (#\d . 8) (#\e . 8) (#\f . 7)
+    (#\g . 8) (#\h . 7) (#\i . 4) (#\j . 6)
+    (#\k . 7) (#\l . 6) (#\m . 10) (#\n . 8)
+    (#\o . 9) (#\p . 8) (#\q . 8) (#\r . 6)
+    (#\s . 7) (#\t . 6) (#\u . 8) (#\v . 9)
+    (#\w . 11) (#\x . 8) (#\y . 8) (#\z . 7)
+    (#\Space . 1)))
+(defparameter *textbox-size* 206)
 
 (defmacro comment (&rest rest) nil)
 (comment
@@ -86,7 +102,7 @@
      (print translated)
      (push translated *all-text-translated*)))
 
- (defun reflow-string (string)
+ (defun old-reflow-string (string)
    (setf string (remove-if (lambda (x) (equal x '(byte 2))) string))
    (let (output (i 0))
      (loop for elm in string
@@ -168,6 +184,46 @@
                  ((not (string= cur-str "")) (list* cur-str (car ls) (join-strs (cdr ls))))
                  (t (cons (car ls) (join-strs (cdr ls)))))))
       (join-strs stripped))))
+(defun reflow-string (str)
+  (flet ((word-width (word)
+           (loop for char across word
+                 sum (or (cdr (assoc char *letter-sizes*)) 6))))
+    (let ((out nil)
+          (cur-str "")
+          (pixels 0)
+          (need-wait nil))
+      (loop for elem in str do
+        (if (not (stringp elem))
+            (progn
+              (when (not (string= cur-str ""))
+                (push cur-str out))
+              (push elem out)
+              (setf cur-str ""))
+            (let ((words (my-split elem (lambda (x) (string= x " ")))))
+              (loop for word in words do
+                (progn
+                  (incf pixels (1+ (word-width word)))
+                  (when (>= pixels *textbox-size*)
+                    (when (not (string= cur-str ""))
+                      (push cur-str out))
+                    (when need-wait
+                      (push '(byte 7) out)
+                      (push '(byte 8) out))
+                    (setf need-wait (not need-wait))
+                    (push '(newline) out)
+                    (setf pixels 0)
+                    (setf cur-str ""))
+                  (setf cur-str
+                        (concatenate 'string
+                                     cur-str
+                                     (when (not (string= cur-str "")) " ")
+                                     word))))
+              (when (not (string= cur-str ""))
+                (push cur-str out)))))
+      (when (equal (car out) '(newline))
+        (setf out (cdr out)))
+      (reverse out))))
+
 (defun decode-small-string (translation-table small-translation-table offset rom &optional (cur-str ""))
   (let* ((cur (elt rom offset))
          (translated (assoc cur small-translation-table)))
