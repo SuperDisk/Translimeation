@@ -1,5 +1,9 @@
+*-api-key.txt
 *.exe
 *.lnk
 *.gba
 *.sav
+*.ss*
 /**/
+!/text-dumps/
+!/text-dumps/*
