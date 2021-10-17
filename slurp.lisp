@@ -33,8 +33,8 @@
     (#\5 . 7) (#\6 . 7) (#\7 . 7) (#\8 . 7) (#\9 . 7)))
 (defparameter *textbox-size* 208)
 
-(defmacro comment (&rest rest) nil)
-(comment
+#+nil
+(progn
  (defparameter *ibm-api-endpoint* "https://api.us-south.language-translator.watson.cloud.ibm.com/instances/63165d7f-1133-4eff-94bd-30c445d34bba/v3/translate?version=2018-05-01")
 
  (defparameter *ibm-api-key*
@@ -45,9 +45,6 @@
  (defparameter *deepl-api-key*
    (with-open-file (stream "deepl-api-key.txt")
      (read stream)))
-
- (defun jswrap (txt)
-   (cl-json:encode-json-to-string `(("text" . ,(list txt)) ("model_id" . "ja-en"))))
 
  (defun translate-fragment-ibm (frag)
    (setf frag (remove #\『 frag)) ;hack
@@ -62,9 +59,10 @@
                   (drakma:http-request *ibm-api-endpoint* :method :post
                                                           :content-type "application/json"
                                                           :basic-authorization (list "apikey" *ibm-api-key*)
-                                                          :content (jswrap frag)
+                                                          :content (cl-json:encode-json-to-string
+                                                                    `(("text" . (,frag))
+                                                                      ("model_id" . "ja-en")))
                                                           :want-stream t))))))))
-
  (defun translate-fragment-deepl (frag)
    (setf frag (remove #\『 frag)) ;hack
    (if (string= frag "")
@@ -82,7 +80,6 @@
                                                      ("text" . ,frag)
                                                      ("target_lang" . "EN"))
                                        :want-stream t))))))))
-
  (defun translate-string (string)
    (loop for element in string
          collect
@@ -93,128 +90,9 @@
             (list (car element) (translate-fragment-deepl (cadr element))))
            (t element))))
 
- (defun xmlify (string)
-   (let ((xmlified
-           (loop for element in (cdr string)
-                 collect
-                 (cond
-                   ((stringp element) (remove #\『 element))
-                   ((consp element)
-                    (cond
-                      ((equal (car element) 'name) '(:name))
-                      ((equal (car element) 'color) `(:color :val ,(cadr element)))
-                      ((equal (car element) 'byte) `(:byte :val ,(cadr element)))
-                      (t (cons (write-to-string (car element)) (cdr element)))))
-                   (t element)))))
-     (pithy-xml:print-xml
-      `(:text :number ,(car string)
-              ,@xmlified))))
-
- (defun kw2int (kw)
-   (parse-integer (string kw)))
-
- (defun un-xmlify (string)
-   (let ((parsed (xmls:parse-to-list string)))
-     (let* ((number (parse-integer (car (cdaadr parsed))))
-            (parsed (cddr parsed))
-            (decoded
-              (loop for element in parsed
-                    collect
-                    (cond
-                      ((stringp element) element)
-                      ((consp element)
-                       (cond
-                         ((equal (car element) "Name") '(name))
-                         ((equal (car element) "Color") (list 'color (parse-integer (cadr (assoc "val" (cadr element) :test #'string=)))))
-                         ((equal (car element) "Byte") (list 'byte (parse-integer (cadr (assoc "val" (cadr element) :test #'string=)))))
-                         (t (list (read-from-string (car element))))))
-                      (t "wello")))))
-       (cons number decoded))))
-
- (defun translate-string-xml (frag)
-   (if (string= frag "")
-       ""
-       (cdr
-        (assoc :text
-               (cadr
-                (assoc
-                 :translations
-                 (cl-json:decode-json
-                  (drakma:http-request *deepl-api-endpoint*
-                                       :external-format-out :utf-8
-                                       :method :post
-                                       :parameters `(("auth_key" . ,*deepl-api-key*)
-                                                     ("text" . ,frag)
-                                                     ("target_lang" . "EN")
-                                                     ("tag_handling" . "xml")
-                                                     ("split_sentences" . "nonewlines")
-                                                     )
-                                       :want-stream t))))))))
-
- (defun translate-string-deepl-good (string)
-   (let* ((xmled (xmlify string))
-          (deepled (translate-string-xml xmled))
-          (un-xmled (un-xmlify deepled)))
-     un-xmled))
-
- (defun zip-name (orig new)
-   (let* ((origname (find-if (lambda (x) (and
-                                          (consp x)
-                                          (equal (car x) 'name)))
-                             orig)))
-     (loop for element in new
-           collect
-           (cond
-             ((and (consp element) (equal (car element) 'name))
-              origname)
-             (t element)))))
-
- (setf att2
-       (loop for otxt in origcrud
-             for ntxt in *all-text-translated*
-             collect (zip-name otxt ntxt)))
-
- (setf att3
-       (loop for string in att2
-             collect
-             (loop for element in string
-                   collect
-                   (cond
-                     ((equal element '(playername)) '(player-name))
-                     (t element)))))
-
  (translate-fragment-deepl "そんなことして だいじょうぶかな?")
+ (translate-fragment-ibm "そんなことして だいじょうぶかな?")
 
- (defparameter reformd9 (mapcar (lambda (x) (hack-reformat (cons (car x) (reflow-string (cdr x))))) *all-text-translated*))
-
-
- (defparameter reformd10 (mapcar (lambda (x) (hack-reformat (cons (car x) (reflow-string (cdr x))))) att2))
-
- (defparameter slime-patched (read-rom "slime_original.gba"))
-
- (patch-rom slime-patched *inv-translation-table* reformd9)
- (dump-rom slime-patched "translated10.gba")
-
- (defun extract-pointer-table (rom outfile)
-   (with-open-file (stream outfile :direction :output
-                                   :element-type '(unsigned-byte 8)
-                                   :if-exists :supersede)
-     (write-sequence (apply #'subseq rom pointer-table-pos) stream)))
- (defun extract-strings (rom ptable outfile)
-   (with-open-file (stream outfile :direction :output
-                                   :element-type '(unsigned-byte 8)
-                                   :if-exists :supersede)
-     (loop for ptr in (subseq ptable 150)
-           do (progn (write-sequence (string-at-pointer rom ptr) stream)))))
- (defun dump-all-text (fname txts)
-   (progn
-     (with-open-file (stream fname :direction :output
-                                   :external-format :sjis)
-       (with-standard-io-syntax
-         (loop for txt in txts do
-           (prin1 txt stream)
-           (terpri stream))))
-     nil))
  (defun dump-all-text-utf (fname txts)
    (progn
      (with-open-file (stream fname :direction :output
@@ -225,6 +103,7 @@
            (prin1 txt stream)
            (terpri stream))))
      nil))
+
  (defun read-all-text-utf (fname)
    (with-open-file (stream fname :direction :input
                                  :external-format :utf-8)
@@ -234,41 +113,36 @@
 
  (defparameter *all-text-translated* nil)
 
- (loop for string in (nthcdr 1403 *all-texts*) do
-   (let* ((stripped (remove-reflow-opcodes string))
-          (translated (translate-string-deepl-good stripped)))
-     (print translated)
-     (push translated *all-text-translated*)))
+ ;; note: something special about text 1403 --- might be ducktor cid's crashing line
 
+ ;; This block of code isn't wrapped in a function so that if the process gets interrupted, we can still
+ ;; salvage the already-processed translated texts, as running everything through the API takes a while.
  (loop for string in *all-texts* do
    (let* ((stripped (remove-reflow-opcodes string))
           (translated (translate-string stripped)))
      (print translated)
      (push translated *all-text-translated*)))
 
- (defparameter *translated-reflowed*
-   (mapcar #'reflow-string *all-text-translated*))
-
  (defun trans (f)
    (let ((slime-patched (read-rom "slime_original.gba")))
-     (patch-rom slime-patched (invert-alist *translation-table*) (invert-alist *small-translation-table*) (mapcar #'reflow-string *all-text-translated*))
+     (patch-rom slime-patched
+                (invert-alist *translation-table*)
+                (invert-alist *small-translation-table*)
+                (mapcar #'reflow-string *all-text-translated*))
      (dump-rom slime-patched f)))
 
- (setf *print-vector-length* nil)
- (setf *print-length* 50)
+ ;; All the necessary data to create *all-texts*, which is the useful bit of data we need
+ ;; to create *all-text-translated*, which is injected back into the ROM.
  (defparameter *rom-data* (read-rom "slime_original.gba"))
  (defparameter *pointer-table-data* (apply #'subseq *rom-data* pointer-table-pos))
  (defparameter *pointer-table* (parse-pointer-table *pointer-table-data*))
  (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
  (defparameter *translation-table* (reverse (load-translation-table "SlimeDialogJIS.tbl")))
  (defparameter *small-translation-table* (reverse (load-translation-table "Slime_SmallJIS.tbl")))
- (defparameter *ignore* (append (range 52) '(1892 1895 1897 1900 50)))
+ (defparameter *ignore* (append (range 52) '(1892 1895 1897 1900)))
  (defparameter *all-texts*
    (handler-bind ((malformed-string-error #'skip-malformed-string))
      (load-all-texts *rom-data* *pointer-table* *translation-table* *small-translation-table* *ignore*)))
-
- (defun find-ptr (x)
-   (+ (car pointer-table-pos) (* 4 x)))
 
  )
 
@@ -286,10 +160,6 @@
                         nil))
         when entry collect (cons idx entry)))
 
-(defun take-while (pred list)
-  (loop for x in list
-        while (funcall pred x)
-        collect x))
 (defun range (max &key (min 0) (step 1))
   (loop for n from min below max by step
         collect n))
@@ -412,7 +282,6 @@
                  collect (cdr encoded))))
     (cond
       ((null string) nil)
-      ((null (car string)) (encode-string inv-translation-table inv-translation-table-small (cdr string))) ; hack to remove misplaced nils from translator api
       ((stringp (car string))
        (append
         (encode-str (car string) inv-translation-table)
@@ -459,7 +328,7 @@
                 (vector-push #x0c rom))
                ((= byte #x010b)
                 (vector-push #x01 rom)
-                (vector-push #x0c rom))
+                (vector-push #x0b rom))
                (t (vector-push byte rom))))
            (vector-push 0 rom))) ; null terminator
     (let ((pointer-patches nil))
