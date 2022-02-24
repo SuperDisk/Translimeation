@@ -159,7 +159,7 @@
 (159 (NAME "ファングリオ") "Mummies can walk thru walls!" (NEWLINE) "They don't just disappear." (BYTE 7) (BYTE 8)) 
 (160 (NAME "Hooly") "I'm Hooly. I don't" (NEWLINE) "need this message." (BYTE 7) (BYTE 8)) 
 (161 (NAME "Bo") "I'm Bo. I don't" (NEWLINE) "need this message." (BYTE 7) (BYTE 8)) 
-(162 (NAME "スラジョ-") "『た たすかったぁ～!!" (NEWLINE) " ありがとう " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!!" (BYTE 7) (BYTE 8) (NEWLINE) "『何でボクだけ こんなところに…。" (NEWLINE) " もう 助からないかと おもったよ…。" (BYTE 7) (BYTE 8) (NEWLINE) "『とにかく はやくかえろうよ!" (NEWLINE) " ボクたかいところ だめなんだ…。" (BYTE 7) (BYTE 8) (NEWLINE) "『それじゃ " (COLOR 1) (PLAYER-NAME) (COLOR 0) " お先にっ!!" (BYTE 7) (BYTE 8)) 
+(162 (NAME "スラジョ-") "I-I'm saved!!" (NEWLINE) "Thanks, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!!" (BYTE 7) (BYTE 8) (NEWLINE) "Why as it only me here?" (NEWLINE) "I thought I'd never be saved." (BYTE 7) (BYTE 8) (NEWLINE) "Anyway, take me home now!" (NEWLINE) "I'm scared of heights." (BYTE 7) (BYTE 8) (NEWLINE) "Well then, " (COLOR 1) (PLAYER-NAME) (COLOR 0) ", pardon me!!" (BYTE 7) (BYTE 8)) 
 (163 (NAME "ママ") "『わたしは ママです。私は" (NEWLINE) " このメッセ-ジをひつようとしません。" (BYTE 7) (BYTE 8)) 
 (164 (NAME "ブッチ-ナ") "『こんな奥に なかまが いるなんて" (NEWLINE) " おもって なかったでしょう?" (BYTE 7) (BYTE 8)) 
 (165 (NAME "コゼニかんばん") "『ワシは 助けられるもんじゃないぞい。" (NEWLINE) " バグじゃ バグじゃ。" (BYTE 7) (BYTE 8)) 
