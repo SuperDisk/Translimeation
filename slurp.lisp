@@ -33,118 +33,147 @@
     (#\5 . 7) (#\6 . 7) (#\7 . 7) (#\8 . 7) (#\9 . 7)))
 (defparameter *textbox-size* 208)
 
+(defun get-in (indices list)
+  (loop for index in indices do
+    (cond
+      ((numberp index) (setf list (elt list index)))
+      (t (setf list (cdr (assoc index list)))))
+        finally (return list)))
+
 #+nil
 (progn
- (defparameter *ibm-api-endpoint* "https://api.us-south.language-translator.watson.cloud.ibm.com/instances/63165d7f-1133-4eff-94bd-30c445d34bba/v3/translate?version=2018-05-01")
+  (defparameter *ibm-api-endpoint* "https://api.us-south.language-translator.watson.cloud.ibm.com/instances/63165d7f-1133-4eff-94bd-30c445d34bba/v3/translate?version=2018-05-01")
+  (defparameter *ibm-api-key*
+    (with-open-file (stream "ibm-api-key.txt")
+      (read stream)))
 
- (defparameter *ibm-api-key*
-   (with-open-file (stream "ibm-api-key.txt")
-     (read stream)))
+  (defparameter *deepl-api-endpoint* "https://api.deepl.com/v2/translate")
+  (defparameter *deepl-api-key*
+    (with-open-file (stream "deepl-api-key.txt")
+      (read stream)))
 
- (defparameter *deepl-api-endpoint* "https://api.deepl.com/v2/translate")
- (defparameter *deepl-api-key*
-   (with-open-file (stream "deepl-api-key.txt")
-     (read stream)))
+  (defparameter *openai-api-endpoint* "https://api.openai.com/v1/chat/completions")
+  (defparameter *openai-api-key*
+    (with-open-file (stream "openai-api-key.txt")
+      (read stream)))
+  (defparameter *openai-prompt* "You are a Japanese to English translator. You will receive S-expressions which contain strings of Japanese text, which you will translate into English. The text may be split into multiple strings, but this does not indicate any split between sentences or any other kind of delimiting-- treat the strings as if they were one continuous one.")
 
- (defun translate-fragment-ibm (frag)
-   (setf frag (remove #\『 frag)) ;hack
-   (if (string= frag "")
-       ""
-       (cdr
-        (assoc :translation
-               (cadr
-                (assoc
-                 :translations
-                 (cl-json:decode-json
-                  (drakma:http-request *ibm-api-endpoint* :method :post
-                                                          :content-type "application/json"
-                                                          :basic-authorization (list "apikey" *ibm-api-key*)
-                                                          :content (cl-json:encode-json-to-string
-                                                                    `(("text" . (,frag))
-                                                                      ("model_id" . "ja-en")))
-                                                          :want-stream t))))))))
- (defun translate-fragment-deepl (frag)
-   (setf frag (remove #\『 frag)) ;hack
-   (if (string= frag "")
-       ""
-       (cdr
-        (assoc :text
-               (cadr
-                (assoc
-                 :translations
-                 (cl-json:decode-json
-                  (drakma:http-request *deepl-api-endpoint*
-                                       :external-format-out :utf-8
-                                       :method :post
-                                       :parameters `(("auth_key" . ,*deepl-api-key*)
-                                                     ("text" . ,frag)
-                                                     ("target_lang" . "EN"))
-                                       :want-stream t))))))))
- (defun translate-string (string)
-   (loop for element in string
-         collect
-         (cond
-           ((stringp element)
-            (translate-fragment-deepl element))
-           ((and (consp element) (equal (car element) 'name))
-            (list (car element) (translate-fragment-deepl (cadr element))))
-           (t element))))
+  (defun translate-fragment-ibm (frag)
+    (setf frag (remove #\『 frag)) ;hack
+    (if (string= frag "")
+        ""
+        (cdr
+         (assoc :translation
+                (cadr
+                 (assoc
+                  :translations
+                  (cl-json:decode-json
+                   (drakma:http-request *ibm-api-endpoint* :method :post
+                                                           :content-type "application/json"
+                                                           :basic-authorization (list "apikey" *ibm-api-key*)
+                                                           :content (cl-json:encode-json-to-string
+                                                                     `(("text" . (,frag))
+                                                                       ("model_id" . "ja-en")))
+                                                           :want-stream t))))))))
+  (defun translate-fragment-deepl (frag)
+    (setf frag (remove #\『 frag)) ;hack
+    (if (string= frag "")
+        ""
+        (cdr
+         (assoc :text
+                (cadr
+                 (assoc
+                  :translations
+                  (cl-json:decode-json
+                   (drakma:http-request *deepl-api-endpoint*
+                                        :external-format-out :utf-8
+                                        :method :post
+                                        :parameters `(("auth_key" . ,*deepl-api-key*)
+                                                      ("text" . ,frag)
+                                                      ("target_lang" . "EN"))
+                                        :want-stream t))))))))
 
- (translate-fragment-deepl "そんなことして だいじょうぶかな?")
- (translate-fragment-ibm "そんなことして だいじょうぶかな?")
+  (defun translate-gpt4 (string)
+    (read-from-string
+     (get-in '(:choices 0 :message :content)
+             (cl-json:decode-json
+              (drakma:http-request *openai-api-endpoint*
+                                   :method :post
+                                   :content-type "application/json"
+                                   :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" *openai-api-key*)))
+                                   :want-stream t
+                                   :content (cl-json:encode-json-to-string
+                                             `(("model" . "gpt-4")
+                                               ("messages" . ((("role" . "system")
+                                                               ("content" . ,*openai-prompt*))
+                                                              (("role" . "user")
+                                                               ("content" . ,(write-to-string string))))))))))))
 
- (defun dump-all-text-utf (fname txts)
-   (progn
-     (with-open-file (stream fname :direction :output
-                                   :external-format :utf-8
-                                   :if-exists :supersede)
-       (with-standard-io-syntax
-         (loop for txt in txts do
-           (prin1 txt stream)
-           (terpri stream))))
-     nil))
+  (defun translate-string (string)
+    (loop for element in string
+          collect
+          (cond
+            ((stringp element)
+             (translate-fragment-deepl element))
+            ((and (consp element) (equal (car element) 'name))
+             (list (car element) (translate-fragment-deepl (cadr element))))
+            (t element))))
 
- (defun read-all-text-utf (fname)
-   (with-open-file (stream fname :direction :input
-                                 :external-format :utf-8)
-     (loop for sexp = (read stream nil)
-           while sexp
-           collect sexp)))
+  (translate-fragment-deepl "そんなことして だいじょうぶかな?")
+  (translate-fragment-ibm "そんなことして だいじょうぶかな?")
 
- (defparameter *all-text-translated* nil)
+  (defun dump-all-text-utf (fname txts)
+    (progn
+      (with-open-file (stream fname :direction :output
+                                    :external-format :utf-8
+                                    :if-exists :supersede)
+        (with-standard-io-syntax
+          (loop for txt in txts do
+            (prin1 txt stream)
+            (terpri stream))))
+      nil))
 
- ;; note: something special about text 1403 --- might be ducktor cid's crashing line
+  (defun read-all-text-utf (fname)
+    (with-open-file (stream fname :direction :input
+                                  :external-format :utf-8)
+      (loop for sexp = (read stream nil)
+            while sexp
+            collect sexp)))
 
- ;; This block of code isn't wrapped in a function so that if the process gets interrupted, we can still
- ;; salvage the already-processed translated texts, as running everything through the API takes a while.
- (loop for string in *all-texts* do
-   (let* ((stripped (remove-reflow-opcodes string))
-          (translated (translate-string stripped)))
-     (print translated)
-     (push translated *all-text-translated*)))
+  (defparameter *all-text-translated* nil)
 
- (defun trans (f)
-   (let ((slime-patched (read-rom "slime_original.gba")))
-     (patch-rom slime-patched
-                (invert-alist *translation-table*)
-                (invert-alist *small-translation-table*)
-                (mapcar #'reflow-string *all-text-translated*))
-     (dump-rom slime-patched f)))
+  ;; note: something special about text 1403 --- might be ducktor cid's crashing line
 
- ;; All the necessary data to create *all-texts*, which is the useful bit of data we need
- ;; to create *all-text-translated*, which is injected back into the ROM.
- (defparameter *rom-data* (read-rom "slime_original.gba"))
- (defparameter *pointer-table-data* (apply #'subseq *rom-data* pointer-table-pos))
- (defparameter *pointer-table* (parse-pointer-table *pointer-table-data*))
- (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
- (defparameter *translation-table* (reverse (load-translation-table "SlimeDialogJIS.tbl")))
- (defparameter *small-translation-table* (reverse (load-translation-table "Slime_SmallJIS.tbl")))
- (defparameter *ignore* (append (range 52) '(1892 1895 1897 1900)))
- (defparameter *all-texts*
-   (handler-bind ((malformed-string-error #'skip-malformed-string))
-     (load-all-texts *rom-data* *pointer-table* *translation-table* *small-translation-table* *ignore*)))
+  ;; This block of code isn't wrapped in a function so that if the process gets interrupted, we can still
+  ;; salvage the already-processed translated texts, as running everything through the API takes a while.
+  (loop for string in *all-texts* do
+    (let* ((stripped (remove-reflow-opcodes string))
+           (translated (translate-string stripped)))
+      (print translated)
+      (push translated *all-text-translated*)))
 
- )
+  (defun trans (f)
+    (let ((slime-patched (read-rom "slime_original.gba")))
+      (patch-rom slime-patched
+                 (invert-alist *translation-table*)
+                 (invert-alist *small-translation-table*)
+                 (mapcar #'reflow-string *all-text-translated*))
+      (dump-rom slime-patched f)))
+
+  ;; All the necessary data to create *all-texts*, which is the useful bit of data we need
+  ;; to create *all-text-translated*, which is injected back into the ROM.
+  (defparameter *rom-data* (read-rom "slime_original.gba"))
+  (defparameter *pointer-table-data* (apply #'subseq *rom-data* pointer-table-pos))
+  (defparameter *pointer-table* (parse-pointer-table *pointer-table-data*))
+  (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
+  (defparameter *translation-table* (reverse (load-translation-table "SlimeDialogJIS.tbl")))
+  (defparameter *small-translation-table* (reverse (load-translation-table "Slime_SmallJIS.tbl")))
+  (defparameter *ignore* (append (range 52) '(1892 1895 1897 1900)))
+  (defparameter *all-texts*
+    (handler-bind ((malformed-string-error #'skip-malformed-string))
+      (load-all-texts *rom-data* *pointer-table* *translation-table* *small-translation-table* *ignore*)))
+
+  )
 
 (define-condition malformed-string-error (error)
   ((text :initarg :text :reader text)))
