@@ -48,6 +48,7 @@
 つうしんたいせん＞LINK Battle
 
 ドキドキ! ツボくら～っしゅ!＞Urn Crash! PANIC!
+ドキツボ＞Urn PANIC (short-hand for the above)
 
 メラゾマ＞Kafrizz
 
@@ -57,10 +58,10 @@
 スラしょうりゅう＞Slashouryuu = Shoryuflan = street fighter reference (this is probably a debug/hidden name)
 スラフォード＞Flanford (this is also probably a debug/hidden name)
 
-ス-ラ＞        (Sliiiii(me))
-スラック＞     (Sli(me) kku, Slack, Slick)
-スラゾ-＞      (Sli(me) + zor or japanese name ending)
-バブすけ＞     (Bubble + japanese name ending)
+ス-ラ＞            (Sliiiii(me))
+スラック＞         (Sli(me) kku, Slack, Slick)
+スラゾ-＞          (Sli(me) + zor or japanese name ending)
+バブすけ＞         (Bubble + japanese name ending)
 ドラフィ-ユ＞Drafille
 テンシ-ラ＞        (pun of heaven + sheila)
 メカキチ＞         (mecha + kichi)
@@ -145,22 +146,23 @@
 
 
 
-モエ-ル＞
-ヒエ-ル＞
-ドラハルトJR＞
-ギガお＞
-ゴレムズ＞
-バットン＞
-ゴれみ＞
-ロ-ドン＞
+モエ-ル＞Fiery
+ヒエ-ル＞Freezy
+ドラハルトJR＞                (lit. Drahart JR, but I think "Draku Jr" makes sense because of Drakulard)
+ギガお＞                      (lit. GIGA-O, okess has been localizing speech as GRUG-UG so maybe something like GRUG?)
+ゴレムズ＞                    (lit. Golemz, "male" Golem robot piloted by a Platypunk)
+バットン＞                    (lit. "Bat"ton pun on Bat for vampire bat.)
+ゴれみ＞                      (lit. Golemi, "female" Golem in love with Golemz)
+ロ-ドン＞                     (lit. Rordon)
 
 
-モジャラン＞
-モチャゴ＞
-モジャオ＞
-モジャピン＞
-モチャコ＞
-
+アニキ＞Heady
+こぶん＞Taily                 (lit. minion)
+モジャラン＞                  (lit. Mojaran, Plakran?)
+モチャゴ＞                    (lit. Mochago, Plago?)
+モジャオ＞                    (lit. Mojao, Plagio?)
+モジャピン＞                  (lit. Mojapin, Plappin?)
+モチャコ＞                    (lit. Mochako, girl, in love with Golemi, Plako?)
 
 
 goonin rooms:
@@ -169,8 +171,7 @@ goonin rooms:
 技の部屋＞Skill Room
 ボディ ル-ム＞BODY ROOM
 
-ドキツボ＞    [ideas: Smashy Pot? Pot Smash, Crasher-urn, Urnplosion]
 コゼニ＞      [lit. small change, probably a mini game]
 
-DO NOT TOUCH THE TABLE TEXT WITHOUT WORKING IN THE WORKSHEET AND CHANGING ALL LINES.
+DO NOT TOUCH THE TABLET TEXT WITHOUT WORKING IN THE WORKSHEET AND CHANGING ALL LINES.
 
