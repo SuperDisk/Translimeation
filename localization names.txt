@@ -29,7 +29,7 @@
 
 しあわせの木＞Fortuitree
 
-アンダの ズラ・ストッキング＞
+アンダの ズラ・ストッキング＞ (this is just a slime mispronouncing "your" and "Elastoblast")
 
 スッカ-＞Flanball
 
@@ -47,6 +47,8 @@ goonin rooms:
 心の部屋＞Spirit Room
 技の部屋＞Skill Room
 ボディ ル-ム＞BODY ROOM
+
+ドキツボ＞    [ideas: Smashy Pot? Pot Smash, Crasher-urn, Urnplosion]
 
 
 DO NOT TOUCH THE TABLE TEXT WITHOUT WORKING IN THE WORKSHEET AND CHANGING ALL LINES.
