@@ -1,5 +1,13 @@
 スーランの城下町＞Boingburg
-ノッケの林道＞Forewood Forest
+『スーラン』>Boingburg seaside cafe
+ノッケの林道＞Forewood Forest　　(in original game it has english as Nokke Woods)
+ノッケの森＞Nokke Woods  　　　　(in original game it has english as Nokke Woods)
+ウルオッタ-川＞Ul・Otter River    (in original game it has english as Ul・Otter River)
+ニコミスキ-鉱山＞Nikomisky Mines (in original game it has english as Nikomisky Mine)
+カラカラ水源＞Cara・Cara Pool     (in original game it has english as Cara・Cara Pool)
+メラゾマ火山＞Mt. Kafrizz        (in original game it has english as Mt.Merazoma)
+スライムしっぽ＞The Slime Tail   (in original game it has english as The Slime Tail)
+ミオ・ロシタル＞Mio・Roshtar      (in original game it has english as Mio・Roshtar)
 シドもじゃ＞Ducktor Cid
 グラン＞Flanpa
 スラゾー＞Blubba
@@ -10,15 +18,18 @@
 スラまる＞Goosashi
 ミイホン＞Hooly
 スラみ＞Bo
+おババ＞
 メラゾマ＞Kafrizzle
-バブルのやま＞Bubhill
+バブルのやま＞Bubhill (this is one of the sumo wrestler slimes)
 オババ＞
 ミイホンパパ＞Mr. Hooly
 ミイホンのママ＞Mrs. Hooly
 スラ-リン＞_____ VIII
-ピロ＞Sacks ??? this is a Jinkster right-hand to ムーン Moon
+ピロ＞Sacks (why??? this is a Jinkster right-hand to ムーン Moon)
 コ-チ＞Coach
 スッカ-のオニ＞Flanatic (?), Flanatic Baller (?) 
+スラネット＞GooNETte
+
 
 コンペ-＞           (there's a pun with "kanpai" (cheers) here)
 ガブリエル＞Goobriel
@@ -26,6 +37,7 @@
 すっとび調査団＞Goonin
 しっぽ団の 四天玉＞the 4 Plobsters?
 まもの堂＞Monster Mart
+テキ屋＞     (foerena? it's a battle arena enemy + shop)
 
 しあわせの木＞Fortuitree
 
@@ -42,6 +54,115 @@
 ナイスト＞ (port-manteau of ナイスストライク "nice strike" sort of like "famicom")
 ナイポイ＞ (port-manteau of ナイスポイント "nice strike points")
 
+スラしょうりゅう＞Slashouryuu = Shoryuflan = street fighter reference (this is probably a debug/hidden name)
+スラフォード＞Flanford (this is also probably a debug/hidden name)
+
+ス-ラ＞        (Sliiiii(me))
+スラック＞     (Sli(me) kku, Slack, Slick)
+スラゾ-＞      (Sli(me) + zor or japanese name ending)
+バブすけ＞     (Bubble + japanese name ending)
+ドラフィ-ユ＞Drafille
+テンシ-ラ＞        (pun of heaven + sheila)
+メカキチ＞         (mecha + kichi)
+ミニスラ＞         (mini sli(me))
+スラじろう＞       (old man-ish)
+スラニオ＞         (Slinnio)
+スラベル＞         (Slibelle, or Slibel as in Maribel)
+ファンファン＞     (Fan Fan)
+スラのせき＞       (slime + japanese name ending)
+スラト＞           (Sli(me) + tt)
+スラのすけ＞       (slime + japanese name ending)
+ホイミ-＞          (Healee)
+バブブ＞           (Bub-blu-blu)
+スラックス＞       (Slax?)
+スラきち＞         (Sli(me) + kichi)
+おスラ＞           (Honorific slime)
+スラエル＞         (Slirael)
+ツリッキ-＞        (Treeky, Tree + kki)
+グレン＞Goolen
+ぶちゴロウ＞       (mottle slime + japanese name ending)
+スラカンプ＞       (Sli(me) scramp or camp)
+マリン＞Shelley (see DQ6)
+ホイサッサ＞       (Hea(l) + liquid metal running away sound)
+ホイップル＞       (Hea(l) + ipple, whipple)
+スライワ-＞        (Sli(me) rock)
+ラスブ-チン＞Raspuddin (Rasputin)
+ツリろう＞         (Tree + japanese name ending)
+イワン＞           (Rock)
+くろりん＞         (Black + japanese name ending)
+ホ-ミィ＞          (Heeeeealy)
+バブルス＞         (Bubbles)
+ホイスケ＞         (Heal + (wh)iskey)
+ボ-グル＞          (Borgle)
+スラや＞           (Sliya)
+タイオ-＞          (Taiou)
+たまちゃん＞       (li'l egg)
+ミニン＞           (mini + n)
+スラげ＞           (slime + japanese name ending, Sli-geh)
+バブりん＞         (Bub(ble) + japanese name ending "rin", Bubblin)
+エッグル＞         (Eggle)
+ぶちザベス＞       (Mottle + (eli)sabeth)
+スマリン＞         (Sli-marine)
+ボ-グン＞          (Borgoon)
+ハガネンダ-＞      (Haganender)
+ホイミィ＞         (Healiiiie)
+ブッチモンド＞     (Mottle + mond)
+ゴルド＞           (Gold)
+エンゼリカ＞Angelica
+スクラテス＞       (Sli(me)ocrates)
+ブチのすけ＞       (Mottle + japanese name ending)
+バブル-ノ＞        (Bubbloono)
+スラダ-ク＞        (Sli(me) dark)
+オイスラ-＞        (Heasli(me)r)
+メテお＞           (Mete + o)
+マダラン＞         (Madaran)
+スラボックル＞     (Sli(me) Bokkle)
+シルバ＞           (Silver)
+エッグ-ナ＞        (Egguna)
+ゴ-ルドベリー＞    (Goldberry)
+ぶっちい＞         (Spotty, Mottle + small)
+ミニ-＞            (Mini, Minny, Minnie)
+ドラゴ-ネ＞        (Dragorn, Drago + rne)
+ぶちじぃ＞         (Mottle + old man)
+スラッサ-＞        (Sli(me) + liquid metal running away)
+ホイ-チェ＞        (Heal + chie)
+エッグリ-ン＞      (Eggleen)
+ホイミコ＞         (Healko, Healkid, Heala Heal + japanese girl name ending)
+ロック＞           (Rock)
+スラワ-＞          (Sli(me) + (flo)wer)
+ツムツム＞         
+バブべえ＞         (Bubble + beh)
+ボギ-＞            (Bogie)
+ファングリオ＞     (Fangrio)
+スラジョ-＞        (Sli(me) + jor, Slijor)
+プッチ-ナ＞        (Platina)
+
+スライムファング＞Slime Fang
+あおスライム＞Blue Slime
+あかスライム＞Red Slime
+むらさきスライム＞Violet Slime
+みどりスライム＞Green Slime
+
+
+
+モエ-ル＞
+ヒエ-ル＞
+ドラハルトJR＞
+ギガお＞
+ゴレムズ＞
+バットン＞
+ゴれみ＞
+ロ-ドン＞
+
+
+モジャラン＞
+モチャゴ＞
+モジャオ＞
+モジャピン＞
+モチャコ＞
+
+
+
 goonin rooms:
 
 心の部屋＞Spirit Room
@@ -49,7 +170,7 @@ goonin rooms:
 ボディ ル-ム＞BODY ROOM
 
 ドキツボ＞    [ideas: Smashy Pot? Pot Smash, Crasher-urn, Urnplosion]
-
+コゼニ＞      [lit. small change, probably a mini game]
 
 DO NOT TOUCH THE TABLE TEXT WITHOUT WORKING IN THE WORKSHEET AND CHANGING ALL LINES.
 
