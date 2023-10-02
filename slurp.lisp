@@ -1,6 +1,7 @@
 (ql:quickload 'cl-json)
 (ql:quickload 'drakma)
 (ql:quickload 'pithy-xml)
+(ql:quickload 'cl-ppcre)
 
 ;; Text opcodes
 
@@ -211,15 +212,23 @@
           while line
           collect (parse-translation-table-entry line))))
 
+(defun undouble (string)
+  (cl-ppcre:regex-replace-all " +" string " "))
+
 (defun remove-reflow-opcodes (string)
-  (let ((stripped (remove-if (lambda (x)
-                               (member x '((newline) (byte #x07) (byte #x08)) :test #'equal))
-                             string)))
+  (let ((stripped
+          (mapcan (lambda (x)
+                    (cond
+                      ((equal x '(newline)) (list " "))
+                      ((equal x '(byte #x7)) nil)
+                      ((equal x '(byte #x8)) nil)
+                      (t (list x))))
+                  string)))
     (labels ((join-strs (ls &optional (cur-str ""))
                (cond
-                 ((null ls) (if (string= cur-str "") nil (list cur-str)))
+                 ((null ls) (if (string= cur-str "") nil (list (undouble cur-str))))
                  ((stringp (car ls)) (join-strs (cdr ls) (concatenate 'string cur-str (car ls))))
-                 ((not (string= cur-str "")) (list* cur-str (car ls) (join-strs (cdr ls))))
+                 ((not (string= cur-str "")) (list* (undouble cur-str) (car ls) (join-strs (cdr ls))))
                  (t (cons (car ls) (join-strs (cdr ls)))))))
       (join-strs stripped))))
 (defun reflow-string (str)
@@ -227,7 +236,8 @@
            (loop for char across word
                  sum (let ((width (cdr (assoc char *letter-sizes*))))
                        (if width (1+ width) 11)))))
-    (let ((out nil)
+    (let ((str (remove-reflow-opcodes str))
+          (out nil)
           (cur-str "")
           (pixels 0)
           (need-wait nil))
@@ -283,6 +293,7 @@
        (error 'malformed-string-error :text "yeah")
        nil)
       (t (decode-small-string translation-table small-translation-table (1+ offset) rom (concatenate 'string cur-str (cdr translated)))))))
+
 (defun decode-string (translation-table small-translation-table offset rom &optional (cur-str ""))
   (let ((cur (elt rom offset))
         (nxt (elt rom (1+ offset)))
@@ -352,12 +363,9 @@
   (flet ((insert-string (bytes)
            (loop for byte in bytes do
              (cond
-               ((= byte #x010c) ; temporary hack to allow insertion of multi-byte character (W,w)
-                (vector-push #x01 rom)
-                (vector-push #x0c rom))
-               ((= byte #x010b)
-                (vector-push #x01 rom)
-                (vector-push #x0b rom))
+               ((> byte #xFF)
+                (vector-push (ldb (byte 8 8) byte) rom)
+                (vector-push (ldb (byte 8 0) byte) rom))
                (t (vector-push byte rom))))
            (vector-push 0 rom))) ; null terminator
     (let ((pointer-patches nil))

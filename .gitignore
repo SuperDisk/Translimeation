@@ -1,5 +1,6 @@
 *-api-key.txt
 *.exe
+*.appimage
 *.lnk
 *.gba
 *.sav
