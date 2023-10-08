@@ -12,6 +12,10 @@
 ;; 0e = player name
 ;; 0b = move textbox to bottom??
 
+(defparameter txt nil)
+(defun load-texts ()
+  (setf txt (read-all-text-utf "text-dumps/after-translate2.txt")))
+
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *letter-sizes*
   '((#\A . 9) (#\B . 8) (#\C . 9) (#\D . 8)
@@ -133,6 +137,11 @@
         (cond
           ((stringp elem)
            (let ((words (my-split elem (lambda (x) (string= x " ")))))
+             ;; (if (and
+             ;;      (not (string= elem " "))
+             ;;      (char= (elt elem (1- (length elem))) #\Space))
+             ;;     (setf (car (last words)) (format nil "~a " (car (last words)))))
+
              (loop for word in words do
                (progn
                  (incf pixels (word-width word))
@@ -202,6 +211,7 @@
       ((= cur #x0e) ; player name
        (cons '(player-name) (decode-string translation-table small-translation-table (1+ offset) rom cur-str)))
       (t (cons `(byte ,cur) (decode-string translation-table small-translation-table (1+ offset) rom cur-str))))))
+
 (defun encode-string (inv-translation-table inv-translation-table-small string)
   (flet ((encode-str (string tbl)
            (loop for char across string
@@ -227,8 +237,13 @@
               (encode-string inv-translation-table inv-translation-table-small (cdr string))))
       ((equal (caar string) 'player-name)
        (cons #x0e (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'wait-for-a)
+       (list* #x07 #x08 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
+      ((equal (caar string) 'force-newline)
+       (cons #x02 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
       ((equal (caar string) 'byte)
        (cons (cadar string) (encode-string inv-translation-table inv-translation-table-small (cdr string)))))))
+
 (defun verify-isomorphic (string tt tts)
   (let* ((encoded (encode-string (invert-alist tt) (invert-alist tts) string))
          (decoded (decode-string tt tts 0 (append encoded '(0 0)))))
