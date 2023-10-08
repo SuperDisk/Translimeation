@@ -297,3 +297,14 @@
                           :if-exists :supersede)
     (write-sequence rom stream)
     nil))
+
+(defun main ()
+  (format t "loading texts...~%")
+  (load-texts)
+  (format t "injecting...~%")
+  (trans txt "test.gba")
+  (format t "created test.gba~%")
+  (quit))
+
+(defun build-exe ()
+  (sb-ext:save-lisp-and-die "injector" :toplevel #'main :executable t :compression 9))
