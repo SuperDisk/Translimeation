@@ -1,1 +1,5 @@
 8098ac8 -- decompression function
+  r1 = start of emitting bytes
+
+8098B72 -- after decompression
+  r1 = end of emitting bytes

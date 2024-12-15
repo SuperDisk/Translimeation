@@ -104,7 +104,8 @@
 (defparameter *pointer-table2* (subseq *pointer-table* 53 2299))
 (defparameter *translation-table* (reverse (load-translation-table "SlimeDialog.tbl")))
 (defparameter *small-translation-table* (reverse (load-translation-table "Slime_Small.tbl")))
-(defparameter *ignore* (append (range 52) '(1892 1895 1897 1900)))
+(defparameter *ignore* (append (loop for i from 0 to 51 collect i)
+                               '(1892 1895 1897 1900)))
 (defparameter *all-texts*
   (handler-bind ((malformed-string-error #'skip-malformed-string))
     (load-all-texts *rom-data* *pointer-table* *translation-table* *small-translation-table* *ignore*)))

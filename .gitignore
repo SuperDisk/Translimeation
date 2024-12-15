@@ -1,5 +1,8 @@
 *-api-key.txt
 *.exe
+NO$*
+*.sym
+*.fasl
 *.appimage
 *.lnk
 *.gba

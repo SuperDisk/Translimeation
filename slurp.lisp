@@ -1,7 +1,9 @@
-(ql:quickload 'cl-json)
-(ql:quickload 'drakma)
-(ql:quickload 'pithy-xml)
-(ql:quickload 'cl-ppcre)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (ql:quickload 'cl-ppcre :silent t))
+
+(defpackage #:slurp
+  (:use :cl))
+(in-package #:slurp)
 
 ;; Text opcodes
 
@@ -39,6 +41,22 @@
 
 (defparameter *textbox-size* 208)
 
+(defparameter *decompression-routine-ptr* #x8098ac8)
+(defparameter *decompression-routine*
+  '(#xf0 #xb5 #x44 #x46 #x4d #x46 #x56 #x46 #x5f #x46 #xf0 #xb4 #x61 #x4f #x10
+    #xc8 #x24 #x0a #x10 #xb4 #xa0 #x46 #x02 #x39 #x88 #x44 #x00 #x22 #x13 #x1c
+    #x08 #x24 #x00 #xf0 #xa6 #xf8 #x3c #x60 #x26 #x1c #xe4 #x06 #xa4 #x0f #x01
+    #x3c #x03 #xd0 #x01 #x3c #x04 #xd0 #x58 #x4d #x06 #xe0 #x04 #x24 #x58 #x4d
+    #x01 #xe0 #x08 #x24 #x57 #x4d #x00 #xf0 #x3b #xf8 #xa9 #x46 #x02 #xb4 #x76
+    #x07 #x76 #x0f #x01 #x3e #x08 #xd0 #x01 #x3e #x09 #xd0 #x01 #x3e #x0a #xd0
+    #x01 #x3e #x0b #xd0 #x00 #xf0 #xb1 #xf8 #x0a #xe0 #x00 #xf0 #xe9 #xf8 #x07
+    #xe0 #x00 #xf0 #x0f #xf9 #x04 #xe0 #x00 #xf0 #x64 #xf9 #x01 #xe0 #x00 #xf0
+    #x95 #xf8 #x01 #xbc #x3c #x68 #x24 #x06 #x64 #x0f #x01 #x3c #x06 #xd0 #x01
+    #x3c #x07 #xd0 #x01 #x3c #x08 #xd0 #x01 #x3c #x09 #xd0 #x0a #xe0 #x00 #xf0
+    #x10 #xfa #x07 #xe0 #x00 #xf0 #x25 #xfa #x04 #xe0 #x00 #xf0 #x30 #xfa #x01
+    #xe0 #x00 #xf0 #x35 #xfa #x01 #xbc #xf0 #xbc #xa0 #x46 #xa9 #x46 #xb2 #x46
+    #xbb #x46 #xf0 #xbc #x02 #xbc #x08 #x47))
+
 ;; note: something special about text 1403 --- might be ducktor cid's crashing line
 
 (defun dump-all-text-utf (fname txts)
@@ -61,15 +79,17 @@
 
 (defun trans (all-text-translated f)
   (let ((slime-patched (read-rom "slime_original.gba")))
-    (patch-rom slime-patched
-               (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
-               (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
-               (mapcar #'reflow-string all-text-translated))
+    (patch-text slime-patched
+                (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
+                (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
+                (mapcar #'reflow-string all-text-translated))
     (dump-rom slime-patched f)))
 
 (define-condition malformed-string-error (error)
   ((text :initarg :text :reader text)))
+
 (defun skip-malformed-string (c)
+  (declare (ignore c))
   (invoke-restart 'skip-malformed-string))
 
 (defun load-all-texts (rom pointer-table translation-table small-translation-table &optional (ignore nil))
@@ -81,9 +101,6 @@
                         nil))
         when entry collect (cons idx entry)))
 
-(defun range (max &key (min 0) (step 1))
-  (loop for n from min below max by step
-        collect n))
 (defun invert-alist (alist)
   (loop for (a . b) in alist
         collect (cons b a)))
@@ -97,6 +114,7 @@
 (defun parse-translation-table-entry (entry)
   (destructuring-bind (hex jchar) (my-split entry (lambda (x) (char= x #\=)))
     (cons (parse-integer hex :radix 16) jchar)))
+
 (defun load-translation-table (table-file)
   (with-open-file (stream table-file :external-format :utf-8)
     (loop for line = (read-line stream nil)
@@ -252,9 +270,7 @@
 
 (defun parse-pointer-table (table-data)
   (flet ((nums->pointer (b1 b2 b3 b4)
-           (logior (ash b3 16)
-                   (ash b2 8)
-                   b1)))
+           (logior (ash b4 24) (ash b3 16) (ash b2 8) b1)))
     (loop for i from 0 below (length table-data) by 4
           for j = 0 then (1+ j)
           collect (cons j (nums->pointer (elt table-data (+ i 0))
@@ -262,7 +278,7 @@
                                          (elt table-data (+ i 2))
                                          (elt table-data (+ i 3)))))))
 
-(defun patch-rom (rom encoding-table small-encoding-table new-strings)
+(defun patch-text (rom encoding-table small-encoding-table new-strings)
   (flet ((insert-string (bytes)
            (loop for byte in bytes do
              (cond
@@ -276,12 +292,17 @@
         (push (cons table-index (fill-pointer rom)) pointer-patches)
         (insert-string (encode-string encoding-table small-encoding-table string)))
       (loop for (table-index . pointer) in pointer-patches do
-        (let* ((tbl-pos (+ (car pointer-table-pos) (* 4 table-index)))
-               (table-entry (logior #x8000000 pointer)))
+        (let ((tbl-pos (+ (car pointer-table-pos) (* 4 table-index)))
+              (table-entry (logior #x8000000 pointer)))
           (loop for i from 0 to 24 by 8
                 for bt = (ldb (byte 8 i) table-entry)
                 for pos from tbl-pos do
                   (setf (aref rom pos) bt)))))))
+
+(defun patch-code (rom)
+  (let ((orig-decompression-routine-ptr (fill-pointer rom)))
+    (loop for b in *decompression-routine* do
+      (vector-push b rom))))
 
 (defun read-rom (rom &optional (expansion #x100000)) ;expand by 1MB
   (with-open-file (stream rom :element-type '(unsigned-byte 8))
@@ -290,13 +311,13 @@
                            :fill-pointer (file-length stream))))
       (read-sequence arr stream)
       arr)))
+
 (defun dump-rom (rom file)
   (with-open-file (stream file
                           :element-type '(unsigned-byte 8)
                           :direction :output
                           :if-exists :supersede)
-    (write-sequence rom stream)
-    nil))
+    (write-sequence rom stream)))
 
 (defun main ()
   (format t "loading texts...~%")
@@ -304,7 +325,7 @@
   (format t "injecting...~%")
   (trans txt "test.gba")
   (format t "created test.gba~%")
-  (quit))
+  (uiop:quit))
 
 (defun build-exe ()
   (sb-ext:save-lisp-and-die "injector" :toplevel #'main :executable t :compression 9))
