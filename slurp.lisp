@@ -1,5 +1,5 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (ql:quickload 'cl-ppcre :silent t))
+  (ql:quickload '(cl-ppcre skippy alexandria) :silent t))
 
 (defpackage #:slurp
   (:use :cl))
@@ -299,11 +299,6 @@
                 for pos from tbl-pos do
                   (setf (aref rom pos) bt)))))))
 
-(defun patch-code (rom)
-  (let ((orig-decompression-routine-ptr (fill-pointer rom)))
-    (loop for b in *decompression-routine* do
-      (vector-push b rom))))
-
 (defun read-rom (rom &optional (expansion #x100000)) ;expand by 1MB
   (with-open-file (stream rom :element-type '(unsigned-byte 8))
     (let ((arr (make-array (+ (file-length stream) expansion)
@@ -318,6 +313,9 @@
                           :direction :output
                           :if-exists :supersede)
     (write-sequence rom stream)))
+
+(defun map->gif (gfx map)
+  )
 
 (defun main ()
   (format t "loading texts...~%")

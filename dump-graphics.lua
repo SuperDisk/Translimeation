@@ -13,7 +13,7 @@ local function on_decompress_end()
   print("Decompression ended, difference: 0x" .. string.format("%X", length))
 
   local byte_array = memory.read_bytes_as_array(start, length)
-  local file = io.open(string.format("./slime_graphics/%X.bin", readstart), "w")
+  local file = io.open(string.format("./slime_graphics/%X-%X.bin", readstart, start), "w")
   if file then
     file:write(string.char(table.unpack(byte_array)))
     file:close()
