@@ -41,22 +41,6 @@
 
 (defparameter *textbox-size* 208)
 
-(defparameter *decompression-routine-ptr* #x8098ac8)
-(defparameter *decompression-routine*
-  '(#xf0 #xb5 #x44 #x46 #x4d #x46 #x56 #x46 #x5f #x46 #xf0 #xb4 #x61 #x4f #x10
-    #xc8 #x24 #x0a #x10 #xb4 #xa0 #x46 #x02 #x39 #x88 #x44 #x00 #x22 #x13 #x1c
-    #x08 #x24 #x00 #xf0 #xa6 #xf8 #x3c #x60 #x26 #x1c #xe4 #x06 #xa4 #x0f #x01
-    #x3c #x03 #xd0 #x01 #x3c #x04 #xd0 #x58 #x4d #x06 #xe0 #x04 #x24 #x58 #x4d
-    #x01 #xe0 #x08 #x24 #x57 #x4d #x00 #xf0 #x3b #xf8 #xa9 #x46 #x02 #xb4 #x76
-    #x07 #x76 #x0f #x01 #x3e #x08 #xd0 #x01 #x3e #x09 #xd0 #x01 #x3e #x0a #xd0
-    #x01 #x3e #x0b #xd0 #x00 #xf0 #xb1 #xf8 #x0a #xe0 #x00 #xf0 #xe9 #xf8 #x07
-    #xe0 #x00 #xf0 #x0f #xf9 #x04 #xe0 #x00 #xf0 #x64 #xf9 #x01 #xe0 #x00 #xf0
-    #x95 #xf8 #x01 #xbc #x3c #x68 #x24 #x06 #x64 #x0f #x01 #x3c #x06 #xd0 #x01
-    #x3c #x07 #xd0 #x01 #x3c #x08 #xd0 #x01 #x3c #x09 #xd0 #x0a #xe0 #x00 #xf0
-    #x10 #xfa #x07 #xe0 #x00 #xf0 #x25 #xfa #x04 #xe0 #x00 #xf0 #x30 #xfa #x01
-    #xe0 #x00 #xf0 #x35 #xfa #x01 #xbc #xf0 #xbc #xa0 #x46 #xa9 #x46 #xb2 #x46
-    #xbb #x46 #xf0 #xbc #x02 #xbc #x08 #x47))
-
 ;; note: something special about text 1403 --- might be ducktor cid's crashing line
 
 (defun dump-all-text-utf (fname txts)
@@ -313,9 +297,6 @@
                           :direction :output
                           :if-exists :supersede)
     (write-sequence rom stream)))
-
-(defun map->gif (gfx map)
-  )
 
 (defun main ()
   (format t "loading texts...~%")
