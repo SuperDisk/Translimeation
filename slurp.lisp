@@ -14,6 +14,8 @@
 ;; 0e = player name
 ;; 0b = move textbox to bottom??
 
+;; remaining opcodes used at least once: (3 F B 4 A D 6 9 7 8)
+
 (defparameter txt nil)
 (defun load-texts ()
   (setf txt (read-all-text-utf "text-dumps/after-translate2.txt")))
@@ -42,6 +44,34 @@
 (defparameter *textbox-size* 208)
 
 ;; note: something special about text 1403 --- might be ducktor cid's crashing line
+
+(defun valid-string (string)
+  (and string
+       (loop for el in string
+             always
+             (and
+              (> (length string) 2)
+              (equal (last string 2) '((byte 7) (byte 8)))
+              (cond
+                ((and (consp el) (eq (car el) 'byte))
+                 (member (cadr el) '(#x3 #xF #xB #x4 #xA #xD #x6 #x9 #x7 #x8) :test #'=))
+                (t t))))))
+
+(defun scan-rom ()
+  (let ((romdata (read-rom "slime_original.gba"))
+        (tbl1 (load-translation-table "./SlimeDialog.tbl"))
+        (tbl2 (load-translation-table "./Slime_Small.tbl")))
+    (loop for i below (- (length romdata) 4)
+          for ptr = (logior
+                     (aref romdata i)
+                     (ash (aref romdata (+ i 1)) 8)
+                     (ash (aref romdata (+ i 2)) 16)
+                     (ash (aref romdata (+ i 3)) 24))
+          when (= 8 (aref romdata (+ i 3))) do
+            (ignore-errors
+             (let ((decoded (decode-string tbl1 tbl2 i romdata)))
+               (when (valid-string decoded)
+                 (format t "~a~%" decoded)))))))
 
 (defun dump-all-text-utf (fname txts)
   (progn

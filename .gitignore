@@ -11,3 +11,7 @@ NO$*
 /**/
 !/text-dumps/
 !/text-dumps/*
+!/tools/
+!/tools/slime_gfx.py
+*disasm.txt
+gba_bios.bin
