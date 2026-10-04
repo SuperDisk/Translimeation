@@ -83,6 +83,16 @@ def read_dialogue(path):
     return dialogue_entries(read_script(path))
 
 
+def validate_dialogue(tokens, codec):
+    """Check authoring syntax and cursor resets without consulting source text."""
+    codec.encode(tokens)
+    for n, token in enumerate(tokens[:-1]):
+        if token in (['WAIT-INPUT'], ['WAIT-FOR-A']):
+            if tokens[n + 1] not in (['NEWLINE'], ['FORCE-NEWLINE'], ['CLEAR'],
+                                     ['SCROLL'], ['SWITCH-WINDOW']):
+                raise ValueError('Missing paragraph separator after input wait')
+
+
 def credit_lines(entry):
     if len(entry) != 2 or not isinstance(entry[1], list) or entry[1][0] != 'CREDITS':
         raise ValueError(f'{entry[0]}: expected a CREDITS record')
@@ -181,6 +191,10 @@ class Codec:
                 if t != ['ALIGN']:
                     raise ValueError(f'Invalid plain token {t}')
                 result.append(2)
+            elif t == ['FORCE-NEWLINE']:
+                result.append(2)
+            elif t == ['WAIT-FOR-A']:
+                result.extend([7, 8])
             elif t[0] == 'NAME' and len(t) == 2 and t[1]:
                 result.extend(b'\x05' + self.encode_text(t[1], True) + b'\x05')
             else:
@@ -189,6 +203,8 @@ class Codec:
                 c, nargs = BY_NAME[t[0]]
                 if len(t) != 1 + nargs:
                     raise ValueError(f'Wrong argument count: {t}')
+                if any(type(arg) is not int or not 0 <= arg <= 255 for arg in t[1:]):
+                    raise ValueError(f'Expected byte arguments: {t}')
                 result.extend([c] + t[1:])
         return bytes(result) + b'\0'
 

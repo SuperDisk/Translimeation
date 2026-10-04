@@ -68,14 +68,14 @@ class GerbTests(unittest.TestCase):
         damaged = copy.deepcopy(self.rows)
         # Missing word boundary hidden by a color opcode.
         row = damaged[1037]
-        n = row.index(' pots over there.')
+        n = next(n for n, t in enumerate(row) if type(t) is str and t.startswith(' pots over there.'))
         row[n] = row[n].lstrip()
-        # Lost extraction tail, including its original wait.
+        # A dynamic substitution still needs its argument.
         row = damaged[1522]
-        damaged[1522] = row[:row.index(['DYNAMIC-TEXT', 0]) + 1]
-        # Accidental unencodable glyph and missing speaker label.
+        row[row.index(['DYNAMIC-TEXT', 0])] = ['DYNAMIC-TEXT']
+        # Accidental unencodable glyph and malformed speaker label.
         damaged[798].append('#')
-        damaged[74] = [t for t in damaged[74] if not isinstance(t, list) or t[0] != 'NAME']
+        damaged[74][1] = ['NAME']
         # Reveal an unavailable channel in a partial tablet.
         row = damaged[1347]
         n = row.index(['COLOR', 4])

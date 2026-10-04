@@ -2,8 +2,7 @@
 """Build the current dialogue preview as IPS without opening or creating a ROM.
 
 Only pointer replacements and newly encoded text enter the patch. The checked-in
-profile supplies ROM identity/size and font widths; the existing original script
-supplies slot validity and execution-control expectations. --verify-rom is an
+profile supplies ROM identity/size, font widths and valid pointer slots. --verify-rom is an
 optional LOCAL cross-check of that metadata against a user's original cartridge.
 """
 import argparse
@@ -15,7 +14,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from text_codec import Codec, Symbol, read_script, read_dialogue, sexp, control_trace
+from text_codec import Codec, read_script, sexp, validate_dialogue
 
 ROOT = Path(__file__).resolve().parent.parent
 IPS_LIMIT = 1 << 24
@@ -52,29 +51,13 @@ def ips_patch(writes):
     return bytes(out)
 
 
-def canonical(tokens):
-    """Expand the injector's two authoring shorthands before source comparison."""
-    result = []
-    for t in tokens:
-        if t == ['WAIT-FOR-A']:
-            result.extend([[Symbol('SHOW-PROMPT')], [Symbol('WAIT-INPUT')]])
-        elif t == ['FORCE-NEWLINE']:
-            result.append([Symbol('NEWLINE')])
-        else:
-            result.append(t)
-    return result
-
-
 def load_profile(root):
     path = root / 'tools/patch_profile.json'
     profile = json.loads(path.read_text())
-    if profile['version'] != 1:
+    if profile['version'] != 2:
         raise ValueError('Unsupported patch profile version')
     if not 0 < profile['source_rom_size'] < IPS_LIMIT:
         raise ValueError('Invalid original ROM size')
-    source_path = root / profile['original_dialogue_file']
-    if sha256(source_path.read_bytes()) != profile['original_dialogue_sha256']:
-        raise ValueError('Original dialogue inventory changed; verify/update the patch profile locally')
     records = profile['font_records']
     previous = 15
     for start, end, width in records:
@@ -83,48 +66,57 @@ def load_profile(root):
         previous = end
     if not records or previous != 0x1b8:
         raise ValueError('Incomplete font width ranges')
-    source = {i: ts for i, *ts in read_dialogue(source_path)}
-    for i in source:
+    slots = set()
+    previous = 51
+    for start, end in profile['dialogue_slot_ranges']:
+        if not previous < start <= end <= 2397:
+            raise ValueError('Invalid dialogue slot ranges')
+        slots.update(range(start, end + 1))
+        previous = end
+    if not slots:
+        raise ValueError('Empty dialogue slot inventory')
+    for i in slots:
         pos = profile['pointer_table_offset'] + 4 * i
         if not 52 <= i <= 2397 or 1883 <= i <= 1901 or not 0 <= pos <= profile['source_rom_size'] - 4:
             raise ValueError(f'Invalid dialogue pointer slot {i}')
-    return profile, source
+    return profile, slots
 
 
-def validate_entries(entries, source, codec):
+def validate_entries(entries, slots, codec):
     for i, *ts in entries:
-        if i not in source:
+        if i not in slots:
             raise ValueError(f'{i}: not a valid original dialogue slot (null/credits/outside table)')
-        tokens = canonical(ts)
-        # Validation happens before reflow inserts any new page waits.
-        if control_trace(tokens) != control_trace(source[i]):
-            raise ValueError(f'{i}: execution controls differ from the original script')
-        if tokens and tokens[-1] == ['DYNAMIC-TEXT', 0]:
-            raise ValueError(f'{i}: truncated dynamic-counter ending')
-        codec.encode(tokens)  # Unknown commands, arguments and glyphs fail the build.
+        try:
+            validate_dialogue(ts, codec)
+        except ValueError as exc:
+            raise ValueError(f'{i}: {exc}') from exc
 
 
-def verify_profile(rom, profile, source, codec):
+def verify_profile(rom, profile, slots):
     if len(rom) != profile['source_rom_size'] or sha256(rom) != profile['source_rom_sha256']:
         raise ValueError('Wrong source ROM; use the unmodified ROM identified by patch_profile.json')
     for n, (first, _, width) in enumerate(profile['font_records']):
         if struct.unpack_from('<HB', rom, 0x713EB8 + n * 8 + 4) != (first, width):
             raise ValueError('Profile font metrics differ from the ROM')
-    for i, tokens in source.items():
+    actual_slots = set()
+    for i in range(52, 2398):
+        if 1883 <= i <= 1901:
+            continue
         offset = struct.unpack_from('<I', rom, profile['pointer_table_offset'] + 4 * i)[0] - profile['gba_base_address']
-        encoded = codec.encode(tokens)
-        if offset < 0 or rom[offset:offset + len(encoded)] != encoded:
-            raise ValueError(f'{i}: original script/pointer metadata differs from ROM')
+        if 0 <= offset < len(rom):
+            actual_slots.add(i)
+    if slots != actual_slots:
+        raise ValueError('Profile dialogue slots differ from the ROM')
 
 
 def build(script, output, root=ROOT, verify_rom=None):
     script, output = Path(script).resolve(), Path(output).resolve()
-    profile, source = load_profile(root)
+    profile, slots = load_profile(root)
     codec = Codec(root)
-    entries = read_dialogue(script)
-    validate_entries(entries, source, codec)
+    entries = [row for row in read_script(script) if not 1883 <= row[0] <= 1901]
+    validate_entries(entries, slots, codec)
     if verify_rom is not None:
-        verify_profile(Path(verify_rom).read_bytes(), profile, source, codec)
+        verify_profile(Path(verify_rom).read_bytes(), profile, slots)
     with tempfile.TemporaryDirectory(prefix='translimeation-ips-') as tmp:
         temp = Path(tmp)
         metrics = temp / 'metrics.txt'
@@ -159,7 +151,7 @@ def build(script, output, root=ROOT, verify_rom=None):
     writes.append((base, payload))
     patch = ips_patch(writes)
     sources = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl', 'tools/patch_profile.json',
-               profile['original_dialogue_file'], 'tools/build_patch_data.lisp',
+               'tools/build_patch_data.lisp',
                'tools/build_ips.py', 'tools/text_codec.py']
     inputs = {p: sha256((root / p).read_bytes()) for p in sources}
     try:

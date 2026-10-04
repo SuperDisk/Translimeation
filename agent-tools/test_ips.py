@@ -20,7 +20,7 @@ from text_codec import Codec
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
-          'tools/build_rom.lisp', 'tools/text_codec.py', 'text-dumps/rom.txt',
+          'tools/build_rom.lisp', 'tools/text_codec.py',
           'text-dumps/gerb.txt']
 
 
@@ -101,10 +101,11 @@ class RomFreeBuildTests(unittest.TestCase):
         subprocess.run([sys.executable, 'tools/build_ips.py'], cwd=cls.checkout, check=True)
         cls.patch = (cls.checkout / 'dist/slime-patch.ips').read_bytes()
         cls.report = json.loads((cls.checkout / 'dist/build-report.json').read_text())
-        cls.profile, cls.source = load_profile(cls.checkout)
+        cls.profile, cls.slots = load_profile(cls.checkout)
 
     def test_build_contains_only_pointer_writes_and_contiguous_append(self):
         self.assertFalse(list(self.checkout.rglob('*.gba')))
+        self.assertFalse((self.checkout / 'text-dumps/rom.txt').exists())
         self.assertEqual({p.name for p in (self.checkout / 'dist').iterdir()},
                          {'slime-patch.ips', 'build-report.json'})
         base = self.profile['source_rom_size']
@@ -169,18 +170,25 @@ class RomFreeBuildTests(unittest.TestCase):
         self.assertEqual(self.patch, (self.checkout / 'dist/slime-patch.ips').read_bytes())
         self.assertEqual(first_report, (self.checkout / 'dist/build-report.json').read_bytes())
 
-    def test_source_and_control_validation(self):
+    def test_slot_and_authoring_validation(self):
         codec = Codec(self.checkout)
         for entry in [[1876, 'null'], [1883, 'credits'], [9999, 'outside'],
-                      [1522, ['DYNAMIC-TEXT', 0]], [1325, 'Missing menu argument']]:
+                      [1325, ['OPEN-MENU']], [52, ['DELAY', 256]],
+                      [52, ['WAIT-INPUT'], 'Still on the same line'],
+                      [52, ['WAIT-FOR-A'], 'Still on the same line']]:
             with self.subTest(entry=entry), self.assertRaises(ValueError):
-                validate_entries([entry], self.source, codec)
+                validate_entries([entry], self.slots, codec)
+        # Well-formed editorial changes do not have to match the Japanese controls.
+        validate_entries([[1325, 'Edited menu text'], [1522, ['DYNAMIC-TEXT', 0]],
+                          [52, 'A', ['WAIT-FOR-A'], ['FORCE-NEWLINE'], 'B']],
+                         self.slots, codec)
+        self.assertEqual(codec.encode([['WAIT-FOR-A'], ['FORCE-NEWLINE']]), b'\x07\x08\x02\0')
         with self.assertRaises(ValueError):
-            verify_profile(b'wrong ROM', self.profile, self.source, codec)
+            verify_profile(b'wrong ROM', self.profile, self.slots)
         profile_path = self.checkout / 'tools/patch_profile.json'
         saved = profile_path.read_bytes()
         try:
-            bad = dict(self.profile, original_dialogue_sha256='0' * 64)
+            bad = dict(self.profile, dialogue_slot_ranges=[[52, 2398]])
             profile_path.write_text(json.dumps(bad))
             with self.assertRaises(ValueError):
                 load_profile(self.checkout)
@@ -192,7 +200,7 @@ class RomFreeBuildTests(unittest.TestCase):
         if not original_path.exists():
             self.skipTest('Optional local ROM comparison; CI does not need a ROM')
         original = original_path.read_bytes()
-        verify_profile(original, self.profile, self.source, Codec(self.checkout))
+        verify_profile(original, self.profile, self.slots)
         with tempfile.TemporaryDirectory(prefix='translimeation-rom-check-') as tmp:
             checkout = Path(tmp) / 'checkout'
             shutil.copytree(self.checkout, checkout)

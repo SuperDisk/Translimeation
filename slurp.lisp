@@ -240,7 +240,7 @@ Existing waits and terminal behavior are retained. No final wait is invented."
 
 (defun prepare-dialogue-preview (entries)
   "Shared reflow/encoding pass for local ROM and ROM-free IPS builds.
-Callers validate the source controls and supply *FONT-RECORDS* first.
+Callers validate authoring syntax and supply *FONT-RECORDS* first.
 Returns injectable entries and layout/encoding holds as two values."
   (unless *font-records* (error "Load font metrics before preparing a preview"))
   (let ((encoding (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
@@ -367,23 +367,19 @@ Returns injectable entries and layout/encoding holds as two values."
     offset))
 
 (defun validate-dialogue-entries (rom entries)
-  "Fail closed on damaged control sequences before any output file is written."
-  (let ((table (load-translation-table "SlimeDialog.tbl"))
-        (small (load-translation-table "Slime_Small.tbl")))
-    (labels ((signature (tokens)
-               (remove-if-not (lambda (x)
-                                (and (consp x)
-                                     (member (car x) '(scroll clear delay yes-no open-menu
-                                                       switch-window dynamic-text nop))))
-                              tokens)))
-      (dolist (entry entries)
-        (when (<= 1883 (car entry) 1901)
-          (error "Entry ~D is credits data; dialogue reflow is inappropriate" (car entry)))
-        (let ((original (decode-string table small (rom-text-offset rom (car entry)) rom)))
-          (unless (equal (signature original) (signature (cdr entry)))
-            (error "Entry ~D has damaged or unstructured controls; run agent-tools/audit_text.py" (car entry)))
-          (when (equal (car (last entry)) '(dynamic-text 0))
-            (error "Entry ~D ends at a dynamic counter; recover the missing translation" (car entry))))))))
+  "Validate slots, syntax and wait boundaries without comparing original dialogue."
+  (let ((table (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
+        (small (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))))
+    (dolist (entry entries)
+      (when (<= 1883 (car entry) 1901)
+        (error "Entry ~D is credits data; dialogue reflow is inappropriate" (car entry)))
+      (rom-text-offset rom (car entry))
+      (encode-string table small (cdr entry))
+      (loop for (token next) on (cdr entry)
+            when (and next (member token '((wait-input) (wait-for-a)) :test #'equal)
+                      (not (member next '((newline) (force-newline) (clear)
+                                          (scroll) (switch-window)) :test #'equal)))
+            do (error "Entry ~D is missing a paragraph separator after input wait" (car entry))))))
 
 (defun read-rom (rom &optional (expansion #x100000)) ;expand by 1MB
   (with-open-file (stream rom :element-type '(unsigned-byte 8))

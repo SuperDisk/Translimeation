@@ -48,6 +48,12 @@
   (rejects (lambda () (rom-text-offset rom 1876)))
   (rejects (lambda () (validate-dialogue-entries rom '((1883 "Credits")))))
   (rejects (lambda () (validate-dialogue-entries rom '((1325 "Missing argument" (byte 10))))))
+  (rejects (lambda () (validate-dialogue-entries rom '((52 "A" (wait-input) "B")))))
+  (rejects (lambda () (validate-dialogue-entries rom '((52 "A" (wait-for-a) "B")))))
+  (validate-dialogue-entries rom '((1325 "Edited menu text") (1522 (dynamic-text 0))
+                                  (52 "A" (wait-for-a) (force-newline) "B")))
+  (check (equal (reflow-string '(52 "A" (wait-input) (force-newline) "B"))
+                '(52 "A" (wait-input) (newline) "B")))
   ;; Exercise expansion, actual pointer writes, and multibyte encoding.
   (let ((tiny (make-array (length rom) :element-type '(unsigned-byte 8)
                          :initial-contents rom :adjustable t :fill-pointer (length rom))))

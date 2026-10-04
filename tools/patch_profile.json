@@ -1,11 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "source_rom_size": 8388608,
   "source_rom_sha256": "f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661",
   "gba_base_address": 134217728,
   "pointer_table_offset": 7411532,
-  "original_dialogue_file": "text-dumps/rom.txt",
-  "original_dialogue_sha256": "543857f670a946b63b2a3f3146e4b0f254f177b574cc0ec45ddf92d289399427",
   "font_records": [
     [
       16,
@@ -56,6 +54,24 @@
       322,
       440,
       13
+    ]
+  ],
+  "dialogue_slot_ranges": [
+    [
+      52,
+      1875
+    ],
+    [
+      1880,
+      1882
+    ],
+    [
+      1902,
+      2085
+    ],
+    [
+      2087,
+      2397
     ]
   ]
 }
