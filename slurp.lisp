@@ -260,6 +260,22 @@ Existing waits and terminal behavior are retained. No final wait is invented."
       (flush-word)
       (cons (car entry) (nreverse out)))))
 
+(defun prepare-dialogue-preview (entries)
+  "Shared reflow/encoding pass for local ROM and ROM-free IPS builds.
+Callers validate the source controls and supply *FONT-RECORDS* first.
+Returns injectable entries and layout/encoding holds as two values."
+  (unless *font-records* (error "Load font metrics before preparing a preview"))
+  (let ((encoding (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
+        (small (invert-alist (reverse (load-translation-table "Slime_Small.tbl"))))
+        (passed nil) (failed nil))
+    (dolist (entry entries)
+      (handler-case
+          (let ((flowed (reflow-string entry)))
+            (encode-string encoding small (cdr flowed))
+            (push flowed passed))
+        (error (e) (push (list (car entry) (princ-to-string e)) failed))))
+    (values (nreverse passed) (nreverse failed))))
+
 (defun decode-string (translation-table small-translation-table offset rom)
   "Decode the dialogue grammar, consuming arguments even when they equal zero."
   (let ((pos offset) (out nil) (limit (min (length rom) (+ offset 16384))))

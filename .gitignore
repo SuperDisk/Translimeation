@@ -29,3 +29,11 @@ text-dumps/preview-reflowed.txt
 !/tools/test_extraction.py
 !/tools/check_professional.py
 !/tools/test_professional.py
+!/tools/build_ips.py
+!/tools/build_patch_data.lisp
+!/tools/patch_profile.json
+!/tools/test_ips.py
+!/.github/
+!/.github/workflows/
+!/.github/workflows/build-ips.yml
+/dist/

@@ -1,0 +1,58 @@
+name: Build IPS patch
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ips-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install SBCL
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y sbcl
+
+      - name: Test patch generation without a ROM
+        run: python3 tools/test_ips.py
+
+      - name: Build from the current professional script
+        run: python3 tools/build_ips.py
+
+      - name: Summarize preview coverage
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path('dist/build-report.json').read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write(f"Built **{report['patch_bytes']:,} bytes** of IPS patch data.\n\n")
+              out.write(f"Injected {len(report['injected_entries'])} dialogue entries; "
+                        f"held {len(report['held_entries'])} for layout review.\n\n")
+              out.write('Download the **slime-professional-preview** artifact below. '
+                        'It contains the IPS patch and the build report. '
+                        'No ROM or ROM secret is used by this workflow.\n')
+          PY
+
+      - name: Upload patch and report only
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: slime-professional-preview
+          path: |
+            dist/slime-professional-preview.ips
+            dist/build-report.json
+          if-no-files-found: error
+          retention-days: 90
