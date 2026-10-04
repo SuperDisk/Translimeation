@@ -34,6 +34,21 @@ class GerbTests(unittest.TestCase):
         self.assertEqual(list(word_boundaries([['PLAYER-NAME'], ['COLOR', 0], "'s pot"])), [])
         self.assertEqual(list(word_boundaries(['one', ['NEWLINE'], 'two'])), [])
 
+    def test_missing_endings_remain_original_japanese(self):
+        original = {r[0]: r for r in read_dialogue(ROOT / 'text-dumps/rom.txt')}
+        for i in [1522, 1950, 1952, 1964, 1966, 1979, 1981, 1993, 1995, 2007, 2009]:
+            with self.subTest(index=i):
+                row, source = self.rows[i], original[i]
+                counter = ['DYNAMIC-TEXT', 0]
+                self.assertEqual(row[row.index(counter) + 1:],
+                                 source[source.index(counter) + 1:])
+        # The unsupported '#' paragraph also retains the source text, rather
+        # than introducing an English replacement word.
+        def third_paragraph(row):
+            waits = [n for n, t in enumerate(row) if t == ['WAIT-INPUT']]
+            return row[waits[1] + 1:waits[2] + 1]
+        self.assertEqual(third_paragraph(self.rows[1574]), third_paragraph(original[1574]))
+
     def test_preview_retains_corrected_spaces_and_counter_endings(self):
         path = ROOT / 'dist/reflowed.txt'
         if not path.exists():
