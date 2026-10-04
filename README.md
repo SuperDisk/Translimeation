@@ -1,5 +1,5 @@
 # Translimeation
-English romhack of Slime Mori Mori
+[English romhack of Slime Mori Mori](https://nickfa.ro/wiki/Slime_MoriMori_Translation_Hack)
 
 This is a work-in-progress romhack of an old Japan-only GBA game.
 
