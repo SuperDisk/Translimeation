@@ -1,5 +1,5 @@
 ; FORMATTING-REVIEWED HUMAN DIALOGUE. Historical delivery remains after-translate2.txt.
-; Entry-by-entry before/after and restoration attribution: professional-formatting-review.json.
+; Entry-by-entry before/after and restoration attribution: gerb-formatting-review.json.
 ; Specialized layouts, untranslated names/text, credits and source-only strings need separate work.
 (52 "Thanks for saving" (NEWLINE) "me! (slurp)" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I want you to take" (NEWLINE) "me back to town!" (SHOW-PROMPT) (WAIT-INPUT))
 (53 "It's not goo-d if you" (NEWLINE) "get this!" (SHOW-PROMPT) (WAIT-INPUT))

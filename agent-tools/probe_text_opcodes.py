@@ -6,6 +6,8 @@ checks, actor-busy gate, numeric substitution, clear and window toggle execute
 from the original ROM. Stubbed boundaries are explicit below; this is not a
 full-system timing/playtest claim.
 """
+import _paths
+
 import struct
 from unicorn import UC_HOOK_CODE
 from unicorn.arm_const import *

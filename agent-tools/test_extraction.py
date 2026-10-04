@@ -1,9 +1,11 @@
 """Regression tests for missed text, distinct grammars, and lossless extraction."""
+import _paths
+
 import json
 from pathlib import Path
 import unittest
 
-from audit_text import read_script, migrate_professional_dialogue, audit
+from audit_text import read_script, migrate_gerb_dialogue, audit
 from text_codec import Codec
 from extract_text import extract
 
@@ -104,7 +106,7 @@ class ExtractionTests(unittest.TestCase):
             self.assertNotIn('"BYTE"',json.dumps(r['tokens']))
             self.assertNotIn('"CONTROL"',json.dumps(r['tokens']))
         entries = read_script(ROOT/'text-dumps/after-translate2.txt')
-        named = migrate_professional_dialogue(ROM,entries,ROOT)
+        named = migrate_gerb_dialogue(ROM,entries,ROOT)
         self.assertEqual(len(named),2267)
         report,_ = audit(ROM,named,ROOT)
         self.assertEqual(len(report['blocked']),15) # 11 missing endings + four glyph issues

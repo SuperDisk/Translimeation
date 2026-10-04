@@ -1,5 +1,5 @@
 {
-  "scope": "All 15 professionally translated credit cards, recovered into the separate coordinate/text grammar. Four missing translations remain null. Not injected by the dialogue preview. Names/romanization retained for separate editorial review.",
+  "scope": "All 15 translated by Gerb credit cards, recovered into the separate coordinate/text grammar. Four missing translations remain null. Not injected by the dialogue preview. Names/romanization retained for separate editorial review.",
   "format_repairs": [
     "Recover coordinates from the original ROM: BYTE 6/10/etc were row coordinates, COLOR 255 was row 12/center, PLAYER-NAME was row 14; leading ザ and comma represented x coordinates, not printable text.",
     "Split the overwide title at its unencodable colon into two centered lines (rows 4 and 6).",

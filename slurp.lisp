@@ -16,7 +16,7 @@
 
 (defparameter txt nil)
 (defun load-texts ()
-  (setf txt (read-all-text-utf "text-dumps/professional-dialogue.txt")))
+  (setf txt (read-all-text-utf "text-dumps/gerb-dialogue.txt")))
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *font-records* nil)
@@ -119,33 +119,6 @@ Use SCAN-ROM for the complete, format-aware inventory including non-table text."
     (loop for line = (read-line stream nil)
           while line
           collect (parse-translation-table-entry line))))
-
-;; Legacy export utility used by machine-translation.lisp. Never use this to
-;; prepare dialogue for injection: waits are part of the script's behavior.
-(defun undouble (string)
-  (with-output-to-string (out)
-    (loop with previous-space = nil
-          for char across string
-          for space = (char= char #\Space)
-          unless (and space previous-space) do (write-char char out)
-          do (setf previous-space space))))
-
-(defun remove-reflow-opcodes (string)
-  (let ((stripped
-          (mapcan (lambda (x)
-                    (cond
-                      ((equal x '(newline)) (list " "))
-                      ((equal x '(show-prompt)) nil)
-                      ((equal x '(wait-input)) nil)
-                      (t (list x))))
-                  string)))
-    (labels ((join-strs (ls &optional (cur-str ""))
-               (cond
-                 ((null ls) (if (string= cur-str "") nil (list (undouble cur-str))))
-                 ((stringp (car ls)) (join-strs (cdr ls) (concatenate 'string cur-str (car ls))))
-                 ((not (string= cur-str "")) (list* (undouble cur-str) (car ls) (join-strs (cdr ls))))
-                 (t (cons (car ls) (join-strs (cdr ls)))))))
-      (join-strs stripped))))
 
 (defun text-glyphs (string table)
   "Tokenize table entries atomically; never silently replace an unknown glyph."
@@ -328,7 +301,7 @@ Returns injectable entries and layout/encoding holds as two values."
        (let ((op (and (consp token) (assoc (car token) *text-opcodes*))))
          (unless (and op (= (length token) (1+ (third op)))
                       (every (lambda (arg) (typep arg '(unsigned-byte 8))) (cdr token)))
-           (error "Unknown or malformed text command: ~S; migrate historical scripts with tools/audit_text.py" token))
+           (error "Unknown or malformed text command: ~S; migrate historical scripts with agent-tools/audit_text.py" token))
          (cons (second op) (cdr token)))))))
 
 (defun verify-isomorphic (string tt tts)
@@ -403,7 +376,7 @@ Returns injectable entries and layout/encoding holds as two values."
           (error "Entry ~D is credits data; dialogue reflow is inappropriate" (car entry)))
         (let ((original (decode-string table small (rom-text-offset rom (car entry)) rom)))
           (unless (equal (signature original) (signature (cdr entry)))
-            (error "Entry ~D has damaged or unstructured controls; run tools/audit_text.py" (car entry)))
+            (error "Entry ~D has damaged or unstructured controls; run agent-tools/audit_text.py" (car entry)))
           (when (equal (car (last entry)) '(dynamic-text 0))
             (error "Entry ~D ends at a dynamic counter; recover the missing translation" (car entry))))))))
 

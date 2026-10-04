@@ -5,6 +5,8 @@ Optional test dependency: unicorn. No full-system/gameplay emulation is claimed.
 DMA3 copies/fills are simulated so the returned advance AND composed pixels can
 be compared with the packed 2bpp font data. Run from the repository root.
 """
+import _paths
+
 import struct
 from pathlib import Path
 from unicorn import Uc, UC_ARCH_ARM, UC_MODE_THUMB, UC_HOOK_MEM_WRITE

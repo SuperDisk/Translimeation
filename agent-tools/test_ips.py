@@ -3,6 +3,8 @@
 If slime_original.gba is present locally, also compare the IPS result byte for
 byte with a fresh run of the original ROM-based injector in a temporary tree.
 """
+import _paths
+
 import json
 import shutil
 import struct
@@ -12,15 +14,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from audit_text import read_script
+from text_codec import read_script
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
-          'tools/build_preview.lisp', 'tools/audit_text.py', 'tools/text_codec.py',
-          'tools/check_professional.py', 'text-dumps/rom-dialogue.txt',
-          'text-dumps/professional-dialogue.txt']
+          'tools/build_rom.lisp', 'tools/text_codec.py', 'text-dumps/rom-dialogue.txt',
+          'text-dumps/gerb-dialogue.txt']
 
 
 def read_ips(data):
@@ -119,7 +120,7 @@ class RomFreeBuildTests(unittest.TestCase):
                 cursor += len(payload)
         self.assertEqual(touched, expected_slots)
         self.assertEqual(cursor, self.report['patched_rom_size'])
-        script_ids = {r[0] for r in read_script(self.checkout / 'text-dumps/professional-dialogue.txt')}
+        script_ids = {r[0] for r in read_script(self.checkout / 'text-dumps/gerb-dialogue.txt')}
         included = set(self.report['injected_entries'])
         held = {r['index'] for r in self.report['held_entries']}
         self.assertFalse(included & held)
@@ -196,10 +197,8 @@ class RomFreeBuildTests(unittest.TestCase):
             checkout = Path(tmp) / 'checkout'
             shutil.copytree(self.checkout, checkout)
             (checkout / 'slime_original.gba').write_bytes(original)
-            shutil.copyfile(checkout / 'text-dumps/professional-dialogue.txt',
-                            checkout / 'text-dumps/after-translate2-preview.txt')
-            subprocess.run(['sbcl', '--script', 'tools/build_preview.lisp'], cwd=checkout, check=True)
-            expected = (checkout / 'slime-professional-preview.gba').read_bytes()
+            subprocess.run(['sbcl', '--script', 'tools/build_rom.lisp'], cwd=checkout, check=True)
+            expected = (checkout / 'dist/slime.gba').read_bytes()
         self.assertEqual(apply_ips(original, self.patch), expected)
 
 

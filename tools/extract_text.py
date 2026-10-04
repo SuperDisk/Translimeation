@@ -13,8 +13,7 @@ import json
 from pathlib import Path
 import struct
 
-from text_codec import Codec, OPS
-from audit_text import Symbol, sexp, read_script
+from text_codec import Codec, OPS, Symbol, sexp, read_script
 
 BASE = 0x08000000
 SHA256 = 'f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661'

@@ -1,4 +1,6 @@
 """Audit safety checks and independent verification of the generated preview ROM."""
+import _paths
+
 import struct
 import tempfile
 import unittest
@@ -43,10 +45,10 @@ class AuditTests(unittest.TestCase):
                          pointer(ROM, 1883) + BASE)
 
     def test_preview_changes_only_selected_pointers_and_appends(self):
-        preview = ROOT / 'slime-professional-preview.gba'
+        preview = ROOT / 'dist/slime.gba'
         if not preview.exists():
-            self.skipTest('Run tools/build_preview.lisp first')
-        rows = read_script(ROOT / 'text-dumps/preview-reflowed.txt')
+            self.skipTest('Run tools/build_rom.lisp first')
+        rows = read_script(ROOT / 'dist/reflowed.txt')
         patched = preview.read_bytes()
         changes = set()
         for index, *tokens in rows:

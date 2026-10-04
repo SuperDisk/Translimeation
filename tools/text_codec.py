@@ -3,6 +3,7 @@
 GLYPH preserves the identity of two duplicate table spellings, not an unknown byte.
 The engine's 00 terminator is implicit in dialogue/plain token lists.
 """
+import re
 from pathlib import Path
 
 OPS = {2: ('NEWLINE', 0), 3: ('SCROLL', 0), 4: ('CLEAR', 0),
@@ -12,6 +13,64 @@ OPS = {2: ('NEWLINE', 0), 3: ('SCROLL', 0), 4: ('CLEAR', 0),
        15: ('NOP', 0)}
 BY_NAME = {name: (code, nargs) for code, (name, nargs) in OPS.items()}
 SYMBOLS = set(BY_NAME) | {'NAME', 'GLYPH', 'ALIGN', 'FORCE-NEWLINE', 'WAIT-FOR-A'}
+
+
+class Symbol(str):
+    pass
+
+
+def read_script(path):
+    source = Path(path).read_text(encoding="utf-8")
+    pattern = re.compile(r'\s+|;[^\n]*|"(?:\\[\s\S]|[^"\\])*"|[()]|[^\s()";]+')
+    stack, result, pos = [], [], 0
+    for match in pattern.finditer(source):
+        if match.start() != pos:
+            raise ValueError(f"Malformed script at character {pos}")
+        pos = match.end()
+        token = match[0]
+        if token.isspace() or token.startswith(';'):
+            continue
+        if token == '(':
+            stack.append([])
+            continue
+        if token == ')':
+            if not stack:
+                raise ValueError("Unmatched closing parenthesis")
+            value = stack.pop()
+        elif token.startswith('"'):
+            value = re.sub(r'\\([\s\S])', r'\1', token[1:-1])
+        elif re.fullmatch(r'\d+', token):
+            value = int(token)
+        elif token.upper() in SYMBOLS | {'BYTE', 'CONTROL'}:
+            value = Symbol(token.upper())
+        else:
+            raise ValueError(f"Unsupported script token {token!r}")
+        (stack[-1] if stack else result).append(value)
+    if stack or pos != len(source):
+        raise ValueError("Unterminated script")
+    if any(not isinstance(row, list) or not row or type(row[0]) is not int for row in result):
+        raise ValueError("Expected indexed script entries")
+    indices = [row[0] for row in result]
+    if len(set(indices)) != len(indices):
+        raise ValueError("Duplicate script indices")
+    return result
+
+
+def sexp(value):
+    if isinstance(value, list):
+        return '(' + ' '.join(map(sexp, value)) + ')'
+    if isinstance(value, Symbol) or type(value) is int:
+        return str(value)
+    return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+# Controls whose execution must be preserved before reflow adds page waits.
+EXECUTION = {'SCROLL', 'CLEAR', 'DELAY', 'SHOW-PROMPT', 'WAIT-INPUT',
+             'YES-NO', 'OPEN-MENU', 'SWITCH-WINDOW', 'NOP', 'DYNAMIC-TEXT'}
+
+
+def control_trace(tokens):
+    return [t for t in tokens if isinstance(t, list) and t[0] in EXECUTION]
 
 
 def read_table(path):

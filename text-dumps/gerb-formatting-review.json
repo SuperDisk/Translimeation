@@ -1,7 +1,7 @@
 {
   "baseline": "text-dumps/after-translate2-named.txt",
   "baseline_sha256": "304d700b754b355255b08b6893a0e3cea3728b96b152498c8c931c34cd2558d5",
-  "script": "text-dumps/professional-dialogue.txt",
+  "script": "text-dumps/gerb-dialogue.txt",
   "scope": "All 2,267 dialogue records structurally compared with ROM source; manual review of control/name/color discrepancies, inline word boundaries, anomalous punctuation/newlines, unknown-word candidates, counter tails and tablet variants. This is a formatting audit, not certification of every translated sentence or an in-game playtest.",
   "restored_ending_ids": [
     1522,
@@ -1995,7 +1995,7 @@
     {
       "index": 1522,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1522 (NAME \"スラッサ-\") \"In Nokke Woods remain \" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1522 (NAME \"スラッサ-\") \"In Nokke Woods remain \" (COLOR 2) (DYNAMIC-TEXT 0) \" slimes\" (COLOR 0) (NEWLINE) \"still waiting to be rescued!!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2224,7 +2224,7 @@
     {
       "index": 1950,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1950 (NAME \"ホイミ-\") \"An' now we can all\" (NEWLINE) \"pway Slime Wangers!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1950 (NAME \"ホイミ-\") \"An' now we can all\" (NEWLINE) \"pway Slime Wangers!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all da Slime Wangers awe hewe!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Thank you!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2232,7 +2232,7 @@
     {
       "index": 1952,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1952 (NAME \"ホイミ-\") \"Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1952 (NAME \"ホイミ-\") \"Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all da Slime Wangers awe hewe!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"I can't wait!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2240,7 +2240,7 @@
     {
       "index": 1964,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1964 (NAME \"バブブ\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1964 (NAME \"バブブ\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all the Slime Rangers are here!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Thanks!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2248,7 +2248,7 @@
     {
       "index": 1966,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1966 (NAME \"バブブ\") \"Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1966 (NAME \"バブブ\") \"Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all the Slime Rangers are here!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"He-he-he, I can't wait!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2264,7 +2264,7 @@
     {
       "index": 1979,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1979 (NAME \"くろりん\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1979 (NAME \"くろりん\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) \"!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"I'm counting on you!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2272,7 +2272,7 @@
     {
       "index": 1981,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1981 (NAME \"くろりん\") \"All that's left for us\" (NEWLINE) \"to assemble\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1981 (NAME \"くろりん\") \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) \"!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"I'm counting on you!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2288,7 +2288,7 @@
     {
       "index": 1993,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1993 (NAME \"たまちゃん\") \"A-and now I can play\" (NEWLINE) \"Slime Ranger with everyone.\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"N-Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1993 (NAME \"たまちゃん\") \"A-and now I can play\" (NEWLINE) \"Slime Ranger with everyone.\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"J-Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all the Slime Rangers are here...\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Thank you...\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2296,7 +2296,7 @@
     {
       "index": 1995,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(1995 (NAME \"たまちゃん\") \"N-Next,\" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(1995 (NAME \"たまちゃん\") \"J-Just \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) (NEWLINE) \"till all the Slime Rangers are here...\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"I'm looking forward to it...\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2304,7 +2304,7 @@
     {
       "index": 2007,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(2007 (NAME \"ミニン\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(2007 (NAME \"ミニン\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) \"!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"So exciting!\" (SHOW-PROMPT) (WAIT-INPUT))"
@@ -2312,7 +2312,7 @@
     {
       "index": 2009,
       "reasons": [
-        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the professional delivery."
+        "NEW RESTORATION from complete Japanese: supply the missing counter ending, color reset, final paragraph(s), and original prompt/input waits. This English was not in the Gerb delivery."
       ],
       "before": "(2009 (NAME \"ミニン\") \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0))",
       "after": "(2009 (NAME \"ミニン\") \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (DYNAMIC-TEXT 0) \" more slimes\" (COLOR 0) \"!\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"Good luck!\" (SHOW-PROMPT) (WAIT-INPUT))"

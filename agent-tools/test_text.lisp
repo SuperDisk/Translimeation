@@ -1,4 +1,4 @@
-;; Run from repository root with: sbcl --script tools/test_text.lisp
+;; Run from repository root with: sbcl --script agent-tools/test_text.lisp
 (load "slurp.lisp")
 (in-package :slurp)
 (defvar *checks* 0)

@@ -26,7 +26,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y sbcl
 
-      - name: Build from the current professional script
+      - name: Build from the current Gerb script
         run: python3 tools/build_ips.py
 
       - name: Summarize build

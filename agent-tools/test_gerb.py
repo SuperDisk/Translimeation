@@ -1,9 +1,11 @@
 """Regression checks for the corpus repairs, including deliberately broken input."""
+import _paths
+
 import copy
 import unittest
 
 from audit_text import read_script
-from check_professional import ROOT, validate, word_boundaries
+from check_gerb import ROOT, validate, word_boundaries
 
 
 def readable(tokens):
@@ -13,10 +15,10 @@ def readable(tokens):
                    '10' if t[0] == 'DYNAMIC-TEXT' else '' for t in tokens)
 
 
-class ProfessionalTests(unittest.TestCase):
+class GerbTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entries = read_script(ROOT / 'text-dumps/professional-dialogue.txt')
+        cls.entries = read_script(ROOT / 'text-dumps/gerb-dialogue.txt')
         cls.rows = {r[0]: r for r in cls.entries}
 
     def test_whole_corpus_against_rom_and_review_record(self):
@@ -34,7 +36,7 @@ class ProfessionalTests(unittest.TestCase):
         self.assertEqual(list(word_boundaries(['one', ['NEWLINE'], 'two'])), [])
 
     def test_preview_retains_corrected_spaces_and_counter_endings(self):
-        path = ROOT / 'text-dumps/preview-reflowed.txt'
+        path = ROOT / 'dist/reflowed.txt'
         if not path.exists():
             self.skipTest('Build the preview first')
         preview = {r[0]: r[1:] for r in read_script(path)}

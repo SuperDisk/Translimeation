@@ -12,7 +12,7 @@ Original 8 MiB ROM SHA-256:
 f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661
 Addresses below are CPU addresses unless explicitly called file offsets.
 Static Thumb disassembly was taken directly from slime_original.gba, independently
-of the old Mesen trace. tools/probe_text_renderer.py executes the actual original
+of the old Mesen trace. agent-tools/probe_text_renderer.py executes the actual original
 renderer in Unicorn, including simulated DMA3 copies/fills. 1,635 checks verify
 all 425 glyph advances and pixel composition at differing alignments and colors.
 This is NOT a full-game emulator/playthrough test.
@@ -33,7 +33,7 @@ The human script is not ready for wholesale injection:
   interpreted the argument 00 as end-of-string:
   1522, 1950, 1952, 1964, 1966, 1979, 1981, 1993, 1995, 2007, 2009.
   Recover the Japanese ending from translation-audit.json and translate it.
-  Do not represent newly written endings as the professional translator's work.
+  Do not represent newly written endings as the translator Gerb's work.
 * 1881 has translated text after its counter but needs the missing argument 00
   and terminal 07 08 restored; this is repaired mechanically.
 * Menu opcode 0A needs its argument (including 00). Entries 1311 and 1613 had
@@ -54,7 +54,7 @@ The generated preview input contains 2,252 dialogue entries after eleven
 mechanical repairs; 35 supplied entries are held for the reasons above. Reflow
 then holds another 56 for layout review (55 cannot fit the assumed UI profile;
 1241 has an unbroken oversized laugh; many others are long noninteractive text).
-2,196 entries are injected into slime-professional-preview.gba. Every held or
+2,196 entries are injected into dist/slime.gba. Every held or
 missing entry keeps its original pointer/data. This is an intentionally partial
 preview, not a complete English release. See preview-layout-errors.txt for IDs.
 
@@ -130,7 +130,7 @@ Only the historical-import repair adapter still understands them.
 GLYPH 244 / GLYPH 350 preserve two known duplicate table spellings (ケ and 六),
 whose font records differ. These are known glyph identities, not unknown opcodes.
 
-Execution verification: tools/probe_text_opcodes.py runs 08095F34 and its real
+Execution verification: agent-tools/probe_text_opcodes.py runs 08095F34 and its real
 continuations. 1,055 opcode/argument cases cover every value of the four argument
 bytes, plus input masks, actor-busy gating, fast-forward bypass, four-step scroll
 with actual DMA, speaker-name copies, clears, menu-call parameters, substitutions
@@ -344,13 +344,13 @@ Remaining validation before release
 -----------------------------------
 Determine dimensions and input behavior of mail, minigame/UI and other custom
 windows; review the 55 held entries, including previously noted crash line 1403.
-The formatting-reviewed professional-dialogue.txt now supplies the eleven lost
-endings (new English, attributed in professional-formatting-review.json), fixes
+The formatting-reviewed gerb-dialogue.txt now supplies the eleven lost
+endings (new English, attributed in gerb-formatting-review.json), fixes
 the four unsupported-glyph entries, and records 303 edited entries. Every
 execution-control sequence matches the recovered source; player-name differences
 were reviewed in context. Six separate meaning issues remain in that review.
 Translate the missing dialogue, additional source-only text, and four missing
-credit cards. professional-credits.json recovers the 15 delivered credit cards
+credit cards. gerb-credits.json recovers the 15 delivered credit cards
 into coordinate/text records; these are not injected by the dialogue preview.
 The tablet variants now share one glyph/line map and correct reveal-channel
 subsets, but their specialized screen layout still requires validation. Review

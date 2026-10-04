@@ -3,26 +3,21 @@
 
 This detects structural/typographic regressions, not mistranslations. Intentional
 name-count differences and pending meaning reviews are recorded in the ledger.
-Run before audit_text.py and build_preview.lisp. No files are rewritten.
+Run before audit_text.py and tools/build_rom.lisp. No files are rewritten.
 """
+import _paths
+
 import hashlib
 import json
 import re
 from pathlib import Path
 
 from audit_text import read_script, sexp, pointer, decode_credits
-from text_codec import Codec
+from text_codec import Codec, control_trace
 
 ROOT = Path(__file__).resolve().parent.parent
 TABLETS = range(1346, 1356)
 ROM_SHA256 = 'f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661'
-# These affect execution, as opposed to text layout/color/name substitution.
-EXECUTION = {'SCROLL', 'CLEAR', 'DELAY', 'SHOW-PROMPT', 'WAIT-INPUT',
-             'YES-NO', 'OPEN-MENU', 'SWITCH-WINDOW', 'NOP', 'DYNAMIC-TEXT'}
-
-
-def control_trace(tokens):
-    return [t for t in tokens if isinstance(t, list) and t[0] in EXECUTION]
 
 
 def word_boundaries(tokens):
@@ -65,7 +60,7 @@ def colored_glyphs(tokens, codec):
 def validate(root=ROOT, entries=None, check_ledger=True):
     rom = (root / 'slime_original.gba').read_bytes()
     codec = Codec(root)
-    ledger = json.loads((root / 'text-dumps/professional-formatting-review.json').read_text())
+    ledger = json.loads((root / 'text-dumps/gerb-formatting-review.json').read_text())
     baseline_path = root / ledger['baseline']
     baseline = {r[0]: r for r in read_script(baseline_path)}
     entries = entries if entries is not None else read_script(root / ledger['script'])
@@ -78,7 +73,7 @@ def validate(root=ROOT, entries=None, check_ledger=True):
 
     require(hashlib.sha256(rom).hexdigest() == ROM_SHA256, 'Unexpected original ROM')
     require(len(rows) == len(entries), 'Duplicate dialogue index')
-    require(rows.keys() == baseline.keys(), 'Professional dialogue entries were lost or added without review')
+    require(rows.keys() == baseline.keys(), 'Gerb dialogue entries were lost or added without review')
     if check_ledger:
         require(hashlib.sha256(baseline_path.read_bytes()).hexdigest() == ledger['baseline_sha256'],
                 'The historical named baseline changed')
@@ -144,7 +139,7 @@ def validate(root=ROOT, entries=None, check_ledger=True):
             if glyph != 'newline':
                 require(shown == (ink if ink in available else 4), f'{i}: wrong reveal channel at glyph {position}')
 
-    credits = json.loads((root / 'text-dumps/professional-credits.json').read_text())['cards']
+    credits = json.loads((root / 'text-dumps/gerb-credits.json').read_text())['cards']
     require([c['index'] for c in credits] == list(range(1883, 1902)), 'Credit inventory incomplete')
     ends = (0x13, 0x18, 0x23, 0x3D, 0x66, 0x97, 0xCE, 0x10C, 0x141, 0x1B8)
     for card in credits:

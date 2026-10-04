@@ -1,16 +1,17 @@
-;; Run from the repository root: sbcl --script tools/build_preview.lisp
+;; Run from the repository root: sbcl --script tools/build_rom.lisp
 ;; Intentionally partial preview: failures keep original pointers and ROM data.
 (load "slurp.lisp")
 (in-package :slurp)
-(let* ((entries (read-all-text-utf "text-dumps/after-translate2-preview.txt"))
+(ensure-directories-exist "dist/slime.gba")
+(let* ((entries (read-all-text-utf "text-dumps/gerb-dialogue.txt"))
        (rom (read-rom "slime_original.gba")))
   (load-font-metrics rom)
   (validate-dialogue-entries rom entries)
   (multiple-value-bind (passed failed) (prepare-dialogue-preview entries)
-    (dump-all-text-utf "text-dumps/preview-layout-errors.txt" failed)
-    (dump-all-text-utf "text-dumps/preview-reflowed.txt" passed)
+    (dump-all-text-utf "dist/layout-errors.txt" failed)
+    (dump-all-text-utf "dist/reflowed.txt" passed)
     (patch-text rom (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
                    (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
                    passed)
-    (dump-rom rom "slime-professional-preview.gba")
+    (dump-rom rom "dist/slime.gba")
     (format t "~D reflowed and injected; ~D held for layout review.~%" (length passed) (length failed))))

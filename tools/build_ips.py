@@ -15,9 +15,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from audit_text import read_script, sexp, Symbol
-from check_professional import control_trace
-from text_codec import Codec
+from text_codec import Codec, Symbol, read_script, sexp, control_trace
 
 ROOT = Path(__file__).resolve().parent.parent
 IPS_LIMIT = 1 << 24
@@ -162,7 +160,7 @@ def build(script, output, root=ROOT, verify_rom=None):
     patch = ips_patch(writes)
     sources = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl', 'tools/patch_profile.json',
                profile['original_dialogue_file'], 'tools/build_patch_data.lisp',
-               'tools/build_ips.py', 'tools/audit_text.py', 'tools/check_professional.py', 'tools/text_codec.py']
+               'tools/build_ips.py', 'tools/text_codec.py']
     inputs = {p: sha256((root / p).read_bytes()) for p in sources}
     try:
         script_label = script.relative_to(root).as_posix()
@@ -198,7 +196,7 @@ def build(script, output, root=ROOT, verify_rom=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--script', type=Path, default=ROOT / 'text-dumps/professional-dialogue.txt')
+    parser.add_argument('--script', type=Path, default=ROOT / 'text-dumps/gerb-dialogue.txt')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist')
     parser.add_argument('--verify-rom', type=Path, help='Optional local metadata verification; never uploaded or copied')
     args = parser.parse_args()
