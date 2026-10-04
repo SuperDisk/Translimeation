@@ -13,5 +13,17 @@ NO$*
 !/text-dumps/*
 !/tools/
 !/tools/slime_gfx.py
+!/tools/audit_text.py
+!/tools/build_preview.lisp
+!/tools/test_text.lisp
+!/tools/test_text_tools.py
+!/tools/probe_text_renderer.py
 *disasm.txt
 gba_bios.bin
+text-dumps/after-translate2-preview.txt
+text-dumps/preview-reflowed.txt
+
+!/tools/text_codec.py
+!/tools/extract_text.py
+!/tools/probe_text_opcodes.py
+!/tools/test_extraction.py

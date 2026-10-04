@@ -1,77 +1,56 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (ql:quickload '(cl-ppcre skippy alexandria) :silent t))
+  (require :asdf))
 
 (defpackage #:slurp
   (:use :cl))
 (in-package #:slurp)
 
-;; Text opcodes
-
-;; 02 = newline
-;; 07 08 = wait for new line?
-;; 00 = null terminator
-;; 0c = color codes (00 = normal)
-;; 0e = player name
-;; 0b = move textbox to bottom??
-
-;; remaining opcodes used at least once: (3 F B 4 A D 6 9 7 8)
+;; Verified against 08095F34 and its dispatch/continuation tables.
+;; 00 ends the stream; 01 prefixes a two-byte glyph; 05 delimits a small-font name.
+;; The plain/menu renderer and credits use DIFFERENT grammars; see tools/text_codec.py.
+(defparameter *text-opcodes*
+  '((newline 2 0) (scroll 3 0) (clear 4 0) (delay 6 1)
+    (show-prompt 7 0) (wait-input 8 0) (yes-no 9 0) (open-menu 10 1)
+    (switch-window 11 0) (color 12 1) (dynamic-text 13 1)
+    (player-name 14 0) (nop 15 0)))
 
 (defparameter txt nil)
 (defun load-texts ()
-  (setf txt (read-all-text-utf "text-dumps/after-translate2.txt")))
+  (setf txt (read-all-text-utf "text-dumps/after-translate2-named.txt")))
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
-(defparameter *letter-sizes*
-  '((#\A . 9) (#\B . 8) (#\C . 9) (#\D . 8)
-    (#\E . 7) (#\F . 7) (#\G . 9) (#\H . 8)
-    (#\I . 6) (#\J . 7) (#\K . 8) (#\L . 7)
-    (#\M . 9) (#\N . 8) (#\O . 10) (#\P . 7)
-    (#\Q . 10) (#\R . 8) (#\S . 7) (#\T . 8)
-    (#\U . 8) (#\V . 9) (#\W . 11) (#\X . 8)
-    (#\Y . 9) (#\Z . 7) (#\a . 8) (#\b . 8)
-    (#\c . 8) (#\d . 8) (#\e . 8) (#\f . 7)
-    (#\g . 8) (#\h . 7) (#\i . 4) (#\j . 6)
-    (#\k . 7) (#\l . 6) (#\m . 10) (#\n . 8)
-    (#\o . 9) (#\p . 8) (#\q . 8) (#\r . 6)
-    (#\s . 7) (#\t . 6) (#\u . 8) (#\v . 9)
-    (#\w . 11) (#\x . 8) (#\y . 8) (#\z . 7)
-    (#\Space . 6) (#\~ . 9) (#\. . 2) (#\, . 4)
-    (#\" . 5) (#\' . 6) (#\! . 4) (#\? . 9)
-    (#\) . 6) (#\( . 6)
-    (#\0 . 7) (#\1 . 7) (#\2 . 7) (#\3 . 7) (#\4 . 7)
-    (#\5 . 7) (#\6 . 7) (#\7 . 7) (#\8 . 7) (#\9 . 7)))
+(defparameter *font-records* nil)
+;; 080971EC selects one of ten records at ROM offset 713EB8.
+;; Each record is {u32 bitmap-pointer, u16 first-code, u8 width, u8 stride}.
+(defparameter *font-range-ends* '(#x13 #x18 #x23 #x3d #x66 #x97 #xce #x10c #x141 #x1b8))
+
+(defun load-font-metrics (&optional (rom (read-rom "slime_original.gba")))
+  (setf *font-records*
+        (loop for pos from #x713eb8 by 8
+              for end in *font-range-ends*
+              collect (list (logior (aref rom (+ pos 4))
+                                   (ash (aref rom (+ pos 5)) 8))
+                            end (aref rom (+ pos 6))))))
+
+(defun glyph-width (code)
+  (unless *font-records* (load-font-metrics))
+  (or (loop for (start end width) in *font-records*
+            when (<= start code end) return width)
+      (error "No font metric for glyph ~X" code)))
+
+(defparameter *player-name-max-glyphs* 4)
+;; 0809670C formats a u16 using five decimal places; reserve the full range.
+(defparameter *dynamic-number-max-glyphs* 5)
 
 (defparameter *textbox-size* 208)
 
 ;; note: something special about text 1403 --- might be ducktor cid's crashing line
 
-(defun valid-string (string)
-  (and string
-       (loop for el in string
-             always
-             (and
-              (> (length string) 2)
-              (equal (last string 2) '((byte 7) (byte 8)))
-              (cond
-                ((and (consp el) (eq (car el) 'byte))
-                 (member (cadr el) '(#x3 #xF #xB #x4 #xA #xD #x6 #x9 #x7 #x8) :test #'=))
-                (t t))))))
-
 (defun scan-rom ()
-  (let ((romdata (read-rom "slime_original.gba"))
-        (tbl1 (load-translation-table "./SlimeDialog.tbl"))
-        (tbl2 (load-translation-table "./Slime_Small.tbl")))
-    (loop for i below (- (length romdata) 4)
-          for ptr = (logior
-                     (aref romdata i)
-                     (ash (aref romdata (+ i 1)) 8)
-                     (ash (aref romdata (+ i 2)) 16)
-                     (ash (aref romdata (+ i 3)) 24))
-          when (= 8 (aref romdata (+ i 3))) do
-            (ignore-errors
-             (let ((decoded (decode-string tbl1 tbl2 i romdata)))
-               (when (valid-string decoded)
-                 (format t "~a~%" decoded)))))))
+  "Extract all known formats and audit every byte of the text section.
+See text-dumps/rom-text-coverage.json for evidence and coverage limits."
+  (uiop:run-program '("python" "tools/extract_text.py") :output *standard-output*
+                    :error-output *error-output*))
 
 (defun dump-all-text-utf (fname txts)
   (progn
@@ -79,20 +58,25 @@
                                   :external-format :utf-8
                                   :if-exists :supersede)
       (with-standard-io-syntax
-        (loop for txt in txts do
-          (prin1 txt stream)
-          (terpri stream))))
+        (let ((*print-readably* nil) (*print-pretty* nil)
+              (*package* (find-package :slurp)))
+          (loop for txt in txts do
+            (prin1 txt stream)
+            (terpri stream)))))
     nil))
 
 (defun read-all-text-utf (fname)
   (with-open-file (stream fname :direction :input
                                 :external-format :utf-8)
-    (loop for sexp = (read stream nil)
-          while sexp
-          collect sexp)))
+    (let ((*read-eval* nil) (*package* (find-package :slurp)))
+      (loop for sexp = (read stream nil)
+            while sexp
+            collect sexp))))
 
 (defun trans (all-text-translated f)
   (let ((slime-patched (read-rom "slime_original.gba")))
+    (load-font-metrics slime-patched)
+    (validate-dialogue-entries slime-patched all-text-translated)
     (patch-text slime-patched
                 (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
                 (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
@@ -107,16 +91,17 @@
   (invoke-restart 'skip-malformed-string))
 
 (defun load-all-texts (rom pointer-table translation-table small-translation-table &optional (ignore nil))
-  (loop for el in (remove-if (lambda (x) (member (car x) ignore)) pointer-table)
-        for (idx . addr) = el
-        for entry = (restart-case (decode-string translation-table small-translation-table addr rom)
-                      (skip-malformed-string ()
-                        (format t "Malformed string at table idx ~a: ~a~%" idx addr)
-                        nil))
-        when entry collect (cons idx entry)))
+  "Legacy indexed dialogue extraction. Invalid/null slots and credits are excluded.
+Use SCAN-ROM for the complete, format-aware inventory including non-table text."
+  (loop for (idx . addr) in pointer-table
+        when (and (<= 52 idx 2397) (not (<= 1883 idx 1901))
+                  (not (member idx ignore)) (<= #x08000000 addr)
+                  (< (- addr #x08000000) (length rom)))
+        collect (cons idx (decode-string translation-table small-translation-table
+                                         (- addr #x08000000) rom))))
 
 (defun invert-alist (alist)
-  (loop for (a . b) in alist
+  (loop for (a . b) in (stable-sort (copy-list alist) #'< :key #'car)
         collect (cons b a)))
 (defun my-split (string delimiterp)
   (loop :for beg = (position-if-not delimiterp string)
@@ -135,16 +120,23 @@
           while line
           collect (parse-translation-table-entry line))))
 
+;; Legacy export utility used by machine-translation.lisp. Never use this to
+;; prepare dialogue for injection: waits are part of the script's behavior.
 (defun undouble (string)
-  (cl-ppcre:regex-replace-all " +" string " "))
+  (with-output-to-string (out)
+    (loop with previous-space = nil
+          for char across string
+          for space = (char= char #\Space)
+          unless (and space previous-space) do (write-char char out)
+          do (setf previous-space space))))
 
 (defun remove-reflow-opcodes (string)
   (let ((stripped
           (mapcan (lambda (x)
                     (cond
                       ((equal x '(newline)) (list " "))
-                      ((equal x '(byte #x7)) nil)
-                      ((equal x '(byte #x8)) nil)
+                      ((equal x '(show-prompt)) nil)
+                      ((equal x '(wait-input)) nil)
                       (t (list x))))
                   string)))
     (labels ((join-strs (ls &optional (cur-str ""))
@@ -155,130 +147,179 @@
                  (t (cons (car ls) (join-strs (cdr ls)))))))
       (join-strs stripped))))
 
-(defun reflow-string (str)
-  (flet ((word-width (word)
-           (loop for char across word
-                 sum (let ((width (cdr (assoc char *letter-sizes*))))
-                       (if width (1+ width) 11)))))
-    (let ((str (remove-reflow-opcodes str))
-          (out nil)
-          (cur-str "")
-          (pixels 0)
-          (need-wait nil))
-      (loop for elem in str do
+(defun text-glyphs (string table)
+  "Tokenize table entries atomically; never silently replace an unknown glyph."
+  (loop with pos = 0
+        while (< pos (length string))
+        for match = (loop for entry in table
+                          for key = (car entry)
+                          when (and (<= (+ pos (length key)) (length string))
+                                    (string= key string :start2 pos
+                                                       :end2 (+ pos (length key))))
+                            maximize (length key) into longest
+                          finally
+                             (return (find-if
+                                      (lambda (entry)
+                                        (and (= (length (car entry)) longest)
+                                             (> longest 0)
+                                             (<= (+ pos longest) (length string))
+                                             (string= (car entry) string :start2 pos
+                                                                      :end2 (+ pos longest))))
+                                      table)))
+        do (unless match
+             (error "Unencodable text at position ~D: ~S" pos string))
+        collect match
+        do (incf pos (length (car match)))))
+
+(defun reflow-string (entry &key (width *textbox-size*) (lines-per-page 2)
+                                (paginate (some (lambda (x)
+                                                  (or (and (consp x) (eq (car x) 'name))
+                                                      (member x '((show-prompt) (wait-input) (yes-no)
+                                                                  (wait-for-a)) :test #'equal)))
+                                                (cdr entry))))
+  "Reflow an indexed dialogue entry using ROM widths, preserving control order.
+NEWLINE is soft unless it follows a wait; FORCE-NEWLINE is always hard.
+Existing waits and terminal behavior are retained. No final wait is invented."
+  (unless (and (integerp (car entry)) (plusp width) (plusp lines-per-page))
+    (error "Expected an indexed text entry and a positive width: ~S" entry))
+  (unless *font-records* (load-font-metrics))
+  (let ((table (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
+        (tokens nil) (out nil) (word nil) (pending-space nil)
+        (pixels 0) (lines 1) (after-wait nil))
+    (labels ((emit (x)
+               (if (and (stringp x) (stringp (car out)))
+                   (setf (car out) (concatenate 'string (car out) x))
+                   (push x out)))
+             (advance (items start)
+               (loop with x = start
+                     for item in items
+                     do (cond
+                          ((stringp item)
+                           (dolist (g (text-glyphs item table))
+                             (incf x (+ (glyph-width (cdr g)) (if (zerop x) 0 1)))))
+                          ((and (consp item) (eq (car item) 'glyph))
+                           (incf x (+ (glyph-width (cadr item)) (if (zerop x) 0 1))))
+                          ((equal item '(player-name))
+                           (incf x (- (* *player-name-max-glyphs*
+                                        (1+ (reduce #'max *font-records* :key #'third)))
+                                      (if (zerop x) 1 0))))
+                          ((and (consp item) (eq (car item) 'dynamic-text))
+                           (incf x (- (* *dynamic-number-max-glyphs* (1+ (glyph-width #x28)))
+                                      (if (zerop x) 1 0)))))
+                     finally (return x)))
+             (line-break ()
+               (when (and (>= lines lines-per-page) (not after-wait))
+                 (unless paginate
+                   (error "Entry ~D needs more than ~D lines; select a layout explicitly."
+                          (car entry) lines-per-page))
+                 (emit '(show-prompt)) (emit '(wait-input)) (setf lines 0))
+               (emit '(newline))
+               (setf pixels 0 pending-space nil after-wait nil)
+               (incf lines))
+             (flush-word ()
+               (when word
+                 (let* ((items (reverse word))
+                        (space (and pending-space (> pixels 0)))
+                        (end (advance items (if space (advance '(" ") pixels) pixels))))
+                   (when (> end width)
+                     (when (zerop pixels)
+                       (error "Entry ~D has a word wider than ~D pixels: ~S" (car entry) width items))
+                     (line-break)
+                     (setf space nil end (advance items 0))
+                     (when (> end width)
+                       (error "Entry ~D has a word wider than ~D pixels: ~S" (car entry) width items)))
+                   (when space (emit " "))
+                   (dolist (item items) (emit item))
+                   (setf pixels end word nil pending-space nil)))))
+      ;; Keep color changes inside words, so punctuation and fragments around
+      ;; zero-width controls cannot acquire or lose spaces.
+      (dolist (item (cdr entry))
         (cond
-          ((stringp elem)
-           (let ((words (my-split elem (lambda (x) (string= x " ")))))
-             ;; (if (and
-             ;;      (not (string= elem " "))
-             ;;      (char= (elt elem (1- (length elem))) #\Space))
-             ;;     (setf (car (last words)) (format nil "~a " (car (last words)))))
-
-             (loop for word in words do
-               (progn
-                 (incf pixels (word-width word))
-                                        ;(format t "~a ; word-width = ~a ; pixels = ~a~%" word (word-width word) pixels)
-                 (when (< pixels *textbox-size*)
-                   (incf pixels (cdr (assoc #\Space *letter-sizes*))))
-                 (when (>= pixels *textbox-size*)
-                                        ;(format t "Splitting before ~a, ~a >= ~a~%" word pixels *textbox-size*)
-                   (when (not (string= cur-str ""))
-                     (push cur-str out))
-                   (when need-wait
-                     (push '(byte 7) out)
-                     (push '(byte 8) out))
-                   (setf need-wait (not need-wait))
-                   (push '(newline) out)
-                   (setf pixels (word-width word))
-                   (setf cur-str ""))
-                 (setf cur-str
-                       (concatenate 'string
-                                    cur-str
-                                    (when (not (string= cur-str "")) " ")
-                                    word))))
-             (when (not (string= cur-str ""))
-               (push cur-str out))))
-          ((equal elem '(player-name))
-           (push elem out)
-           (setf cur-str "")
-           (incf pixels (word-width "WWWW"))) ; hack: assume 4 widest characters
+          ((stringp item)
+           (dolist (glyph (text-glyphs item table))
+             (push (car glyph) tokens)))
+          (t (push item tokens))))
+      (dolist (item (nreverse tokens))
+        (cond
+          ((equal item " ") (flush-word) (setf pending-space t))
+          ((equal item '(newline))
+           (flush-word)
+           (if after-wait (line-break) (setf pending-space t)))
+          ((equal item '(force-newline)) (flush-word) (line-break))
+          ((or (stringp item) (equal item '(player-name))
+               (and (consp item) (member (car item) '(color glyph)))
+               (and (consp item) (eq (car item) 'dynamic-text)))
+           (push item word))
           (t
-           (push elem out)
-           (setf cur-str ""))))
-      (when (equal (car out) '(newline))
-        (setf out (cdr out)))
-      (when (not (equal (car out) '(byte 8)))
-        (push '(byte 7) out)
-        (push '(byte 8) out))
-      (reverse out))))
+           (flush-word) (emit item)
+           (cond
+             ((member item '((wait-input) (wait-for-a)) :test #'equal)
+              (setf after-wait t lines 0))
+             ((member item '((scroll) (clear) (switch-window)) :test #'equal)
+              (setf pixels 0 lines 1 pending-space nil after-wait nil))))))
+      (flush-word)
+      (cons (car entry) (nreverse out)))))
 
-(defun decode-small-string (translation-table small-translation-table offset rom &optional (cur-str ""))
-  (let* ((cur (elt rom offset))
-         (translated (assoc cur small-translation-table)))
-    (cond
-      ((= cur #x05)
-       (cons (list 'name cur-str) (decode-string translation-table small-translation-table (1+ offset) rom)))
-      ((not translated)
-       (error 'malformed-string-error :text "yeah")
-       nil)
-      (t (decode-small-string translation-table small-translation-table (1+ offset) rom (concatenate 'string cur-str (cdr translated)))))))
+(defun decode-string (translation-table small-translation-table offset rom)
+  "Decode the dialogue grammar, consuming arguments even when they equal zero."
+  (let ((pos offset) (out nil) (limit (min (length rom) (+ offset 16384))))
+    (labels ((get-code ()
+               (when (>= pos limit) (error "Unterminated dialogue at ~X" offset))
+               (prog1 (elt rom pos) (incf pos)))
+             (put (text)
+               (if (stringp (car out))
+                   (setf (car out) (concatenate 'string (car out) text))
+                   (push text out)))
+             (put-glyph (code)
+               (let ((mapped (assoc code translation-table)))
+                 (unless mapped (error "Unknown glyph ~X at ~X" code (1- pos)))
+                 ;; Duplicate spellings are distinct, known font glyphs.
+                 (if (member code '(#xf4 #x15e))
+                     (push (list 'glyph code) out)
+                     (put (cdr mapped))))))
+      (loop for code = (get-code) do
+        (cond
+          ((zerop code) (return (nreverse out)))
+          ((= code 1) (put-glyph (+ 256 (get-code))))
+          ((>= code 16) (put-glyph code))
+          ((= code 5)
+           (push (list 'name
+                       (with-output-to-string (name)
+                         (loop for c = (get-code) until (= c 5) do
+                           (let ((mapped (assoc c small-translation-table)))
+                             (unless mapped (error "Unknown name glyph ~X" c))
+                             (write-string (cdr mapped) name))))) out))
+          (t
+           (destructuring-bind (name opcode nargs)
+               (find code *text-opcodes* :key #'second)
+             (declare (ignore opcode))
+             (push (cons name (loop repeat nargs collect (get-code))) out))))))))
 
-(defun decode-string (translation-table small-translation-table offset rom &optional (cur-str ""))
-  (let ((cur (elt rom offset))
-        (nxt (elt rom (1+ offset)))
-        mapped-char)
+(defun encode-string (inv-translation-table inv-translation-table-small tokens)
+  "Encode named dialogue commands. Legacy BYTE/CONTROL forms must be migrated."
+  (loop for token in tokens append
     (cond
-      ((zerop cur) (if (string= cur-str "") nil (list cur-str)))
-      ((setf mapped-char (assoc (logior (ash cur 8) nxt) translation-table))
-       (decode-string translation-table small-translation-table (+ 2 offset) rom (concatenate 'string cur-str (cdr mapped-char))))
-      ((setf mapped-char (assoc cur translation-table))
-       (decode-string translation-table small-translation-table (1+ offset) rom (concatenate 'string cur-str (cdr mapped-char))))
-      ((not (string= cur-str "")) (list* cur-str (decode-string translation-table small-translation-table offset rom "")))
-      ((= cur #x05) ; name
-       (decode-small-string translation-table small-translation-table (1+ offset) rom))
-      ((= cur #x0c) ; color codes
-       (cons `(color ,nxt) (decode-string translation-table small-translation-table (+ 2 offset) rom cur-str)))
-      ((= cur #x02) ; new line
-       (cons '(newline) (decode-string translation-table small-translation-table (1+ offset) rom cur-str)))
-      ((= cur #x0e) ; player name
-       (cons '(player-name) (decode-string translation-table small-translation-table (1+ offset) rom cur-str)))
-      (t (cons `(byte ,cur) (decode-string translation-table small-translation-table (1+ offset) rom cur-str))))))
-
-(defun encode-string (inv-translation-table inv-translation-table-small string)
-  (flet ((encode-str (string tbl)
-           (loop for char across string
-                 for encoded = (or (assoc char tbl :test #'string=)
-                                   (assoc "?" tbl :test #'string=))
-                 collect (cdr encoded))))
-    (cond
-      ((null string) nil)
-      ((stringp (car string))
-       (append
-        (encode-str (car string) inv-translation-table)
-        (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'newline)
-       (cons #x02 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'name)
-       (append '(#x05)
-               (encode-str (cadar string) inv-translation-table-small)
-               '(#x05)
-               (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'color)
-       (list* #x0c
-              (cadar string)
-              (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'player-name)
-       (cons #x0e (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'wait-for-a)
-       (list* #x07 #x08 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'force-newline)
-       (cons #x02 (encode-string inv-translation-table inv-translation-table-small (cdr string))))
-      ((equal (caar string) 'byte)
-       (cons (cadar string) (encode-string inv-translation-table inv-translation-table-small (cdr string)))))))
+      ((stringp token) (mapcar #'cdr (text-glyphs token inv-translation-table)))
+      ((equal token '(wait-for-a)) '(7 8)) ; historical explicit shorthand
+      ((equal token '(force-newline)) '(2))
+      ((and (consp token) (eq (car token) 'name) (= (length token) 2)
+            (stringp (cadr token)) (plusp (length (cadr token))))
+       (append '(5) (mapcar #'cdr (text-glyphs (cadr token) inv-translation-table-small)) '(5)))
+      ((and (consp token) (eq (car token) 'glyph) (= (length token) 2)
+            (integerp (cadr token)) (<= #x10 (cadr token) #x1b8))
+       (list (cadr token)))
+      (t
+       (let ((op (and (consp token) (assoc (car token) *text-opcodes*))))
+         (unless (and op (= (length token) (1+ (third op)))
+                      (every (lambda (arg) (typep arg '(unsigned-byte 8))) (cdr token)))
+           (error "Unknown or malformed text command: ~S; migrate historical scripts with tools/audit_text.py" token))
+         (cons (second op) (cdr token)))))))
 
 (defun verify-isomorphic (string tt tts)
   (let* ((encoded (encode-string (invert-alist tt) (invert-alist tts) string))
-         (decoded (decode-string tt tts 0 (append encoded '(0 0)))))
+         (bytes (loop for code in encoded append
+                       (if (> code 255) (list (ash code -8) (logand code 255)) (list code))))
+         (decoded (decode-string tt tts 0 (append bytes '(0)))))
     (if (not (equal decoded string))
         string)))
 
@@ -297,14 +338,22 @@
            (loop for byte in bytes do
              (cond
                ((> byte #xFF)
-                (vector-push (ldb (byte 8 8) byte) rom)
-                (vector-push (ldb (byte 8 0) byte) rom))
-               (t (vector-push byte rom))))
-           (vector-push 0 rom))) ; null terminator
+                (vector-push-extend (ldb (byte 8 8) byte) rom)
+                (vector-push-extend (ldb (byte 8 0) byte) rom))
+               (t (vector-push-extend byte rom))))
+           (vector-push-extend 0 rom))) ; null terminator
     (let ((pointer-patches nil))
       (loop for (table-index . string) in new-strings do
+        (unless (and (integerp table-index) (<= 52 table-index 2397)
+                     (not (<= 1883 table-index 1901)))
+          (error "Not a dialogue slot: ~S" table-index))
+        (when (assoc table-index pointer-patches)
+          (error "Duplicate text index: ~D" table-index))
+        (rom-text-offset rom table-index)
         (push (cons table-index (fill-pointer rom)) pointer-patches)
         (insert-string (encode-string encoding-table small-encoding-table string)))
+      (when (> (fill-pointer rom) #x2000000)
+        (error "Patched ROM exceeds the GBA cartridge address window"))
       (loop for (table-index . pointer) in pointer-patches do
         (let ((tbl-pos (+ (car pointer-table-pos) (* 4 table-index)))
               (table-entry (logior #x8000000 pointer)))
@@ -313,10 +362,40 @@
                 for pos from tbl-pos do
                   (setf (aref rom pos) bt)))))))
 
+(defun rom-text-offset (rom index)
+  (unless (and (integerp index) (<= 52 index 2397))
+    (error "Invalid dialogue index: ~S" index))
+  (let* ((pos (+ (car pointer-table-pos) (* 4 index)))
+         (pointer (loop for i below 4 sum (ash (aref rom (+ pos i)) (* 8 i))))
+         (offset (- pointer #x08000000)))
+    (unless (<= 0 offset (1- (length rom)))
+      (error "Entry ~D has a non-ROM pointer: ~8,'0X" index pointer))
+    offset))
+
+(defun validate-dialogue-entries (rom entries)
+  "Fail closed on damaged control sequences before any output file is written."
+  (let ((table (load-translation-table "SlimeDialog.tbl"))
+        (small (load-translation-table "Slime_Small.tbl")))
+    (labels ((signature (tokens)
+               (remove-if-not (lambda (x)
+                                (and (consp x)
+                                     (member (car x) '(scroll clear delay yes-no open-menu
+                                                       switch-window dynamic-text nop))))
+                              tokens)))
+      (dolist (entry entries)
+        (when (<= 1883 (car entry) 1901)
+          (error "Entry ~D is credits data; dialogue reflow is inappropriate" (car entry)))
+        (let ((original (decode-string table small (rom-text-offset rom (car entry)) rom)))
+          (unless (equal (signature original) (signature (cdr entry)))
+            (error "Entry ~D has damaged or unstructured controls; run tools/audit_text.py" (car entry)))
+          (when (equal (car (last entry)) '(dynamic-text 0))
+            (error "Entry ~D ends at a dynamic counter; recover the missing translation" (car entry))))))))
+
 (defun read-rom (rom &optional (expansion #x100000)) ;expand by 1MB
   (with-open-file (stream rom :element-type '(unsigned-byte 8))
     (let ((arr (make-array (+ (file-length stream) expansion)
                            :element-type '(unsigned-byte 8)
+                           :adjustable t
                            :fill-pointer (file-length stream))))
       (read-sequence arr stream)
       arr)))

@@ -3,3 +3,358 @@
 
 8098B72 -- after decompression
   r1 = end of emitting bytes
+
+Text investigation, 2026-10-03
+==============================
+Scope/evidence
+--------------
+Original 8 MiB ROM SHA-256:
+f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661
+Addresses below are CPU addresses unless explicitly called file offsets.
+Static Thumb disassembly was taken directly from slime_original.gba, independently
+of the old Mesen trace. tools/probe_text_renderer.py executes the actual original
+renderer in Unicorn, including simulated DMA3 copies/fills. 1,635 checks verify
+all 425 glyph advances and pixel composition at differing alignments and colors.
+This is NOT a full-game emulator/playthrough test.
+
+Script provenance and readiness
+-------------------------------
+Git commit 400d0aa (2023-09-25), "Finishes all dialog translations, I think",
+marks the human translation's completion. after-translate2.txt received fixes
+through 9460f99 on 2023-10-08. after-translate3.txt was added later that day in
+61cb46e, "Add script with no formatting opcodes"; it is not a newer translation.
+all-text-deepl-zipped.txt is the separate machine translation. The origin master
+HEAD matched local 393c384 when checked. No original translation file was edited.
+
+The human script is not ready for wholesale injection:
+* 2,287 entries, including five NULL pointer slots: 1876..1879 and 2086.
+  Those strings saying "6" are not legitimate replacement text.
+* Eleven dialogue entries end prematurely at 0D 00, because the old extractor
+  interpreted the argument 00 as end-of-string:
+  1522, 1950, 1952, 1964, 1966, 1979, 1981, 1993, 1995, 2007, 2009.
+  Recover the Japanese ending from translation-audit.json and translate it.
+  Do not represent newly written endings as the professional translator's work.
+* 1881 has translated text after its counter but needs the missing argument 00
+  and terminal 07 08 restored; this is repaired mechanically.
+* Menu opcode 0A needs its argument (including 00). Entries 1311 and 1613 had
+  their arguments misrepresented as independent clear/scroll opcodes.
+* 2019 has a delay argument 40 (hex), misdecoded as the glyph ぅ and subsequently
+  replaced by a space. Restore (DELAY 64), not an encoded space.
+* Four ordinary entries contain unavailable glyphs: 798 (é), 1574/1657/1658 (#).
+  Either draw these glyphs or make explicit spelling changes; no '?' substitution.
+* There are 19 credits records, 15 present in the translation and four missing
+  (1892, 1895, 1897, 1900). They require a separate parser and injection path.
+* Dialogue 1982 is nonempty in the ROM but absent from the translation.
+* Other omitted indices in this span are empty strings, not missing translations.
+* Remaining Japanese body text and differing player-name occurrence counts are
+  listed for editorial review. Many are proper names; count differences alone
+  do not prove damage to the translation.
+
+The generated preview input contains 2,252 dialogue entries after eleven
+mechanical repairs; 35 supplied entries are held for the reasons above. Reflow
+then holds another 56 for layout review (55 cannot fit the assumed UI profile;
+1241 has an unbroken oversized laugh; many others are long noninteractive text).
+2,196 entries are injected into slime-professional-preview.gba. Every held or
+missing entry keeps its original pointer/data. This is an intentionally partial
+preview, not a complete English release. See preview-layout-errors.txt for IDs.
+
+Table organization
+------------------
+The old injector's base at file offset 71174C is NOT the start of a homogeneous
+text-pointer table. Its first 52 words include graphics descriptors and other
+data. The first dialogue pointer is at 71181C (legacy index 52).
+08713CC4 holds bank pointers into this region. 08095E18 loads a dialogue using
+bank/index, storing the script PC at 02001080 + 10C. 08096684 is the fast variant.
+Legacy indices 52..2397 are retained to avoid changing the translated script IDs.
+
+Dialogue grammar (dispatcher 080961E8, jump table 08096218)
+---------------------------------------------------------
+00       End; disable interpreter. Handler 08096254.
+01 xx    Glyph 0100+xx (NOT a control argument). Handler 08096270.
+02       New line; x=0, advance 16px, scroll if no more rows. 0809660C.
+03       Scroll transition, resetting x and running four scroll steps.
+         Setup 0809629A; animation 080964A0 moves four pixel rows per step.
+04       Clear text area and reset cursor. 080962FC -> 08096A54.
+05 ...05 Speaker name, using the SMALL font table. 08096580 copies 64 bytes
+         per glyph, i.e. two 4bpp tiles = 8x16 pixels. This path is fixed width.
+06 nn    (DELAY nn): set the character-delay countdown, including zero.
+         08096308 writes context+128. 08095F90 decrements once per interpreter
+         update. A fast budget / held-A fast-forward can bypass this countdown.
+07       (SHOW-PROMPT): enter pending state, then show continuation indicator
+         once 080A0EC8 returns zero. It DOES NOT require a button press.
+         080A0EC8 returns busy if global state [*[03002F40]+13]&1 is set AND
+         any of 21 records at 03004260+i*32 has byte[18]&20 set (hex offsets).
+         08096042 then calls 08097CF0(x,y,1,map-mode). Keep separate from 08.
+08       (WAIT-INPUT): 08096328 / 08096090. Poll 03004054 & F1: A or any
+         D-pad direction, not B/Select/Start/L/R. Also requires the same busy
+         predicate to be clear. Clears A-fast-forward state, plays SFX A6,
+         removes the indicator via 08097CF0(...,0,...), clears pending state.
+         In the global-state mode above it also sets 030044B8 bit 10.
+         It does NOT clear the textbox or change the cursor.
+09       (YES-NO): 0809633C calls 080972AC(21,7,7) in decimal. Descriptor 7
+         at 087383FC uses the label string at 08713F08: はい / いいえ.
+         Clears fast budget and enters pending state. Continuation 08096124
+         simply clears pending; the separate window/UI machinery owns selection.
+0A nn    (OPEN-MENU nn): 08096368 consumes one byte, stores it at context+138.
+         0: 080972AC(0,7,1), or (0,7,2) if game flag 0231 is set. Difficulty
+            menu, same label string 08713F0F with different option layouts.
+         3: 080972AC(20,3,3): match/practice/cancel labels at 08713F27.
+         4: 080972AC(1,7,4): save-slot menu labels at 08713F88.
+         All other byte values open nothing. All values set delay=20, pending,
+         fast budget=0. Continuation 08096134 clears pending after the delay.
+         These are presets, not arbitrary menu IDs. Arguments use decimal in Lisp.
+0B       Wait for window transition, toggle top/bottom placement and clear.
+         08096404 -> 08097C60, then 08096144 -> 08096A00 / 08096A54 / 08097C08.
+0C nn    Color index; 08096420 writes context +12E. Colors 0..3 select three
+         foreground palette shades each. >=4 uses a blank-glyph path.
+0D nn    Insert dynamic text from context +114, starting at byte offset nn.
+         08096440, continued at 08096160. The buffer contains encoded text;
+         0809670C can populate it with up to five decimal digits from a u16.
+         01 extends the following glyph; every other byte below 10 hex ends
+         substitution, without executing it as a dialogue command. Argument is
+         a BYTE offset, not a variable ID. The buffer has 16 bytes before +124;
+         the ROM uses offset zero. Arbitrary large offsets read unrelated state.
+         The only direct formatter callers (0809F1EC/0809F20A) supply game counts.
+         Reserve space for expansion.
+0E       Insert player name, u16 glyph IDs from 02010280. 08096464 / 080961A0.
+0F       No-op in THIS dialogue dispatcher (falls through to 0809647E).
+10..FF   Single-byte glyph IDs.
+
+Canonical dialogue commands, all verified against the dispatcher:
+02 NEWLINE; 03 SCROLL; 04 CLEAR; 05 NAME "..."; 06 DELAY n;
+07 SHOW-PROMPT; 08 WAIT-INPUT; 09 YES-NO; 0A OPEN-MENU n;
+0B SWITCH-WINDOW; 0C COLOR n; 0D DYNAMIC-TEXT n; 0E PLAYER-NAME; 0F NOP.
+00 is the implicit stream terminator; 01 is a glyph prefix. There are no unknown
+opcode cases left in this dispatcher. SLURP rejects BYTE/CONTROL script tokens.
+Only the historical-import repair adapter still understands them.
+GLYPH 244 / GLYPH 350 preserve two known duplicate table spellings (ケ and 六),
+whose font records differ. These are known glyph identities, not unknown opcodes.
+
+Execution verification: tools/probe_text_opcodes.py runs 08095F34 and its real
+continuations. 1,055 opcode/argument cases cover every value of the four argument
+bytes, plus input masks, actor-busy gating, fast-forward bypass, four-step scroll
+with actual DMA, speaker-name copies, clears, menu-call parameters, substitutions
+and NOP. UI/menu creation, glyph output, audio and game-flag lookup boundaries are
+recorded/stubbed explicitly. The separate renderer probe tests actual glyphs.
+The test also executes 08096C40 to verify plain-text alignment behavior.
+
+Actual dialogue font and widths
+-------------------------------
+080969B8 calls 08096AA8 and adds the returned advance to context +132 (u16 x).
+08096AA8 adds one blank pixel BEFORE a glyph when the supplied x is nonzero,
+then calls 08096CDC. No leading blank pixel is inserted at x=0.
+Advance = glyph width + (x != 0 ? 1 : 0), including the space glyph.
+Do not use ink bounds, constant character widths, or byte count for wrapping.
+
+080971EC selects a width class by glyph ID. Descriptors at 08713EB8 have stride
+8: u32 graphics_pointer, u16 first_glyph_id, u8 width, u8 bytes_per_glyph.
+
+IDs         width bytes  graphics pointer
+0010..0013     4    16    08738904
+0014..0018     5    20    08738944
+0019..0023     6    24    087389A8
+0024..003D     7    28    08738AB0
+003E..0066     8    32    08738D88
+0067..0097     9    36    087392A8
+0098..00CE    10    40    0873998C
+00CF..010C    11    44    0873A224
+010D..0141    12    48    0873ACCC
+0142..01B8    13    52    0873B6BC
+
+Glyphs are height 16, densely packed row-major 2bpp, most significant pair first.
+Rows are NOT individually byte-aligned: width*16*2/8 = width*4 bytes per glyph.
+Source address = record.pointer + (glyph - record.first_id) * record.stride.
+The compositor expands 2bpp pixels into 4bpp tile nibbles. Source shade 0 becomes
+palette index 1; shades 1..3 become shade + 1 + 3*color. It maintains four 8x16
+columns in a ring buffer at context+0..FF; each column is 64 bytes. +100 is the
+output pointer, +104 the ring index, +105 the pixel offset within a column.
+Columns are copied to VRAM even when only partly filled. This already IS a VWF.
+
+Default dialogue initializer 08095C68 sets width=26 tiles (208px), height=4 tiles
+(two 16px lines). Other initializers 08095B88 / 08095D44 take dimensions from
+window descriptors/callers. 208x2 is not a universal layout. Text, letters, menu
+labels, name labels and credits require explicit profiles. Most held layout
+entries have no waits in the original; inventing terminal waits can stall UI.
+
+Reflow policy implemented in slurp.lisp
+-------------------------------------
+* Font metrics come from the ROM records, not *letter-sizes* pixel guesses.
+* Tokenize complete .tbl spellings before measuring or encoding (<Note>,
+  <Heart>, <Copyright>, Jr., multibyte W/w, etc.). Unknown text is an error.
+* Preserve spaces across color changes and inline substitutions. Color has zero
+  width but remains in its exact text position. Adjacent fragments aren't words.
+* NEWLINE is a soft break, except after a preserved wait. FORCE-NEWLINE is hard.
+* Keep all existing waits and semantic controls in order. Add 07 08 before the
+  next overflow line when two lines have been emitted since the previous wait.
+  Newline drives the ROM's existing scrolling; 08 does not clear the page.
+* Never append an unconditional final wait. It changes engine behavior.
+* Reserve up to four maximum-width glyphs for the player name and five digits
+  for a dynamic number. Four player-name cells are verified at 080D2E70
+  (full insertion replaces cell 3), 080D32AA and 080D330C (name comparisons).
+* reflow-string accepts :width, :lines-per-page and :paginate. The default
+  pagination heuristic uses NAME or existing 07/08/09/WAIT-FOR-A. For release,
+  replace heuristic selection with verified per-window/bank profiles. Oversized
+  words and noninteractive overflow fail explicitly for review.
+* Caller input is not mutated. ROM expansion is adjustable. Duplicate, null,
+  out-of-range and credits slots are rejected by dialogue injection. The high
+  level trans function validates non-layout controls against the source ROM.
+
+Credits are not dialogue
+------------------------
+0807FC64 loads credits pointers from 08557A30, not the dialogue bank table.
+Each line starts with {tile_row, horizontal_pixel_offset}, then glyph bytes.
+FF horizontal offset means centered; 0807FD0A calculates x=(30-tile_width)*4.
+02 separates lines; 00 ends the card. E.g. 06 FF is row 6/center, not delay 255.
+0807FC82 consumes the two coordinates; 0807FCDC scans text to 02 or 00, then
+0807FCF4 calls the ordinary noninteractive glyph printer at 080970D0.
+
+The temporary text buffer begins at SP; SP+20 (hex) holds a live local. There
+is no bounds check in the copy loop. Enforce at most 31 encoded bytes per line
+including room for its terminator inside that 32-byte region, or patch the
+renderer to use a larger properly allocated buffer. English translated credits
+can exceed this even if they fit on screen. The appended fan-translator credit
+is not safe simply because it is a valid Lisp string. Four credit cards were
+lost because 05, a row coordinate, was mistaken for a speaker-name delimiter.
+The audit recovers all 19 original cards with coordinates and encoded lengths.
+Any future credits injector must patch the actual pointer table at 557A30 (with
+its extra null card slot), and consider aliases in the dialogue table separately.
+
+Complete encoded-text census and extraction
+------------------------------------------
+Run python tools/extract_text.py. It checks the exact original ROM SHA-256,
+uses the bank directory, decodes formats separately, then examines gaps between
+all records. Extraction fails on a byte mismatch or unexplained nonzero data.
+
+Outputs:
+* rom-dialogue.txt: 2,322 indexed dialogue slots, including empty strings.
+  All zero-valued arguments and their following text are retained.
+* rom-text-inventory.json: 2,561 records, with format, original bytes, decoded
+  tokens, file offsets, historical IDs, reference evidence, and provenance.
+  This includes all 19 credit cards with coordinates.
+* rom-extra-text.txt: readable copy of the 220 records outside the old table.
+  IDs here are ROM OFFSETS, not legacy dialogue indices; do not feed to trans.
+* rom-text-coverage.json: banks, nulls, renderer calls, pointer patterns, padding,
+  hardcoded glyphs, and precise coverage limits.
+* after-translate2-named.txt (generated by audit_text.py): 2,267 human dialogue
+  entries migrated to named commands. Original prose, including known missing
+  endings and unsupported glyphs, is retained for review. It is not release-ready.
+  The safe partial preview is still after-translate2-preview.txt.
+
+125 bank-directory entries at 08713CC4..08713EB8 point into 2,346 slots at
+0871181C..08713CC4. Five are null, 19 are credits, 2,322 are dialogue. Banks 81..83
+alias inside earlier bank storage; directory order is NOT monotonically increasing.
+Coverage boundaries are derived from sorted distinct starts, not the next bank ID.
+No additional contiguous dialogue pointer-bank range was found.
+
+Every byte of 08713F08..0873833C (148,532 bytes) is classified as text, a fixed
+lookup/grid, or zero padding. This includes 19 additional dialogue views:
+15 whole unreferenced scripts plus four prefixes overlapping existing entries.
+One prefix is the omitted speaker name at 08715787; three are initial spaces.
+No direct pointer to the 15 orphan scripts was found; unused/development content
+is plausible, but reachability is NOT established. They remain accessible.
+
+The 220 extra records break down as:
+* 96 plain/menu/name/lookup strings, including shop jobs, item and monster names,
+  prices/count suffixes, yes/no, difficulty/sports/save options, record screens,
+  the default player name and name-validation strings. Three unreferenced shop
+  labels (0872A313, 0872A3A7, 0872A41B) are retained as well.
+* 102 small-font strings at 087D1428..087D17BE (918 bytes): 100 resident names,
+  eight question marks, and a blank placeholder. Pointer table 087654E4 has
+  exactly 100 entries; consumers are the resident-list UI at 080CB6xx..080CBFxx.
+* 19 dialogue views described above.
+* Two name-entry grids: 180 cells at 08713F9E and 50 at 08714054. The consumer
+  080D3468 decodes a FIXED number of glyphs. 0E/0F here mean DAKUTEN/HANDAKUTEN,
+  not player-name/NOP; 080D2F1C branches to the corresponding kana conversions.
+* One ten-glyph numeric lookup at 08713F7E, with no terminator before the next
+  save-slot label. It must not be treated as one long string with that label.
+
+Plain/menu grammar: 080970D0 wraps 08096C40. 00 ends, 01 extends a glyph, and
+02 rounds the output position to the next 8px column (ALIGN), not a vertical
+newline. Menu descriptors/tilemaps place those aligned segments on separate
+rows. Each glyph call supplies x=1, so EVERY plain glyph has a leading blank
+pixel, including the first one. Return value is 2*ceil(pixel-length/8) tiles.
+Small-font 08096FE8 consumes byte glyph IDs through 00, returning two tiles per
+character. Speaker-name 08096580 instead uses 05 as delimiter and requires a
+nonempty name: its copy loop is a do/while, not a pre-tested loop.
+
+Reference/caller audit:
+* Whole-ROM Thumb BL scan finds 151 calls to slow dialogue loader and 82 fast;
+  154 calls to plain wrapper, 22 to plain renderer, 13 to small-font renderer.
+* Small font base 0873CAE8 has only the two expected literal references:
+  08096604 (speaker labels), 0809709C (standalone small names).
+* Font descriptor base 08713EB8 has its literal at 08097250; bank-directory
+  base only at 08095E84 and 080966D4. No stored pointers to the inventoried text
+  function entries were found by the whole-ROM scan.
+* Plain string callers use the known main block, item label tables at 081C9BC4,
+  window descriptors, or RAM numeric/credit buffers. Small callers use resident
+  names or the player's name converted through 087140C1. The name-entry ticker
+  reads an already indexed string at 087259A3; its controls below 10 are skipped.
+* Individual glyph callers cover dynamic numbers, player-name cells and save
+  summaries. The save summary hardcodes 匹 as glyph 0111 via literal 080984EC,
+  and time separator glyph 16 via instructions 080984A4/080984CC. These are in
+  the coverage report because there is no string pointer to extract/relocate.
+* Raw pointer-shaped bytes inside code/compressed data are not proof of text
+  references. The manifest marks them as patterns/candidates and records
+  interior matches separately. Never blindly patch those matches.
+
+Confidence: the identified encoded-text paths and both text sections have been
+accounted for and all 2,561 records reconstruct their original bytes. This is a
+stronger check than finding plausible Japanese strings. It does not prove that
+there are no Japanese words drawn as graphics, nor replace a game playthrough.
+The existing tools/slime_gfx.py accesses compressed graphics; that asset work
+needs a separate visual inventory before claiming every on-screen label is
+localized. A dialogue dump cannot represent text baked into tiles/images.
+
+Custom English VWF plan
+-----------------------
+Dialogue needs a font replacement/metadata change, not a new tile compositor.
+Two practical routes:
+1. Keep the existing width classes. Draw replacement glyphs into existing cells
+   at their existing widths and pack 16-row 2bpp data. This changes appearance
+   with no executable code patch, but a skinny replacement of a wide glyph
+   still consumes that glyph's original class width.
+2. For truly independent English widths, replace the descriptor selector at
+   080971EC with a lookup indexed by full glyph ID. Allocate one 8-byte record
+   per glyph, with first_id=its own ID, pointer=that glyph's packed bitmap,
+   width=chosen width, stride=width*4. Existing address arithmetic now yields
+   exactly the glyph pointer, and 08096CDC continues to pack variable widths.
+   Retain descriptors/graphics for unmodified Japanese and special glyphs.
+
+A Thumb long branch stub at 080971EC can LDR a new routine address into r3 and
+BX r3 (Thumb bit set). The new routine zero-extends the incoming u16 ID, looks
+up new_table + 8*ID, returns that record address in r0 and BX lr. The current
+selector uses only caller-saved registers, so preserve the ordinary ARM ABI;
+check ALL callers, including the centered name-entry printer at 08096BC8.
+Append the table/code/bitmaps through the SAME allocator as text relocation to
+avoid overlapping independent patches at 08800000. Verify original hook bytes
+and the target ROM revision before applying a patch. No font hook is installed
+by this investigation. Keep replacement widths in the existing tested 4..13px
+range initially; name-entry cells and other callers add their own constraints.
+
+Use one manifest for the packer and injector, so runtime descriptor widths and
+host-side reflow remain identical. The current load-font-metrics intentionally
+reads the stock ten-class format; it must be extended together with the hook.
+New symbols such as é/# need explicitly assigned glyph IDs, matching table
+entries, and preserved Japanese uses (or an expanded validated glyph range).
+Speaker-name labels are a separate 8x16 4bpp font at 0873CAE8, copied at
+08096580; VWF there needs its own compositor/window sizing changes. Replacing
+only the dialogue selector will not make speaker labels proportional.
+
+Remaining validation before release
+-----------------------------------
+Determine dimensions and input behavior of mail, minigame/UI and other custom
+windows; review the 56 held entries, including previously noted crash line 1403.
+Recover/translate the eleven missing endings, the missing dialogue, and four
+credit cards. Decide how to render unavailable punctuation and accents. Review
+speaker label lengths, substitutions, color placement, and Japanese proper names.
+Playtest ordinary dialogue, long names, choices, counters, window moves, mail,
+minigames, and all credits on a full GBA emulator. Check SRAM/save compatibility.
+The automated checks establish byte/layout correctness for the covered paths,
+not that every event in the translated game has been played successfully.
+
+Hardware reference
+------------------
+GBATEK, LCD VRAM Character Data (tile layout, 4bpp nibble order):
+https://mgba-emu.github.io/gbatek/#lcd-vram-character-data
+All game-specific addresses/grammar above come from the supplied ROM, not this
+hardware reference.

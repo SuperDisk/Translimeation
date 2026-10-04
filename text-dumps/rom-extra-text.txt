@@ -1,0 +1,441 @@
+; Additional records; addresses are ROM file offsets. See JSON for format and references.
+; plain-713F08: menu/record-window-consumers
+(7421704 "はい" (ALIGN) "いいえ")
+; plain-713F0F: menu/record-window-consumers
+(7421711 "しょきゅう" (ALIGN) "ちゅうきゅう" (ALIGN) "じょうきゅう" (ALIGN) "やめる")
+; plain-713F27: menu/record-window-consumers
+(7421735 "しあい" (ALIGN) "れんしゅう" (ALIGN) "やめる")
+; plain-713F35: menu/record-window-consumers
+(7421749 "　ミイホンのきろく" (ALIGN) "　　びょういないで" (ALIGN) "　　クリアせよ！")
+; plain-713F52: menu/record-window-consumers
+(7421778 "さいこうきろく" (ALIGN) "　　　　びょう" (ALIGN) "こんかいのきろく" (ALIGN) "　　　　びょう")
+; plain-713F73: menu/record-window-consumers
+(7421811 "しんきろくたっせい！")
+; digit-table-713F7E: 0809670C and record-number builders
+(7421822 "０１２３４５６７８９")
+; plain-713F88: save-slot-window-consumers
+(7421832 "１．" (ALIGN) "２．")
+; plain-713F8E: save-slot-window-consumers
+(7421838 "ぼうけんのきろくが　ありません")
+; name-grid-713F9E: 080D1FB8: 180 cells; 080D2E64: kana modifiers
+(7421854 "あいうえおはひふへほかきくけこまみむめもさしすせそやゆよ　　たちつてとらりるれろなにぬねのわをん" (DAKUTEN) (HANDAKUTEN) "ぁぃぅぇぉゃゅょっーアイウエオハヒフヘホカキクケコマミムメモサシスセソヤユヨ　　タチツテトラリルレロナニヌネノワヲン" (DAKUTEN) (HANDAKUTEN) "ァィゥェォャュョッーＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ．・　　ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ！？♥🎵")
+; name-grid-714054: 080D1FC8: 50 voiced/semi-voiced kana cells
+(7422036 "ばびぶべぼがぎぐげござじずぜぞだぢづでどぱぴぷぺぽバビブベボガギグゲゴザジズゼゾダヂヅデドパピプペポ")
+; plain-714091: default-name / name-validation consumers 080D31E8..080D33EC
+(7422097 "スラリン")
+; plain-714096: default-name / name-validation consumers 080D31E8..080D33EC
+(7422102 "スラリン")
+; plain-71409B: default-name / name-validation consumers 080D31E8..080D33EC
+(7422107 "ホリイ")
+; plain-71409F: default-name / name-validation consumers 080D31E8..080D33EC
+(7422111 "ほりい")
+; plain-7140A3: default-name / name-validation consumers 080D31E8..080D33EC
+(7422115 "スギヤマ")
+; plain-7140A8: default-name / name-validation consumers 080D31E8..080D33EC
+(7422120 "すぎやま")
+; plain-7140AD: default-name / name-validation consumers 080D31E8..080D33EC
+(7422125 "トリヤマ")
+; plain-7140B2: default-name / name-validation consumers 080D31E8..080D33EC
+(7422130 "とりやま")
+; plain-7140B7: default-name / name-validation consumers 080D31E8..080D33EC
+(7422135 "スクエニ")
+; plain-7140BC: default-name / name-validation consumers 080D31E8..080D33EC
+(7422140 "！？♥🎵")
+; plain-7140C1: 0808401C: big-to-small player-name glyph conversion lookup
+(7422145 "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽぁぃぅぇぉっゃゅょアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポァィゥェォッャュョＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ０１２３４５６７８９　・？©ー！🎵♥．ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ")
+; dialogue-714474: text-section gap; no direct reference established
+(7423092 (NAME "ロードちゅうさ") "『ふむふむ、なるほど。" (NEWLINE) "　ズバリわかりましたよ。" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『あなたはもぐれないと、" (NEWLINE) "　わたしにこうげきできないのですね。" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『それでは、こんなことをしてみましょう。" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-7144D2: text-section gap; no direct reference established
+(7423186 (NAME "ドラハルトＪｒ．") "『スライム！てこずっているみたいだギャ。" (NEWLINE) "　ここでおまえが負けると、オレさまが" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『ドジでノロマなカメいかになるギャ！" (NEWLINE) "　今回だけは、すけだちしてやるギャ！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "　ありがたくおもうギャ！")
+; dialogue-71453D: text-section gap; no direct reference established
+(7423293 (NAME "２") "　スライムは　なかまを　おいていくほど" (NEWLINE) "　はくじょうな　スライムではない…。" (WAIT-INPUT))
+; dialogue-715787: text-section gap; no direct reference established
+(7427975 (NAME "しんぷ") "『" (COLOR 1) (PLAYER-NAME) (COLOR 0) "　神を　しんじなさい！" (NEWLINE) "　神は　アナタと　ともに　あります。" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-726DEF: text-section gap; no direct reference established
+(7499247 (NAME "スラまる") "『" (COLOR 1) "ドン・モジャール" (COLOR 0) "を　たおしたでござる〜！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "どのでござる〜！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-726E25: text-section gap; no direct reference established
+(7499301 (NAME "スラまる") "『なかまを　ぜんいん助けたでござる〜！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "どのでござる〜！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-727390: text-section gap; no direct reference established
+(7500688 (NAME "スラかげ") "『" (COLOR 1) "ドン・モジャール" (COLOR 0) "を　たおしたでござる！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "でござるな！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-7273C3: text-section gap; no direct reference established
+(7500739 (NAME "スラかげ") "『なかまを　ぜんいん助けたでござる！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "どのでござるな！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-727867: text-section gap; no direct reference established
+(7501927 (NAME "トミー") "『" (COLOR 1) "ドン・モジャール" (COLOR 0) "を　たおしたでおじゃる！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "でおじゃるな！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-72789B: text-section gap; no direct reference established
+(7501979 (NAME "トミー") "『なかまを　ぜんいん助けたでおじゃる！" (NEWLINE) "　さすがは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "でおじゃるな！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-727DAC: text-section gap; no direct reference established
+(7503276 (NAME "スラまる") "『おおー　あなたは　" (COLOR 1) (PLAYER-NAME) (COLOR 0) "どの〜！" (NEWLINE) "　先日は　おせわになったでござる〜！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『やくそくどおり　" (COLOR 1) "スラまる" (COLOR 0) "　とっておきの" (NEWLINE) "　じょうほうを　きいてほしいでござるよ！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『なんと　キュウリに　しおをかけると" (NEWLINE) "　メロンあじに　なるでござるよ〜。" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『…うう　どうやら　ごぞんじのようす。" (NEWLINE) "　それでは　もっと　とっておきでござる！！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『せっしゃ　ノッケの森の　奥に" (NEWLINE) "　あらたなつうろを　みつけたでござる〜！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-727E88: text-section gap; no direct reference established
+(7503496 (NAME "スラまる") "『でも　もしかしたら　しっぽ団が" (NEWLINE) "　ひそんでるかも　しれないでござる…。" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『だれか　つかまってるかも　しれないし" (NEWLINE) "　気をつけて　いってみるでござるよ〜！" (SHOW-PROMPT) (WAIT-INPUT))
+; plain-72A204: shop/item text block
+(7512580 "シゴト　　")
+; plain-72A20A: shop/item text block
+(7512586 "しらべる　")
+; plain-72A210: shop/item text block
+(7512592 "そうこ　　")
+; plain-72A216: shop/item text block
+(7512598 "まもの　　")
+; plain-72A21C: shop/item text block
+(7512604 "かう　　　")
+; plain-72A222: shop/item text block
+(7512610 "うる　　　")
+; plain-72A228: shop/item text block
+(7512616 "やめる　　")
+; plain-72A22E: shop/item text block
+(7512622 "あかいはなモジャ")
+; plain-72A237: shop/item text block
+(7512631 "はしをなおすモジャ")
+; plain-72A241: shop/item text block
+(7512641 "はしをかけるモジャ")
+; plain-72A24B: shop/item text block
+(7512651 "スラボードつくるモジャ")
+; plain-72A258: shop/item text block
+(7512664 "アミであそぶモジャ")
+; plain-72A262: shop/item text block
+(7512674 "べんりなポストモジャ")
+; plain-72A26D: shop/item text block
+(7512685 "町をひろげるモジャ")
+; plain-72A278: shop/item text block
+(7512696 "もっとドキツボモジャ")
+; plain-72A284: shop/item text block
+(7512708 "グランドつくるモジャ")
+; plain-72A28F: shop/item text block
+(7512719 "まものどうかいちくモジャ")
+; plain-72A29C: shop/item text block
+(7512732 "しろいはなモジャ")
+; plain-72A2A5: shop/item text block
+(7512741 "うみの家リフォームモジャ")
+; plain-72A2B3: shop/item text block
+(7512755 "町でかんけつせんモジャ")
+; plain-72A2C0: shop/item text block
+(7512768 "はしをかけるモジャ")
+; plain-72A2CA: shop/item text block
+(7512778 "らくらくかいだんモジャ")
+; plain-72A2D6: shop/item text block
+(7512790 "ローラーダッシュモジャ")
+; plain-72A2E3: shop/item text block
+(7512803 "さかばを作るモジャ")
+; plain-72A2EE: shop/item text block
+(7512814 "はくぶつかんたてるモジャ")
+; plain-72A2FB: shop/item text block
+(7512827 "スタジアムをたてるモジャ")
+; plain-72A308: shop/item text block
+(7512840 "おねがいがあるモジャ")
+; plain-72A313: shop/item text block
+(7512851 "おわったしごとモジャよ")
+; plain-72A31F: shop/item text block
+(7512863 "宝箱")
+; plain-72A324: shop/item text block
+(7512868 "木の実")
+; plain-72A32A: shop/item text block
+(7512874 "タル")
+; plain-72A32D: shop/item text block
+(7512877 "大きな岩")
+; plain-72A334: shop/item text block
+(7512884 "ばくだんいわ")
+; plain-72A33B: shop/item text block
+(7512891 "貝がら")
+; plain-72A33F: shop/item text block
+(7512895 "まき")
+; plain-72A342: shop/item text block
+(7512898 "スライムナイト")
+; plain-72A34A: shop/item text block
+(7512906 "きんかい")
+; plain-72A34F: shop/item text block
+(7512911 "かみのせんろ")
+; plain-72A356: shop/item text block
+(7512918 "ほのおのコテ")
+; plain-72A35D: shop/item text block
+(7512925 "ふぶきの剣")
+; plain-72A364: shop/item text block
+(7512932 "剣")
+; plain-72A367: shop/item text block
+(7512935 "ももんじゃ")
+; plain-72A36D: shop/item text block
+(7512941 "ドラキー")
+; plain-72A372: shop/item text block
+(7512946 "いっかくうさぎ")
+; plain-72A37A: shop/item text block
+(7512954 "おおきづち")
+; plain-72A380: shop/item text block
+(7512960 "ガメゴン")
+; plain-72A385: shop/item text block
+(7512965 "たこつぼこぞう")
+; plain-72A38D: shop/item text block
+(7512973 "ピクシー")
+; plain-72A392: shop/item text block
+(7512978 "フレイム")
+; plain-72A397: shop/item text block
+(7512983 "くさったしたい")
+; plain-72A39F: shop/item text block
+(7512991 "ひとつめピエロ")
+; plain-72A3A7: shop/item text block
+(7512999 "キャタピラー")
+; plain-72A3AE: shop/item text block
+(7513006 "さまようよろい")
+; plain-72A3B6: shop/item text block
+(7513014 "マミー")
+; plain-72A3BA: shop/item text block
+(7513018 "ギガンテス")
+; plain-72A3C0: shop/item text block
+(7513024 "マドハンド")
+; plain-72A3C6: shop/item text block
+(7513030 "キメラ")
+; plain-72A3CA: shop/item text block
+(7513034 "あかいももんじゃ")
+; plain-72A3D3: shop/item text block
+(7513043 "うごくせきぞう")
+; plain-72A3DB: shop/item text block
+(7513051 "ベビーマジシャン")
+; plain-72A3E5: shop/item text block
+(7513061 "？？？？？　　　　　　　　　　　　　")
+; plain-72A3EA: shared blank suffix; direct literals and item-table aliases
+(7513066 "　　　　　　　　　　　　　")
+; plain-72A3F8: shop/item text block
+(7513080 "０１２３４５６７８９")
+; plain-72A403: shop/item text block
+(7513091 "はい　　　")
+; plain-72A409: shop/item text block
+(7513097 "いいえ　　")
+; plain-72A40F: shop/item text block
+(7513103 "匹")
+; plain-72A412: shop/item text block
+(7513106 "コ")
+; plain-72A414: shop/item text block
+(7513108 "Ｇ")
+; plain-72A416: shop/item text block
+(7513110 "ひつよう")
+; plain-72A41B: shop/item text block
+(7513115 "ひつよう？")
+; plain-72A421: shop/item text block
+(7513121 "ねだん")
+; plain-72A425: shop/item text block
+(7513125 "うりきれ")
+; plain-72A42A: shop/item text block
+(7513130 "命の木の実")
+; plain-72A433: shop/item text block
+(7513139 "せかいじゅのは")
+; plain-72A43B: shop/item text block
+(7513147 "せかいじゅのしずく")
+; plain-72A445: shop/item text block
+(7513157 "ときのすな")
+; plain-72A44B: shop/item text block
+(7513163 "しあわせのサイフ")
+; dialogue-72E083: text-section gap; no direct reference established
+(7528579 (NAME "スラげ") "『リタイヤとは　おぬしらしく　ないのぅ。" (NEWLINE) "　クツのヒモでも　ほどけたか？" (SHOW-PROMPT) (WAIT-INPUT) "『さぁて　どうする？" (NEWLINE) "　まだテストを　つづけるかの？" (YES-NO))
+; dialogue-72E0CA: text-section gap; no direct reference established
+(7528650 (NAME "スラげ") "『ふぉっふぉっ　よい心がけじゃの。" (NEWLINE) "　それではテスト　さいかい　するぞい。" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-72F627: text-section gap; no direct reference established
+(7534119 "　" (NAME "スッカーのオニ") "『２匹の　ももんじゃの　あいだを" (NEWLINE) "　" (COLOR 2) "スラ・ストライク" (COLOR 0) "で　ぬけるんだっ！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-72F890: text-section gap; no direct reference established
+(7534736 "　" (NAME "スッカーのオニ") "『一回の　" (COLOR 2) "スラ・ストライク" (COLOR 0) "で　何匹もの" (NEWLINE) "　ももんじゃの　あいだを　とおると…" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『いつもよりも　" (COLOR 2) "ナイポイ" (COLOR 0) "が　たくさん" (NEWLINE) "　たまるという　ルールがあるのだ！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『フルパワーの　" (COLOR 2) "スラ・ストライク" (COLOR 0) "で" (NEWLINE) "　つっこんでいけば　わかるはずだ！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『さぁ　オレに　ユメを　見させてくれ…。" (NEWLINE) "　キサマの　あついプレーでなっ！！！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-72FBC0: text-section gap; no direct reference established
+(7535552 "　" (NAME "スッカーのオニ") "『やはりな…" (NEWLINE) "　オレの　見こんだ　だけのことはある。" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『あきらめない　その　心意気！" (NEWLINE) "　かんどうしたぞ！！！" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "『さぁ　ユメのつづきを　見させてくれ！" (SHOW-PROMPT) (WAIT-INPUT))
+; dialogue-735CA0: text-section gap; no direct reference established
+(7560352 (NAME "ホイミィ") "『う〜ん　調子　悪かったのかな。" (NEWLINE) "　もう一度　がんばってみる？" (YES-NO))
+; dialogue-735CCC: text-section gap; no direct reference established
+(7560396 (NAME "ホイミィ") "『さすが" (COLOR 1) (PLAYER-NAME) (COLOR 0) "　そう　こなくっちゃ！" (NEWLINE) "　それでは　さっそく…" (SHOW-PROMPT) (WAIT-INPUT))
+; small-7D1428: resident-list renderer 080CB686 and related callers
+(8197160 "ドラお　　　　　")
+; small-7D1431: resident-list renderer 080CB686 and related callers
+(8197169 "スーラ　　　　　")
+; small-7D143A: resident-list renderer 080CB686 and related callers
+(8197178 "スラック　　　　")
+; small-7D1443: resident-list renderer 080CB686 and related callers
+(8197187 "スラネット　　　")
+; small-7D144C: resident-list renderer 080CB686 and related callers
+(8197196 "スラゾー　　　　")
+; small-7D1455: resident-list renderer 080CB686 and related callers
+(8197205 "しんぷ　　　　　")
+; small-7D145E: resident-list renderer 080CB686 and related callers
+(8197214 "バブすけ　　　　")
+; small-7D1467: resident-list renderer 080CB686 and related callers
+(8197223 "ドラフィーユ　　")
+; small-7D1470: resident-list renderer 080CB686 and related callers
+(8197232 "グランじいさん　")
+; small-7D1479: resident-list renderer 080CB686 and related callers
+(8197241 "スラまる　　　　")
+; small-7D1482: resident-list renderer 080CB686 and related callers
+(8197250 "テンシーラ　　　")
+; small-7D148B: resident-list renderer 080CB686 and related callers
+(8197259 "メカキチ　　　　")
+; small-7D1494: resident-list renderer 080CB686 and related callers
+(8197268 "ミニスラ　　　　")
+; small-7D149D: resident-list renderer 080CB686 and related callers
+(8197277 "スラじろう　　　")
+; small-7D14A6: resident-list renderer 080CB686 and related callers
+(8197286 "スラニオ　　　　")
+; small-7D14AF: resident-list renderer 080CB686 and related callers
+(8197295 "スラベル　　　　")
+; small-7D14B8: resident-list renderer 080CB686 and related callers
+(8197304 "ファンファン　　")
+; small-7D14C1: resident-list renderer 080CB686 and related callers
+(8197313 "スラのせき　　　")
+; small-7D14CA: resident-list renderer 080CB686 and related callers
+(8197322 "スラト　　　　　")
+; small-7D14D3: resident-list renderer 080CB686 and related callers
+(8197331 "スラのすけ　　　")
+; small-7D14DC: resident-list renderer 080CB686 and related callers
+(8197340 "ホイミー　　　　")
+; small-7D14E5: resident-list renderer 080CB686 and related callers
+(8197349 "バブブ　　　　　")
+; small-7D14EE: resident-list renderer 080CB686 and related callers
+(8197358 "スラックス　　　")
+; small-7D14F7: resident-list renderer 080CB686 and related callers
+(8197367 "スラきち　　　　")
+; small-7D1500: resident-list renderer 080CB686 and related callers
+(8197376 "おスラ　　　　　")
+; small-7D1509: resident-list renderer 080CB686 and related callers
+(8197385 "コーチ　　　　　")
+; small-7D1512: resident-list renderer 080CB686 and related callers
+(8197394 "スラエル　　　　")
+; small-7D151B: resident-list renderer 080CB686 and related callers
+(8197403 "ツリッキー　　　")
+; small-7D1524: resident-list renderer 080CB686 and related callers
+(8197412 "グレン　　　　　")
+; small-7D152D: resident-list renderer 080CB686 and related callers
+(8197421 "ぶちゴロウ　　　")
+; small-7D1536: resident-list renderer 080CB686 and related callers
+(8197430 "スラカンプ　　　")
+; small-7D153F: resident-list renderer 080CB686 and related callers
+(8197439 "スラかげ　　　　")
+; small-7D1548: resident-list renderer 080CB686 and related callers
+(8197448 "マリン　　　　　")
+; small-7D1551: resident-list renderer 080CB686 and related callers
+(8197457 "ホイサッサ　　　")
+; small-7D155A: resident-list renderer 080CB686 and related callers
+(8197466 "ホイップル　　　")
+; small-7D1563: resident-list renderer 080CB686 and related callers
+(8197475 "スライワー　　　")
+; small-7D156C: resident-list renderer 080CB686 and related callers
+(8197484 "ラスブーチン　　")
+; small-7D1575: resident-list renderer 080CB686 and related callers
+(8197493 "ツリろう　　　　")
+; small-7D157E: resident-list renderer 080CB686 and related callers
+(8197502 "テキや　　　　　")
+; small-7D1587: resident-list renderer 080CB686 and related callers
+(8197511 "イワン　　　　　")
+; small-7D1590: resident-list renderer 080CB686 and related callers
+(8197520 "コンペー　　　　")
+; small-7D1599: resident-list renderer 080CB686 and related callers
+(8197529 "くろりん　　　　")
+; small-7D15A2: resident-list renderer 080CB686 and related callers
+(8197538 "ホーミィ　　　　")
+; small-7D15AB: resident-list renderer 080CB686 and related callers
+(8197547 "バブルス　　　　")
+; small-7D15B4: resident-list renderer 080CB686 and related callers
+(8197556 "ホイスケ　　　　")
+; small-7D15BD: resident-list renderer 080CB686 and related callers
+(8197565 "ボーグル　　　　")
+; small-7D15C6: resident-list renderer 080CB686 and related callers
+(8197574 "スラや　　　　　")
+; small-7D15CF: resident-list renderer 080CB686 and related callers
+(8197583 "タイオー　　　　")
+; small-7D15D8: resident-list renderer 080CB686 and related callers
+(8197592 "たまちゃん　　　")
+; small-7D15E1: resident-list renderer 080CB686 and related callers
+(8197601 "ミニン　　　　　")
+; small-7D15EA: resident-list renderer 080CB686 and related callers
+(8197610 "スラげ　　　　　")
+; small-7D15F3: resident-list renderer 080CB686 and related callers
+(8197619 "パパ　　　　　　")
+; small-7D15FC: resident-list renderer 080CB686 and related callers
+(8197628 "トミー　　　　　")
+; small-7D1605: resident-list renderer 080CB686 and related callers
+(8197637 "バブりん　　　　")
+; small-7D160E: resident-list renderer 080CB686 and related callers
+(8197646 "スライフ　　　　")
+; small-7D1617: resident-list renderer 080CB686 and related callers
+(8197655 "エッグル　　　　")
+; small-7D1620: resident-list renderer 080CB686 and related callers
+(8197664 "ぶちザベス　　　")
+; small-7D1629: resident-list renderer 080CB686 and related callers
+(8197673 "スラムリン　　　")
+; small-7D1632: resident-list renderer 080CB686 and related callers
+(8197682 "ボーグン　　　　")
+; small-7D163B: resident-list renderer 080CB686 and related callers
+(8197691 "ハガネンダー　　")
+; small-7D1644: resident-list renderer 080CB686 and related callers
+(8197700 "ホイミィ　　　　")
+; small-7D164D: resident-list renderer 080CB686 and related callers
+(8197709 "ブッチモンド　　")
+; small-7D1656: resident-list renderer 080CB686 and related callers
+(8197718 "ゴルド　　　　　")
+; small-7D165F: resident-list renderer 080CB686 and related callers
+(8197727 "エンゼリカ　　　")
+; small-7D1668: resident-list renderer 080CB686 and related callers
+(8197736 "スクラテス　　　")
+; small-7D1671: resident-list renderer 080CB686 and related callers
+(8197745 "バブルのやま　　")
+; small-7D167A: resident-list renderer 080CB686 and related callers
+(8197754 "ガブリエル　　　")
+; small-7D1683: resident-list renderer 080CB686 and related callers
+(8197763 "ブチのすけ　　　")
+; small-7D168C: resident-list renderer 080CB686 and related callers
+(8197772 "バブルーノ　　　")
+; small-7D1695: resident-list renderer 080CB686 and related callers
+(8197781 "スラダーク　　　")
+; small-7D169E: resident-list renderer 080CB686 and related callers
+(8197790 "オババ　　　　　")
+; small-7D16A7: resident-list renderer 080CB686 and related callers
+(8197799 "オイスラー　　　")
+; small-7D16B0: resident-list renderer 080CB686 and related callers
+(8197808 "ミイホンパパ　　")
+; small-7D16B9: resident-list renderer 080CB686 and related callers
+(8197817 "ミイホンママ　　")
+; small-7D16C2: resident-list renderer 080CB686 and related callers
+(8197826 "メテお　　　　　")
+; small-7D16CB: resident-list renderer 080CB686 and related callers
+(8197835 "マダラン　　　　")
+; small-7D16D4: resident-list renderer 080CB686 and related callers
+(8197844 "スラボックル　　")
+; small-7D16DD: resident-list renderer 080CB686 and related callers
+(8197853 "シルバ　　　　　")
+; small-7D16E6: resident-list renderer 080CB686 and related callers
+(8197862 "エッグーナ　　　")
+; small-7D16EF: resident-list renderer 080CB686 and related callers
+(8197871 "ゴールドベリー　")
+; small-7D16F8: resident-list renderer 080CB686 and related callers
+(8197880 "ぶっちい　　　　")
+; small-7D1701: resident-list renderer 080CB686 and related callers
+(8197889 "ミニー　　　　　")
+; small-7D170A: resident-list renderer 080CB686 and related callers
+(8197898 "ドラゴーネ　　　")
+; small-7D1713: resident-list renderer 080CB686 and related callers
+(8197907 "ブチじい　　　　")
+; small-7D171C: resident-list renderer 080CB686 and related callers
+(8197916 "スラッサー　　　")
+; small-7D1725: resident-list renderer 080CB686 and related callers
+(8197925 "ホイーチェ　　　")
+; small-7D172E: resident-list renderer 080CB686 and related callers
+(8197934 "エッグリーン　　")
+; small-7D1737: resident-list renderer 080CB686 and related callers
+(8197943 "ホイミコ　　　　")
+; small-7D1740: resident-list renderer 080CB686 and related callers
+(8197952 "ロック　　　　　")
+; small-7D1749: resident-list renderer 080CB686 and related callers
+(8197961 "スラワー　　　　")
+; small-7D1752: resident-list renderer 080CB686 and related callers
+(8197970 "ツムツム　　　　")
+; small-7D175B: resident-list renderer 080CB686 and related callers
+(8197979 "スラーリン　　　")
+; small-7D1764: resident-list renderer 080CB686 and related callers
+(8197988 "バブべえ　　　　")
+; small-7D176D: resident-list renderer 080CB686 and related callers
+(8197997 "ボギー　　　　　")
+; small-7D1776: resident-list renderer 080CB686 and related callers
+(8198006 "ファングリオ　　")
+; small-7D177F: resident-list renderer 080CB686 and related callers
+(8198015 "ミイホン　　　　")
+; small-7D1788: resident-list renderer 080CB686 and related callers
+(8198024 "スラみ　　　　　")
+; small-7D1791: resident-list renderer 080CB686 and related callers
+(8198033 "スラジョー　　　")
+; small-7D179A: resident-list renderer 080CB686 and related callers
+(8198042 "ママ　　　　　　")
+; small-7D17A3: resident-list renderer 080CB686 and related callers
+(8198051 "ブッチーナ　　　")
+; small-7D17AC: resident-list unknown-name placeholder
+(8198060 "？？？？？？？？")
+; small-7D17B5: adjacent blank resident-list placeholder
+(8198069 "　　　　　　　　")
