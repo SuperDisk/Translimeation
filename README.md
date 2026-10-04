@@ -3,6 +3,8 @@
 
 This is a work-in-progress romhack of an old Japan-only GBA game.
 
+[Download the patch here!](https://github.com/SuperDisk/Translimeation/releases/latest)
+
 # AI/LLM disclaimer
 
 This project was started in 2021, and was done completely without the use of LLMs.
