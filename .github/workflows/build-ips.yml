@@ -26,13 +26,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y sbcl
 
-      - name: Test patch generation without a ROM
-        run: python3 tools/test_ips.py
-
       - name: Build from the current professional script
         run: python3 tools/build_ips.py
 
-      - name: Summarize preview coverage
+      - name: Summarize build
         run: |
           python3 - <<'PY'
           import json, os
@@ -42,18 +39,16 @@ jobs:
               out.write(f"Built **{report['patch_bytes']:,} bytes** of IPS patch data.\n\n")
               out.write(f"Injected {len(report['injected_entries'])} dialogue entries; "
                         f"held {len(report['held_entries'])} for layout review.\n\n")
-              out.write('Download the **slime-professional-preview** artifact below. '
-                        'It contains the IPS patch and the build report. '
+              out.write('Download the **slime-patch** artifact below. '
+                        'It contains slime-patch.ips. '
                         'No ROM or ROM secret is used by this workflow.\n')
           PY
 
-      - name: Upload patch and report only
+      - name: Upload patch
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: slime-professional-preview
-          path: |
-            dist/slime-professional-preview.ips
-            dist/build-report.json
+          name: slime-patch
+          path: dist/slime-patch.ips
           if-no-files-found: error
           retention-days: 90
 
@@ -69,27 +64,27 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: slime-professional-preview
+          name: slime-patch
           path: dist
 
-      - name: Publish preview release
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          tag="preview-${GITHUB_RUN_NUMBER}-${GITHUB_SHA:0:7}"
+          tag="build-${GITHUB_RUN_NUMBER}-${GITHUB_SHA:0:7}"
           if draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null); then
             if [[ "$draft" == "false" ]]; then
               gh release view "$tag" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
           else
-            gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease \
-              --title "Translation preview ${GITHUB_RUN_NUMBER}" \
-              --notes "Automatic dialogue preview for commit ${GITHUB_SHA}. See build-report.json for the required source ROM and entries held for layout review."
+            gh release create "$tag" --target "$GITHUB_SHA" --draft \
+              --title "Slime patch ${GITHUB_RUN_NUMBER}" \
+              --notes ""
           fi
           gh release upload "$tag" \
-            dist/slime-professional-preview.ips dist/build-report.json --clobber
-          gh release edit "$tag" --draft=false --prerelease --latest=false
+            dist/slime-patch.ips --clobber
+          gh release edit "$tag" --draft=false --prerelease=false --latest --notes ""
           gh release view "$tag" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"

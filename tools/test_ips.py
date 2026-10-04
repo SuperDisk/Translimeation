@@ -98,14 +98,14 @@ class RomFreeBuildTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
         subprocess.run([sys.executable, 'tools/build_ips.py'], cwd=cls.checkout, check=True)
-        cls.patch = (cls.checkout / 'dist/slime-professional-preview.ips').read_bytes()
+        cls.patch = (cls.checkout / 'dist/slime-patch.ips').read_bytes()
         cls.report = json.loads((cls.checkout / 'dist/build-report.json').read_text())
         cls.profile, cls.source = load_profile(cls.checkout)
 
     def test_build_contains_only_pointer_writes_and_contiguous_append(self):
         self.assertFalse(list(self.checkout.rglob('*.gba')))
         self.assertEqual({p.name for p in (self.checkout / 'dist').iterdir()},
-                         {'slime-professional-preview.ips', 'build-report.json'})
+                         {'slime-patch.ips', 'build-report.json'})
         base = self.profile['source_rom_size']
         table = self.profile['pointer_table_offset']
         expected_slots = {table + 4 * i + n for i in self.report['injected_entries'] for n in range(4)}
@@ -165,7 +165,7 @@ class RomFreeBuildTests(unittest.TestCase):
     def test_deterministic_build(self):
         first_report = (self.checkout / 'dist/build-report.json').read_bytes()
         subprocess.run([sys.executable, 'tools/build_ips.py'], cwd=self.checkout, check=True)
-        self.assertEqual(self.patch, (self.checkout / 'dist/slime-professional-preview.ips').read_bytes())
+        self.assertEqual(self.patch, (self.checkout / 'dist/slime-patch.ips').read_bytes())
         self.assertEqual(first_report, (self.checkout / 'dist/build-report.json').read_bytes())
 
     def test_source_and_control_validation(self):

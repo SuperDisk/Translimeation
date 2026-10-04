@@ -185,14 +185,14 @@ def build(script, output, root=ROOT, verify_rom=None):
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],
               'credits_included': False}
     output.mkdir(parents=True, exist_ok=True)
-    for name, data in [('slime-professional-preview.ips', patch),
+    for name, data in [('slime-patch.ips', patch),
                        ('build-report.json', (json.dumps(report, indent=2) + '\n').encode())]:
         with tempfile.NamedTemporaryFile(dir=output, delete=False) as f:
             f.write(data)
             staged = Path(f.name)
         staged.replace(output / name)
     print(f'{len(records)} entries; {len(held)} layout holds; {len(patch):,}-byte IPS: '
-          f'{output / "slime-professional-preview.ips"}')
+          f'{output / "slime-patch.ips"}')
     return report
 
 
