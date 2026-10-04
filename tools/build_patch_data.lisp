@@ -7,7 +7,7 @@
          (encoding (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
          (small (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))))
     (multiple-value-bind (passed failed)
-        (prepare-dialogue-preview (read-all-text-utf script))
+        (prepare-dialogue-preview (read-dialogue-text script))
       (dump-all-text-utf (merge-pathnames "reflowed.txt" out) passed)
       (dump-all-text-utf (merge-pathnames "held.txt" out) failed)
       (let ((records nil))

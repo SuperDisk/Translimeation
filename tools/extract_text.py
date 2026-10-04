@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 import struct
 
-from text_codec import Codec, OPS, Symbol, sexp, read_script
+from text_codec import Codec, OPS, Symbol, sexp
 
 BASE = 0x08000000
 SHA256 = 'f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661'
@@ -213,15 +213,12 @@ def extract(rom, root):
         owners = [rec['id'] for rec in records if int(rec['offset'], 16) < target < int(rec['end'], 16)]
         interior.append({'target': f'{target:06X}', 'containers': owners,
                          'reference_patterns': [f'{p:06X}' for p in sites]})
-    old = {r[0] for r in read_script(root/'text-dumps/before-translate2.txt')}
-    missing = [i for r in records if r['tokens'] for i in r['legacy_indices'] if i not in old]
     opcode_counts = Counter(t[0] for rec in records if rec['format'] == 'dialogue'
                             for t in rec['tokens'] if isinstance(t, list))
     report = {'rom_sha256': SHA256, 'bank_directory': banks, 'null_slots': nulls,
               'legacy_slots': (BANKS-start)//4, 'unique_records': len(records),
               'formats': dict(Counter(r['format'] for r in records)),
               'extra_records_without_legacy_index': sum(not r['legacy_indices'] for r in records),
-              'missing_nonempty_legacy_entries': sorted(missing),
               'round_trip_records': len(records),
               'covered_sections': [{'start': f'{POOL:06X}', 'end': f'{POOL_END:06X}', 'bytes': POOL_END-POOL, 'unclassified_bytes': 0},
                                    {'start': f'{NAMES:06X}', 'end': f'{NAMES_END:06X}', 'bytes': NAMES_END-NAMES, 'unclassified_bytes': 0}],
@@ -240,26 +237,37 @@ def extract(rom, root):
     return records, report
 
 
+def dump_script(records):
+    rows = []
+    for r in records:
+        tokens = symbolic(r['tokens']) if r['format'] != 'credits' else []
+        if r['format'] == 'credits':
+            tokens = [[Symbol('CREDITS'), *[
+                [line['tile_row'], line['x'], *symbolic(line['tokens'])]
+                for line in r['tokens']]]]
+        elif not r['legacy_indices']:
+            tokens = [[Symbol(r['format'].upper()), *tokens]]
+        for index in r['legacy_indices'] or [int(r['offset'], 16)]:
+            rows.append([index, *tokens])
+    return ('; Direct ROM extraction. IDs 52..2397 are pointer-table slots; larger IDs are ROM file offsets.\n'
+            '; Tagged records retain their separate menu, credits, small-font and character-table formats.\n'
+            + '\n'.join(sexp(r) for r in sorted(rows)) + '\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rom', default='slime_original.gba')
-    parser.add_argument('--output-dir', default='text-dumps')
+    parser.add_argument('--output', default='text-dumps/rom.txt')
+    parser.add_argument('--report-dir', help='Optional directory for detailed inventory and coverage JSON')
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     records, report = extract(Path(args.rom).read_bytes(), root)
-    out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
-    for name, value in [('rom-text-inventory.json', records), ('rom-text-coverage.json', report)]:
-        (out/name).write_text(json.dumps(value, ensure_ascii=False, indent=2)+'\n')
-    indexed, extras = [], ['; Additional records; addresses are ROM file offsets. See JSON for format and references.']
-    for r in records:
-        if r['format'] == 'dialogue' and r['legacy_indices']:
-            indexed.extend([i, *symbolic(r['tokens'])] for i in r['legacy_indices'])
-        elif not r['legacy_indices']:
-            extras.append(f"; {r['id']}: {'; '.join(r['evidence'])}")
-            extras.append(sexp([int(r['offset'], 16), *symbolic(r['tokens'])]))
-    (out/'rom-dialogue.txt').write_text('; Complete original dialogue, including empty slots; credits are in the JSON inventory.\n' +
-                                      '\n'.join(sexp(r) for r in sorted(indexed))+'\n')
-    (out/'rom-extra-text.txt').write_text('\n'.join(extras)+'\n')
+    out = Path(args.output); out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(dump_script(records), encoding='utf-8')
+    if args.report_dir:
+        reports = Path(args.report_dir); reports.mkdir(parents=True, exist_ok=True)
+        for name, value in [('rom-text-inventory.json', records), ('rom-text-coverage.json', report)]:
+            (reports/name).write_text(json.dumps(value, ensure_ascii=False, indent=2)+'\n')
     print(f"{len(records)} records round-trip byte-for-byte; {report['extra_records_without_legacy_index']} outside the legacy table; "
           f"{len(report['bank_directory'])} banks; zero unclassified bytes in both text sections.")
 

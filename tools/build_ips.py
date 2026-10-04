@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from text_codec import Codec, Symbol, read_script, sexp, control_trace
+from text_codec import Codec, Symbol, read_script, read_dialogue, sexp, control_trace
 
 ROOT = Path(__file__).resolve().parent.parent
 IPS_LIMIT = 1 << 24
@@ -83,7 +83,7 @@ def load_profile(root):
         previous = end
     if not records or previous != 0x1b8:
         raise ValueError('Incomplete font width ranges')
-    source = {i: ts for i, *ts in read_script(source_path)}
+    source = {i: ts for i, *ts in read_dialogue(source_path)}
     for i in source:
         pos = profile['pointer_table_offset'] + 4 * i
         if not 52 <= i <= 2397 or 1883 <= i <= 1901 or not 0 <= pos <= profile['source_rom_size'] - 4:
@@ -121,7 +121,7 @@ def build(script, output, root=ROOT, verify_rom=None):
     script, output = Path(script).resolve(), Path(output).resolve()
     profile, source = load_profile(root)
     codec = Codec(root)
-    entries = read_script(script)
+    entries = read_dialogue(script)
     validate_entries(entries, source, codec)
     if verify_rom is not None:
         verify_profile(Path(verify_rom).read_bytes(), profile, source, codec)
@@ -196,7 +196,7 @@ def build(script, output, root=ROOT, verify_rom=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--script', type=Path, default=ROOT / 'text-dumps/gerb-dialogue.txt')
+    parser.add_argument('--script', type=Path, default=ROOT / 'text-dumps/gerb.txt')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist')
     parser.add_argument('--verify-rom', type=Path, help='Optional local metadata verification; never uploaded or copied')
     args = parser.parse_args()

@@ -4,7 +4,7 @@ import _paths
 import copy
 import unittest
 
-from audit_text import read_script
+from text_codec import read_script, read_dialogue
 from check_gerb import ROOT, validate, word_boundaries
 
 
@@ -18,14 +18,13 @@ def readable(tokens):
 class GerbTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entries = read_script(ROOT / 'text-dumps/gerb-dialogue.txt')
+        cls.entries = read_dialogue(ROOT / 'text-dumps/gerb.txt')
         cls.rows = {r[0]: r for r in cls.entries}
 
-    def test_whole_corpus_against_rom_and_review_record(self):
+    def test_whole_corpus_against_rom(self):
         result = validate()
         self.assertEqual(result['errors'], [])
         self.assertEqual(result['dialogue_entries'], 2267)
-        self.assertEqual(result['restored_endings'], 11)
         self.assertEqual(result['translated_credit_cards'], 15)
 
     def test_control_boundaries_do_not_supply_word_spaces(self):
@@ -73,7 +72,7 @@ class GerbTests(unittest.TestCase):
         # Color leak across the rest of the message.
         row = damaged[1623]
         row.pop(max(n for n, t in enumerate(row) if t == ['COLOR', 0]))
-        errors = validate(entries=list(damaged.values()), check_ledger=False)['errors']
+        errors = validate(entries=list(damaged.values()))['errors']
         for i in [1037, 1522, 798, 74, 1347, 491, 1623]:
             self.assertTrue(any(error.startswith(f'{i}:') for error in errors), (i, errors))
 

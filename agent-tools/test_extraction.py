@@ -5,9 +5,9 @@ import json
 from pathlib import Path
 import unittest
 
-from audit_text import read_script, migrate_gerb_dialogue, audit
+from text_codec import read_script, read_dialogue, credit_lines, dialogue_entries
 from text_codec import Codec
-from extract_text import extract
+from extract_text import extract, dump_script
 
 ROOT = Path(__file__).resolve().parent.parent
 ROM = (ROOT/'slime_original.gba').read_bytes()
@@ -60,7 +60,7 @@ class ExtractionTests(unittest.TestCase):
             self.assertTrue(any(type(t) is str for t in tokens[pos+1:]), i)
             self.assertEqual(tokens[-2:], [['SHOW-PROMPT'],['WAIT-INPUT']])
         self.assertTrue(by_index[1982]['tokens'])
-        self.assertEqual(self.report['missing_nonempty_legacy_entries'],[1892,1895,1897,1900,1982])
+        self.assertTrue(all(by_index[i]['tokens'] for i in [1892,1895,1897,1900]))
 
     def test_new_pools_and_orphans(self):
         self.assertEqual(self.report['formats']['small'], 102)
@@ -105,13 +105,27 @@ class ExtractionTests(unittest.TestCase):
         for r in self.records:
             self.assertNotIn('"BYTE"',json.dumps(r['tokens']))
             self.assertNotIn('"CONTROL"',json.dumps(r['tokens']))
-        entries = read_script(ROOT/'text-dumps/after-translate2.txt')
-        named = migrate_gerb_dialogue(ROM,entries,ROOT)
-        self.assertEqual(len(named),2267)
-        report,_ = audit(ROM,named,ROOT)
-        self.assertEqual(len(report['blocked']),15) # 11 missing endings + four glyph issues
-        self.assertNotIn('"BYTE"',json.dumps(named))
-        self.assertNotIn('"CONTROL"',json.dumps(named))
+        working = read_script(ROOT/'text-dumps/gerb.txt')
+        self.assertNotIn('"BYTE"',json.dumps(working))
+        self.assertNotIn('"CONTROL"',json.dumps(working))
+
+    def test_single_rom_dump_is_reproducible_and_complete(self):
+        path = ROOT/'text-dumps/rom.txt'
+        self.assertEqual(path.read_text(), dump_script(self.records))
+        rows = {r[0]: r for r in read_script(path)}
+        self.assertEqual(len(rows), len(self.records))
+        self.assertEqual(len(dialogue_entries(list(rows.values()))), 2322)
+        for record in self.records:
+            key = (record['legacy_indices'] or [int(record['offset'],16)])[0]
+            row = rows[key]
+            if record['format'] == 'credits':
+                self.assertEqual(self.codec.encode_credits(credit_lines(row)),
+                                 bytes.fromhex(record['original_hex']))
+            elif record['legacy_indices']:
+                self.assertEqual(row[1:], record['tokens'])
+            else:
+                self.assertEqual(row[1][0], record['format'].upper())
+                self.assertEqual(row[1][1:], record['tokens'])
 
     def test_small_font_accepts_english_aliases_and_rejects_empty_speaker(self):
         self.assertEqual(self.codec.encode_text('Hooly',True),

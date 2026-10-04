@@ -14,14 +14,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from text_codec import read_script
+from text_codec import read_script, read_dialogue
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
-          'tools/build_rom.lisp', 'tools/text_codec.py', 'text-dumps/rom-dialogue.txt',
-          'text-dumps/gerb-dialogue.txt']
+          'tools/build_rom.lisp', 'tools/text_codec.py', 'text-dumps/rom.txt',
+          'text-dumps/gerb.txt']
 
 
 def read_ips(data):
@@ -120,7 +120,7 @@ class RomFreeBuildTests(unittest.TestCase):
                 cursor += len(payload)
         self.assertEqual(touched, expected_slots)
         self.assertEqual(cursor, self.report['patched_rom_size'])
-        script_ids = {r[0] for r in read_script(self.checkout / 'text-dumps/gerb-dialogue.txt')}
+        script_ids = {r[0] for r in read_dialogue(self.checkout / 'text-dumps/gerb.txt')}
         included = set(self.report['injected_entries'])
         held = {r['index'] for r in self.report['held_entries']}
         self.assertFalse(included & held)

@@ -3,7 +3,7 @@
 (load "slurp.lisp")
 (in-package :slurp)
 (ensure-directories-exist "dist/slime.gba")
-(let* ((entries (read-all-text-utf "text-dumps/gerb-dialogue.txt"))
+(let* ((entries (read-dialogue-text "text-dumps/gerb.txt"))
        (rom (read-rom "slime_original.gba")))
   (load-font-metrics rom)
   (validate-dialogue-entries rom entries)

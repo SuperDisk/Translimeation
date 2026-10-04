@@ -1,6 +1,4 @@
-; FORMATTING-REVIEWED HUMAN DIALOGUE. Historical delivery remains after-translate2.txt.
-; Entry-by-entry before/after and restoration attribution: gerb-formatting-review.json.
-; Specialized layouts, untranslated names/text, credits and source-only strings need separate work.
+; Gerb working script. CREDITS records are retained for editing but are not injected yet.
 (52 "Thanks for saving" (NEWLINE) "me! (slurp)" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I want you to take" (NEWLINE) "me back to town!" (SHOW-PROMPT) (WAIT-INPUT))
 (53 "It's not goo-d if you" (NEWLINE) "get this!" (SHOW-PROMPT) (WAIT-INPUT))
 (54 "Test" (CLEAR))
@@ -385,6 +383,7 @@
 (433 (NAME "Curate Rollo") "Thank you for back then." (NEWLINE) "I owe you my life." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "At the church in town, I can record" (NEWLINE) "an " (COLOR 2) "adventure log" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Stopy by anytime." (NEWLINE) "I'll be waiting." (SHOW-PROMPT) (WAIT-INPUT))
 (434 (NAME "バブすけ") "You saved me, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "." (NEWLINE) "Now I can ooze around town!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Right. There are still unsaved" (NEWLINE) "slimes in Nokke Woods." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Be patient and don't be annoyed." (NEWLINE) "You'll get them when you can." (SHOW-PROMPT) (WAIT-INPUT))
 (435 (NAME "Drafille") "How are you, Count " (COLOR 1) (PLAYER-NAME) (COLOR 0) "?" (NEWLINE) "I am bloody good!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "The leaf the enemy dropped" (NEWLINE) "is a " (COLOR 2) "Medicinal Herb" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It'll restore your HP!" (NEWLINE) "You can find them in chests too." (SHOW-PROMPT) (WAIT-INPUT))
+; Meaning review: Source says the tackle stimulated pressure points and improved his health; English instead talks about smashing pots.
 (436 (NAME "Flanpa") "It's me. How're ya doin', sonny?" (NEWLINE) "You can smash pots With your attack." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It'll be worth the effort!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "If you're puzzled, stop" (NEWLINE) "by my house for a chat." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'll teach you everything" (NEWLINE) "that I know." (SHOW-PROMPT) (WAIT-INPUT))
 (437 (NAME "Goosashi") "Honorable " (COLOR 1) (PLAYER-NAME) (COLOR 0) "～. Your assistance" (NEWLINE) "yesterday was appreciated." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "You have the makings of" (NEWLINE) "a ninja!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I live at the beach!" (NEWLINE) "Stop by any time you need something." (SHOW-PROMPT) (WAIT-INPUT))
 (438 (NAME "テンシ-ラ") "I made it back safely." (NEWLINE) "How about you?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'm worried you got injured" (NEWLINE) "fighting those savage Plob." (SHOW-PROMPT) (WAIT-INPUT))
@@ -1142,6 +1141,7 @@
 (1192 (NAME "Flanpa") "The mine north of town is" (NEWLINE) "Nikomisky Mines.")
 (1193 (NAME "Flanpa") "The Plob have fortified it," (NEWLINE) "and are up to no good!")
 (1194 (NAME "Flanpa") "You might find a clue about the" (NEWLINE) "Slime Tail there!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "And more slimes were captured." (NEWLINE) "Won't you check it out?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "You are the only one strong enough!" (NEWLINE) "Good luck!" (SHOW-PROMPT) (WAIT-INPUT))
+; Meaning review: Source speaker told the grandfather about being rescued; English reverses who told whom.
 (1195 (NAME "スラカンプ") "Hey! Welcome home, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!" (NEWLINE) "I just saw your gramps!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "He told me that you rescued me!" (SHOW-PROMPT) (WAIT-INPUT))
 (1196 (NAME "????") "Phoo-boy!" (NEWLINE) "So you've made it this far?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "You mustn't value your life if" (NEWLINE) "you've come to " (COLOR 1) "ム-ン" (COLOR 0) "'s sky garden!" (SHOW-PROMPT) (WAIT-INPUT))
 (1197 (NAME "ピロ") "I am " (COLOR 1) "ピロ" (COLOR 0) ". Leader of the" (NEWLINE) (COLOR 2) "赤しっぽ" (COLOR 0) ". And " (COLOR 1) "ム-ン" (COLOR 0) "'s right-hand." (SHOW-PROMPT) (WAIT-INPUT))
@@ -1211,7 +1211,9 @@
 (1261 (NAME "Gooshido") (COLOR 1) (PLAYER-NAME) (COLOR 0) "!" (NEWLINE) "Have you come to ask a " (COLOR 2) "clue" (COLOR 0) "?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "However the " (COLOR 2) "clue" (COLOR 0) " is a fairly" (NEWLINE) "big secret," (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "so I cannot tell you unless you" (NEWLINE) "pass the " (COLOR 2) "goonin test" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Will you attempt the " (COLOR 2) "goonin test" (COLOR 0) "?" (YES-NO) (NEWLINE))
 (1262 (NAME "Gooshido") "I knew it." (NEWLINE) "Now we shall begin." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "What you must do is simple." (NEWLINE) "You must " (COLOR 2) "talk to me" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "However I am a pro too." (NEWLINE) "I can flee when I want." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I will wait for you in the" (NEWLINE) (COLOR 2) "技の部屋" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT))
 (1263 (NAME "Gooshido") "………" (COLOR 1) (PLAYER-NAME) (COLOR 0) ", don't you want to" (NEWLINE) "save your friends?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Or did you mishear what" (NEWLINE) "told you?" (YES-NO) (NEWLINE))
+; Meaning review: Source instruction is to stop the speaker moving; English says where he stops is vital. Highlight reset repaired, meaning still requires editing.
 (1264 (NAME "Gooshido") "I've waited for you, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!" (NEWLINE) "This is the 技の部屋." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "If you want to know the " (COLOR 2) "clue" (COLOR 0) "," (NEWLINE) "you must capture me." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) (COLOR 2) "Where I stop my movements in the 技の部屋" (COLOR 0) (NEWLINE) "is vital." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Make good use of the net in" (NEWLINE) "the middle of the room!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "And now the " (COLOR 2) "goonin test" (COLOR 0) (NEWLINE) "begins!" (SHOW-PROMPT) (WAIT-INPUT))
+; Meaning review: Review the stop/capture instruction against Japanese; wording is confusing even after spacing repair.
 (1265 (NAME "Gooshido") "This is the 技の部屋." (NEWLINE) "Please catch me." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It is vital to " (COLOR 2) "move quickly" (NEWLINE) "in the 技の部屋" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It is" (COLOR 2) " no good to only stop" (COLOR 0) " me" (NEWLINE) (COLOR 2) "without catching me" (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Does not the net in the center" (NEWLINE) "of the room catch yoru eye?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "So now, let the " (COLOR 2) "goonin test" (COLOR 0) (NEWLINE) "begin!" (SHOW-PROMPT) (WAIT-INPUT))
 (1266 (NAME "Gooshido") "??" (NEWLINE) "Are you leaving the room?" (YES-NO) (NEWLINE))
 (1267 (NAME "Gooshido") "Is it not convenient now?" (NEWLINE) "Then come back any time." (SHOW-PROMPT) (WAIT-INPUT))
@@ -1288,6 +1290,7 @@
 (1343 (NAME "Swotsy") "I knew you were really numero uno," (NEWLINE) (COLOR 1) (PLAYER-NAME) (COLOR 0) "! Oh, right!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "They unveiled this in town." (NEWLINE) "I'll give to you as top player!" (SHOW-PROMPT) (WAIT-INPUT))
 (1344 (NAME "Swotsy") "Congrats!" (NEWLINE) "You're the top intermediate rank!!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I've made up a gift just for" (NEWLINE) "for you, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT))
 (1345 (NAME "Swotsy") "Eeeeee, I just cannot." (NEWLINE) "To be top high rank." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Okay, I'll give you this" (NEWLINE) (COLOR 2) "mural shard" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT))
+; Meaning review: Tablet verse retains the translator wording. Last two lines simplify the source sanctuary watching over the island monsters forever; coordinated translation/layout review still needed.
 (1346 "Slime Tail is island ward god" (NEWLINE) "if you want to see bring the" (NEWLINE) "green red blue tablets to the shrine" (NEWLINE) "when the slime tail appears" (NEWLINE) "hold a festival with all" (NEWLINE) "lest you incur Her wrath" (NEWLINE) "the tail ward is a holy place" (NEWLINE) "that will protect against monsters")
 (1347 (COLOR 3) "Slime" (COLOR 4) " Ta" (COLOR 4) "i" (COLOR 4) "l is" (COLOR 3) " island" (COLOR 4) " w" (COLOR 3) "ard" (COLOR 4) " god" (NEWLINE) (COLOR 4) "if" (COLOR 3) " you" (COLOR 4) " want" (COLOR 3) " to see" (COLOR 4) " bring" (COLOR 4) " th" (COLOR 4) "e" (NEWLINE) "g" (COLOR 4) "ree" (COLOR 4) "n" (COLOR 4) " r" (COLOR 4) "ed" (COLOR 4) " blu" (COLOR 4) "e" (COLOR 3) " tablet" (COLOR 4) "s to th" (COLOR 4) "e shrine" (NEWLINE) (COLOR 4) "w" (COLOR 4) "hen th" (COLOR 4) "e slime" (COLOR 4) " tail" (COLOR 3) " ap" (COLOR 4) "p" (COLOR 4) "e" (COLOR 3) "a" (COLOR 4) "r" (COLOR 3) "s" (NEWLINE) (COLOR 4) "hol" (COLOR 3) "d" (COLOR 4) " a f" (COLOR 4) "est" (COLOR 4) "iv" (COLOR 3) "al wi" (COLOR 4) "th" (COLOR 4) " all" (NEWLINE) "l" (COLOR 4) "es" (COLOR 4) "t " (COLOR 3) "y" (COLOR 4) "ou " (COLOR 4) "incur " (COLOR 4) "He" (COLOR 3) "r" (COLOR 4) " w" (COLOR 4) "r" (COLOR 3) "a" (COLOR 4) "th" (NEWLINE) (COLOR 3) "t" (COLOR 4) "h" (COLOR 4) "e" (COLOR 3) " tail" (COLOR 4) " ward" (COLOR 4) " is" (COLOR 4) " a " (COLOR 4) "hol" (COLOR 3) "y" (COLOR 4) " p" (COLOR 4) "la" (COLOR 4) "ce" (NEWLINE) (COLOR 4) "that will" (COLOR 3) " protect" (COLOR 4) " against" (COLOR 4) " monsters")
 (1348 (COLOR 4) "Slime" (COLOR 1) " Ta" (COLOR 4) "i" (COLOR 1) "l is" (COLOR 4) " island" (COLOR 4) " w" (COLOR 4) "ard" (COLOR 1) " god" (NEWLINE) (COLOR 4) "if" (COLOR 4) " you" (COLOR 1) " want" (COLOR 4) " to see" (COLOR 4) " bring" (COLOR 1) " th" (COLOR 4) "e" (NEWLINE) "g" (COLOR 1) "ree" (COLOR 4) "n" (COLOR 4) " r" (COLOR 4) "ed" (COLOR 1) " blu" (COLOR 4) "e" (COLOR 4) " tablet" (COLOR 4) "s to th" (COLOR 1) "e shrine" (NEWLINE) (COLOR 4) "w" (COLOR 1) "hen th" (COLOR 4) "e slime" (COLOR 4) " tail" (COLOR 4) " ap" (COLOR 4) "p" (COLOR 1) "e" (COLOR 4) "a" (COLOR 1) "r" (COLOR 4) "s" (NEWLINE) (COLOR 4) "hol" (COLOR 4) "d" (COLOR 1) " a f" (COLOR 4) "est" (COLOR 4) "iv" (COLOR 4) "al wi" (COLOR 1) "th" (COLOR 4) " all" (NEWLINE) "l" (COLOR 4) "es" (COLOR 4) "t " (COLOR 4) "y" (COLOR 1) "ou " (COLOR 4) "incur " (COLOR 1) "He" (COLOR 4) "r" (COLOR 1) " w" (COLOR 4) "r" (COLOR 4) "a" (COLOR 4) "th" (NEWLINE) (COLOR 4) "t" (COLOR 1) "h" (COLOR 4) "e" (COLOR 4) " tail" (COLOR 4) " ward" (COLOR 1) " is" (COLOR 4) " a " (COLOR 4) "hol" (COLOR 4) "y" (COLOR 1) " p" (COLOR 4) "la" (COLOR 4) "ce" (NEWLINE) (COLOR 1) "that will" (COLOR 4) " protect" (COLOR 4) " against" (COLOR 4) " monsters")
@@ -1464,6 +1467,7 @@
 (1519 (NAME "ス-ラ") "ding-dong-bing-bong!" (NEWLINE) "The 70St iron ball is cleared!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Now the iron ball " (COLOR 2) "next to the" (NEWLINE) "shrine on 2nd Block" (COLOR 0) " is gone!" (SHOW-PROMPT) (WAIT-INPUT))
 (1520 (NAME "ス-ラ") "ding-dong-bing-bong!" (NEWLINE) "The 100St iron ball is cleared!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "You've saved EVERY SLIME!" (NEWLINE) "Incredible! Like the Gooddess!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "But just what lies beyond the" (NEWLINE) "100St iron ball?" (SHOW-PROMPT) (WAIT-INPUT))
 (1521 (NAME "スラッサ-") "Hey, you! Slime!" (NEWLINE) "I took a census of everyone!!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Wanna know 'bout everyone?" (YES-NO) (NEWLINE))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1522 (NAME "スラッサ-") "In Nokke Woods remain " (COLOR 2) (DYNAMIC-TEXT 0) " slimes" (COLOR 0) (NEWLINE) "still waiting to be rescued!!" (SHOW-PROMPT) (WAIT-INPUT))
 (1523 (NAME "スラッサ-") "In Ul・Otter River there are still" (NEWLINE) (COLOR 2) "? slimes" (COLOR 0) " captured!!" (SHOW-PROMPT) (WAIT-INPUT))
 (1524 (NAME "スラッサ-") "In Nikomisky Mine there are still" (NEWLINE) (COLOR 2) "? slimes" (COLOR 0) " captured!!" (SHOW-PROMPT) (WAIT-INPUT))
@@ -1819,6 +1823,21 @@
 (1880 (NAME "Hooly") "Hold it! STOP!" (NEWLINE) "STOP THE ENDING!" (SHOW-PROMPT) (WAIT-INPUT))
 (1881 (NAME "Hooly") "Sorry, but the game is" (NEWLINE) "not over yeeeeet." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "There are still " (COLOR 2) (DYNAMIC-TEXT 0) (COLOR 0) " slimes" (NEWLINE) "to be saved." (SHOW-PROMPT) (WAIT-INPUT))
 (1882 (NAME "Hooly") "You can see the ending" (NEWLINE) "after you rescue everyone." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Only you can do it." (NEWLINE) "Good luck, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "." (SHOW-PROMPT) (WAIT-INPUT))
+(1883 (CREDITS (4 "center" "Dragon Quest") (6 "center" "Rocket Slime 0") (10 "center" "Staff")))
+(1884 (CREDITS (6 "center" "Executive Producer") (10 "center" "Yuuji Horii")))
+(1885 (CREDITS (6 "center" "Character Design") (10 "center" "Akira Toriyama")))
+(1886 (CREDITS (6 "center" "Music") (10 "center" "Koichi Sugiyama")))
+(1887 (CREDITS (6 "center" "Tose") (10 "center" "Staff")))
+(1888 (CREDITS (6 "center" "Director") (10 "center" "Takumi Hosoyama")))
+(1889 (CREDITS (6 "center" "Main Programmer") (10 "center" "Otsuo Higuchi")))
+(1890 (CREDITS (6 "center" "Main Designer") (10 "center" "Shinosuke Yamada")))
+(1891 (CREDITS (3 "center" "Coordinator") (7 "center" "Naoji Shintani") (9 "center" "Hiroyuki Nabeshima") (11 "center" "Kana Inakaki") (13 "center" "Tatsuya Shimazu") (15 "center" "Tomogo Sawasaki")))
+(1893 (CREDITS (4 "center" "Designer (Monster)") (8 "center" "Atsumi Sawamura") (10 "center" "Kojiro Uno") (12 "center" "Kunio Asahara") (14 "center" "Motohiro Suzuki")))
+(1894 (CREDITS (3 "center" "Designer (Map)") (7 "center" "Noriko Mizujiri") (9 "center" "Takako Kikumoto") (11 "center" "Yukiko Hinokidani") (13 "center" "Masako Ishizaki") (15 "center" "Yoshiko Kakuyama")))
+(1896 (CREDITS (6 "center" "Square-Enix") (10 "center" "Staff")))
+(1898 (CREDITS (6 "center" "Producer") (10 "center" "Yoshigi Watabe")))
+(1899 (CREDITS (4 "center" "Chief Producer") (7 "center" "Taichi Inuzuka") (11 "center" "General Producer") (14 "center" "Yukinobu Chida")))
+(1901 (CREDITS (4 18 "<Copyright>2003 ARMOR PROJECT") (7 18 "<Copyright>2003 BIRD STUDIO") (10 18 "<Copyright>2003 KOICHI SUGIYAMA") (13 18 "<Copyright>2003 SQUARE ENIX") (15 "center" "Team Rockets") (17 "center" "Fan Translators Int.")))
 (1902 "Welcome, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "! Shop's open" (NEWLINE) "for business!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It's full of useful items" (NEWLINE) "for your adventure, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT))
 (1903 "Welcome, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "!" (NEWLINE) "Y'all need any of my items?" (SHOW-PROMPT) (WAIT-INPUT))
 (1904 "Then, come on in! Buy or sell," (NEWLINE) "any's a good pick here!")
@@ -1867,8 +1886,10 @@
 (1947 (NAME "ホイミ-") "It's no good?" (NEWLINE) "I understand!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I wait for next" (NEWLINE) "time, 'kay!" (SHOW-PROMPT) (WAIT-INPUT))
 (1948 (NAME "ホイミ-") "An' now" (NEWLINE) "we can all assembwal!" (SHOW-PROMPT) (WAIT-INPUT))
 (1949 (NAME "ホイミ-") "Hey, everyone, I got" (NEWLINE) "a Slime Knight!" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1950 (NAME "ホイミ-") "An' now we can all" (NEWLINE) "pway Slime Wangers!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all da Slime Wangers awe hewe!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Thank you!" (SHOW-PROMPT) (WAIT-INPUT))
 (1951 (NAME "ホイミ-") "Bwue Wanger!" (NEWLINE) "" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Thanks!" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1952 (NAME "ホイミ-") "Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all da Slime Wangers awe hewe!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I can't wait!" (SHOW-PROMPT) (WAIT-INPUT))
 (1953 (NAME "バブブ") "He-he-he! Ain't it nice!?" (NEWLINE) "We can play all we want here!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Play Slime Rangers" (NEWLINE) "here that is!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "But I don't have any" (NEWLINE) "nice dolls to play with." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Hmmm, bruv, you got any" (NEWLINE) "suitable toys?" (YES-NO))
 (1954 (NAME "バブブ") "Did you find..." (NEWLINE) "a toy we can use for Slime Rangers!?" (YES-NO))
@@ -1881,8 +1902,10 @@
 (1961 (NAME "バブブ") "What, really." (NEWLINE) "Keh!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Tell me if you" (NEWLINE) "change your mind, 'kay!" (SHOW-PROMPT) (WAIT-INPUT))
 (1962 (NAME "バブブ") "And now" (NEWLINE) "we can all assemble!" (SHOW-PROMPT) (WAIT-INPUT))
 (1963 (NAME "バブブ") "Heeey, everyone," (NEWLINE) "it's oozin' time!!!" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1964 (NAME "バブブ") "And now I can play" (NEWLINE) "Slime Rangers with everyone!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all the Slime Rangers are here!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Thanks!" (SHOW-PROMPT) (WAIT-INPUT))
 (1965 (NAME "バブブ") "Red Ranger!" (NEWLINE) "Are you ready?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "By the way, bruv," (NEWLINE) "want to see it again?" (YES-NO))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1966 (NAME "バブブ") "Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all the Slime Rangers are here!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "He-he-he, I can't wait!" (SHOW-PROMPT) (WAIT-INPUT))
 (1967 (NAME "バブブ") "I see!" (NEWLINE) "Got it!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Talk to me if you do!" (SHOW-PROMPT) (WAIT-INPUT))
 (1968 (NAME "くろりん") "I finally made it back here." (NEWLINE) "I knew it'd get messy!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I play Slime Rangers" (NEWLINE) "with my friends here!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "But I don't have a cool" (NEWLINE) "toy that I can use for it." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "What am I gonna do?" (NEWLINE) "You got anything nice?" (YES-NO))
@@ -1896,8 +1919,10 @@
 (1976 (NAME "くろりん") "Aww." (NEWLINE) "I-It's no good?" (NEWLINE) "I-I understand." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Tell me if you" (NEWLINE) "change your mind!" (SHOW-PROMPT) (WAIT-INPUT))
 (1977 (NAME "くろりん") "And now," (NEWLINE) "we can assemble!" (SHOW-PROMPT) (WAIT-INPUT))
 (1978 (NAME "くろりん") "Everyone!" (NEWLINE) "I got one too!!" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1979 (NAME "くろりん") "And now I can play" (NEWLINE) "Slime Rangers with everyone!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "All that's left for us" (NEWLINE) "to assemble is " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'm counting on you!" (SHOW-PROMPT) (WAIT-INPUT))
 (1980 (NAME "くろりん") "Dark Ranger!!" (NEWLINE) "" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Cool, huh?" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1981 (NAME "くろりん") "All that's left for us" (NEWLINE) "to assemble is " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'm counting on you!" (SHOW-PROMPT) (WAIT-INPUT))
 (1983 (NAME "たまちゃん") "W-Won't you b-bring back" (NEWLINE) "a toy that I can use" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "t-to play Slime Rangers?" (YES-NO))
 (1984 (NAME "たまちゃん") "Sorry, but of the toys" (NEWLINE) "that you have, bruv," (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "there aren't any that I" (NEWLINE) "can play Slime Rangers with." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I-If you find anything" (NEWLINE) "again, talk to me, 'kay?" (SHOW-PROMPT) (WAIT-INPUT))
@@ -1909,8 +1934,10 @@
 (1990 (NAME "たまちゃん") "Ohh, s-so no good?" (NEWLINE) "I understand." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I-I'll wait until" (NEWLINE) "next time." (SHOW-PROMPT) (WAIT-INPUT))
 (1991 (NAME "たまちゃん") "A-And now" (NEWLINE) "we can all assemble." (SHOW-PROMPT) (WAIT-INPUT))
 (1992 (NAME "たまちゃん") "E-Everyone." (NEWLINE) "I got one too." (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1993 (NAME "たまちゃん") "A-and now I can play" (NEWLINE) "Slime Ranger with everyone." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "J-Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all the Slime Rangers are here..." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Thank you..." (SHOW-PROMPT) (WAIT-INPUT))
 (1994 (NAME "たまちゃん") "Y-Yellow Ranger." (NEWLINE) "" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "E-he-he." (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (1995 (NAME "たまちゃん") "J-Just " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) (NEWLINE) "till all the Slime Rangers are here..." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'm looking forward to it..." (SHOW-PROMPT) (WAIT-INPUT))
 (1996 (NAME "ミニン") "Hello, bruv!" (NEWLINE) "Thanks for saving me!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'm gonna play Slime" (NEWLINE) "Ranger here with everyone!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "But I don't have a toy" (NEWLINE) "that I can use." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "You wouldn't happen to have" (NEWLINE) "one, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "?" (YES-NO))
 (1997 (NAME "ミニン") "Didn't you bring back toys" (NEWLINE) "that could be used" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "for everyone!?" (YES-NO))
@@ -1923,8 +1950,10 @@
 (2004 (NAME "ミニン") "Aww, no good?" (NEWLINE) "Sorry." (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "I'll take it if" (NEWLINE) "you bring one again!" (SHOW-PROMPT) (WAIT-INPUT))
 (2005 (NAME "ミニン") "And now" (NEWLINE) "we can all... ASSEMBLE!" (SHOW-PROMPT) (WAIT-INPUT))
 (2006 (NAME "ミニン") "Everyone, come here, come here!" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (2007 (NAME "ミニン") "And now I can play" (NEWLINE) "Slime Rangers with everyone!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "All that's left for us" (NEWLINE) "to assemble is " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "So exciting!" (SHOW-PROMPT) (WAIT-INPUT))
 (2008 (NAME "ミニン") "Green Ranger!!" (NEWLINE) "" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "How was that?" (SHOW-PROMPT) (WAIT-INPUT))
+; Counter ending restored from the ROM; this English was absent from Gerb's delivered script.
 (2009 (NAME "ミニン") "All that's left for us" (NEWLINE) "to assemble is " (COLOR 2) (DYNAMIC-TEXT 0) " more slimes" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Good luck!" (SHOW-PROMPT) (WAIT-INPUT))
 (2010 (NAME "バブブ") "Yes, now that we're all here," (NEWLINE) "we can show THAT to him!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Okay, you goos!" (NEWLINE) "FORM UP!!" (SHOW-PROMPT) (WAIT-INPUT))
 (2011 (NAME "Everyone") "Yeah!!" (SHOW-PROMPT) (WAIT-INPUT))
@@ -2164,6 +2193,7 @@
 (2251 (NAME "スラダ-ク") "The gang's all here. An' so" (NEWLINE) "ya can go to the " (COLOR 2) "secret playground" (COLOR 0) "!" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "It's a place in the" (NEWLINE) "LINK Battle area!" (SHOW-PROMPT) (WAIT-INPUT))
 (2252 (NAME "メテお") "He-he-he. I tell you something good." (NEWLINE) "You know about the " (COLOR 2) "secret playground" (COLOR 0) "?" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Save " (COLOR 1) "ゴルド" (COLOR 0) " " (COLOR 2) "deep in Nokke Woods" (COLOR 0) "!" (NEWLINE) "The " (COLOR 2) "secret playground" (COLOR 0) " needs…" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "Me and " (COLOR 1) "ゴルド" (COLOR 0) " and 1 other" (NEWLINE) "slime. So I'm counting on you!" (SHOW-PROMPT) (WAIT-INPUT))
 (2253 (NAME "メテお") "You saved " (COLOR 1) "ゴルド" (COLOR 0) "!" (NEWLINE) "Thanks. You met them yet?" (SHOW-PROMPT) (WAIT-INPUT))
+; Meaning review: Source says choosing the player as 1P lets a friend without the secret playground join; English assigns the condition incorrectly.
 (2254 (NAME "メテお") "Even you who are clueless" (NEWLINE) "about the " (COLOR 2) "secret playground" (COLOR 0) " can be 1P," (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) "we can play together" (NEWLINE) "there!" (SHOW-PROMPT) (WAIT-INPUT))
 (2255 (NAME "メカキチ") "To our honorable hero, " (COLOR 1) (PLAYER-NAME) (COLOR 0) "," (NEWLINE) "I salute you!!" (SHOW-PROMPT) (WAIT-INPUT))
 (2256 (NAME "メカキチ") "You who defeated the accursed" (NEWLINE) (COLOR 1) "Don Clawleone" (COLOR 0) ", I salute you!!" (SHOW-PROMPT) (WAIT-INPUT))

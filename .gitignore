@@ -13,7 +13,8 @@ gba_bios.bin
 
 /**/
 !/text-dumps/
-!/text-dumps/*
+!/text-dumps/rom.txt
+!/text-dumps/gerb.txt
 !/tools/
 !/tools/*
 !/agent-tools/
@@ -28,6 +29,3 @@ gba_bios.bin
 __pycache__/
 *.pyc
 /dist/
-text-dumps/after-translate2-preview.txt
-text-dumps/preview-reflowed.txt
-text-dumps/preview-layout-errors.txt

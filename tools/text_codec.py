@@ -12,7 +12,9 @@ OPS = {2: ('NEWLINE', 0), 3: ('SCROLL', 0), 4: ('CLEAR', 0),
        12: ('COLOR', 1), 13: ('DYNAMIC-TEXT', 1), 14: ('PLAYER-NAME', 0),
        15: ('NOP', 0)}
 BY_NAME = {name: (code, nargs) for code, (name, nargs) in OPS.items()}
-SYMBOLS = set(BY_NAME) | {'NAME', 'GLYPH', 'ALIGN', 'FORCE-NEWLINE', 'WAIT-FOR-A'}
+SYMBOLS = set(BY_NAME) | {'NAME', 'GLYPH', 'ALIGN', 'FORCE-NEWLINE', 'WAIT-FOR-A',
+                          'CREDITS', 'PLAIN', 'SMALL', 'DIALOGUE', 'NAME-GRID',
+                          'DIGIT-TABLE', 'DAKUTEN', 'HANDAKUTEN'}
 
 
 class Symbol(str):
@@ -71,6 +73,23 @@ EXECUTION = {'SCROLL', 'CLEAR', 'DELAY', 'SHOW-PROMPT', 'WAIT-INPUT',
 
 def control_trace(tokens):
     return [t for t in tokens if isinstance(t, list) and t[0] in EXECUTION]
+
+
+def dialogue_entries(entries):
+    return [r for r in entries if 52 <= r[0] <= 2397 and not 1883 <= r[0] <= 1901]
+
+
+def read_dialogue(path):
+    return dialogue_entries(read_script(path))
+
+
+def credit_lines(entry):
+    if len(entry) != 2 or not isinstance(entry[1], list) or entry[1][0] != 'CREDITS':
+        raise ValueError(f'{entry[0]}: expected a CREDITS record')
+    rows = entry[1][1:]
+    return [{'tile_row': row, 'x': x, 'tokens': tokens,
+             'separator': 0 if n == len(rows) - 1 else 2}
+            for n, (row, x, *tokens) in enumerate(rows)]
 
 
 def read_table(path):

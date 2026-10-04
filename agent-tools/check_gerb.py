@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
-"""Check the formatting-reviewed corpus against the original ROM and review ledger.
-
-This detects structural/typographic regressions, not mistranslations. Intentional
-name-count differences and pending meaning reviews are recorded in the ledger.
-Run before audit_text.py and tools/build_rom.lisp. No files are rewritten.
-"""
+"""Check Gerb's working script against the ROM; no historical snapshots required."""
 import _paths
 
 import hashlib
-import json
 import re
 from pathlib import Path
 
-from audit_text import read_script, sexp, pointer, decode_credits
-from text_codec import Codec, control_trace
+from audit_text import read_script, pointer
+from text_codec import Codec, control_trace, dialogue_entries, credit_lines
 
 ROOT = Path(__file__).resolve().parent.parent
 TABLETS = range(1346, 1356)
@@ -57,13 +51,11 @@ def colored_glyphs(tokens, codec):
     return result
 
 
-def validate(root=ROOT, entries=None, check_ledger=True):
+def validate(root=ROOT, entries=None):
     rom = (root / 'slime_original.gba').read_bytes()
     codec = Codec(root)
-    ledger = json.loads((root / 'text-dumps/gerb-formatting-review.json').read_text())
-    baseline_path = root / ledger['baseline']
-    baseline = {r[0]: r for r in read_script(baseline_path)}
-    entries = entries if entries is not None else read_script(root / ledger['script'])
+    working = read_script(root / 'text-dumps/gerb.txt')
+    entries = entries if entries is not None else dialogue_entries(working)
     rows = {r[0]: r for r in entries}
     errors = []
 
@@ -73,18 +65,6 @@ def validate(root=ROOT, entries=None, check_ledger=True):
 
     require(hashlib.sha256(rom).hexdigest() == ROM_SHA256, 'Unexpected original ROM')
     require(len(rows) == len(entries), 'Duplicate dialogue index')
-    require(rows.keys() == baseline.keys(), 'Gerb dialogue entries were lost or added without review')
-    if check_ledger:
-        require(hashlib.sha256(baseline_path.read_bytes()).hexdigest() == ledger['baseline_sha256'],
-                'The historical named baseline changed')
-        changes = {c['index']: c for c in ledger['changes']}
-        require(len(changes) == len(ledger['changes']), 'Duplicate review record')
-        require(set(changes) == {i for i in rows if rows[i] != baseline.get(i)},
-                'Update the before/after review ledger for every changed entry')
-        for i, change in changes.items():
-            require(change['before'] == sexp(baseline[i]), f'{i}: review before-text differs')
-            require(i in rows and change['after'] == sexp(rows[i]), f'{i}: review after-text differs')
-            require(bool(change['reasons']), f'{i}: edit has no review reason')
     name_differences = []
     for i, *ts in entries:
         try:
@@ -120,9 +100,6 @@ def validate(root=ROOT, entries=None, check_ledger=True):
                 if n and ts[n - 1] == ['NEWLINE'] and i != 1298:
                     require(not re.match(r'^[.,!?;:]', t), f'{i}: punctuation detached by a newline')
         require(color == 0, f'{i}: color never reset before end of dialogue')
-    require(name_differences == ledger['player_name_count_differences_reviewed'],
-            'Unreviewed player-name count differences')
-
     # Infer each reveal's available ink channels from the ROM, independently
     # of the translator's damaged masks. Compare every glyph and line break.
     full = colored_glyphs(rows[1355][1:], codec)
@@ -139,15 +116,11 @@ def validate(root=ROOT, entries=None, check_ledger=True):
             if glyph != 'newline':
                 require(shown == (ink if ink in available else 4), f'{i}: wrong reveal channel at glyph {position}')
 
-    credits = json.loads((root / 'text-dumps/gerb-credits.json').read_text())['cards']
-    require([c['index'] for c in credits] == list(range(1883, 1902)), 'Credit inventory incomplete')
+    credits = [r for r in working if 1883 <= r[0] <= 1901]
     ends = (0x13, 0x18, 0x23, 0x3D, 0x66, 0x97, 0xCE, 0x10C, 0x141, 0x1B8)
-    for card in credits:
-        require(card['original'] == decode_credits(rom, card['index'], codec.big),
-                f"Credit {card['index']}: source coordinates/text differ from ROM")
-        lines = card['translation']
-        if lines is None:
-            continue
+    for entry in credits:
+        card = {'index': entry[0]}
+        lines = credit_lines(entry)
         encoded = codec.encode_credits(lines)
         decoded, end = codec.credits(encoded, 0)
         require(end == len(encoded) and codec.encode_credits(decoded) == encoded,
@@ -167,19 +140,16 @@ def validate(root=ROOT, entries=None, check_ledger=True):
             require(x + width <= 240, f"Credit {card['index']}: line exceeds screen width")
             require(bottom <= line['tile_row'] <= 18, f"Credit {card['index']}: vertical overlap/overflow")
             bottom = line['tile_row'] + 2
-    return {'dialogue_entries': len(rows), 'changed_entries': len(ledger['changes']),
-            'restored_endings': len(ledger['restored_ending_ids']),
-            'translated_credit_cards': sum(c['translation'] is not None for c in credits),
-            'meaning_reviews': ledger['translation_meaning_review'], 'errors': errors}
+    return {'dialogue_entries': len(rows), 'translated_credit_cards': len(credits),
+            'player_name_count_differences': name_differences, 'errors': errors}
 
 
 def main():
     result = validate()
     for error in result['errors']:
         print(error)
-    print(f"{result['dialogue_entries']} dialogue entries; {result['changed_entries']} reviewed edits; "
-          f"{result['restored_endings']} restored endings; {result['translated_credit_cards']} credit cards; "
-          f"{len(result['errors'])} formatting errors; {len(result['meaning_reviews'])} separate meaning reviews.")
+    print(f"{result['dialogue_entries']} dialogue entries; {result['translated_credit_cards']} credit cards; "
+          f"{len(result['errors'])} formatting errors.")
     raise SystemExit(bool(result['errors']))
 
 

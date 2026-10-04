@@ -12,7 +12,7 @@ import json
 import re
 import struct
 from pathlib import Path
-from text_codec import OPS, BY_NAME, Symbol, read_script, sexp
+from text_codec import OPS, BY_NAME, Symbol, read_script, read_dialogue, sexp
 
 BASE = 0x08000000
 TABLE = 0x71174C
@@ -289,15 +289,15 @@ entries. Null slots and credits are excluded because they aren't dialogue.
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rom', default='slime_original.gba')
-    parser.add_argument('--script', default='text-dumps/gerb-dialogue.txt')
-    parser.add_argument('--report', default='text-dumps/translation-audit.json')
+    parser.add_argument('--script', default='text-dumps/gerb.txt')
+    parser.add_argument('--report', default='dist/translation-audit.json')
     parser.add_argument('--review-script', help='Optional named migration output; never overwrite the input')
-    parser.add_argument('--preview-script', default='text-dumps/after-translate2-preview.txt')
+    parser.add_argument('--preview-script', default='dist/audited.txt')
     args = parser.parse_args()
     if args.review_script and Path(args.review_script).resolve() == Path(args.script).resolve():
         parser.error('--review-script must differ from --script')
     root = Path(__file__).resolve().parent.parent
-    rom, entries = Path(args.rom).read_bytes(), read_script(args.script)
+    rom, entries = Path(args.rom).read_bytes(), read_dialogue(args.script)
     report, repaired = audit(rom, entries, root)
     if args.review_script:
         named = migrate_gerb_dialogue(rom, entries, root)
@@ -307,6 +307,8 @@ def main():
             '; Credits and null slots excluded. This is NOT the partial preview input.\n' +
             '\n'.join(map(sexp, named)) + '\n', encoding='utf-8')
     report['script'] = args.script
+    Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.preview_script).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     Path(args.preview_script).write_text(
         '; PARTIAL PREVIEW: omitted entries retain Japanese/original ROM data.\n'

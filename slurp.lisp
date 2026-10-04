@@ -16,7 +16,7 @@
 
 (defparameter txt nil)
 (defun load-texts ()
-  (setf txt (read-all-text-utf "text-dumps/gerb-dialogue.txt")))
+  (setf txt (read-dialogue-text "text-dumps/gerb.txt")))
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *font-records* nil)
@@ -48,7 +48,7 @@
 
 (defun scan-rom ()
   "Extract all known formats and audit every byte of the text section.
-See text-dumps/rom-text-coverage.json for evidence and coverage limits."
+Optional detailed reports: tools/extract_text.py --report-dir dist/extraction."
   (uiop:run-program '("python" "tools/extract_text.py") :output *standard-output*
                     :error-output *error-output*))
 
@@ -72,6 +72,11 @@ See text-dumps/rom-text-coverage.json for evidence and coverage limits."
       (loop for sexp = (read stream nil)
             while sexp
             collect sexp))))
+
+(defun read-dialogue-text (path)
+  (remove-if-not (lambda (row)
+                   (and (<= 52 (car row) 2397) (not (<= 1883 (car row) 1901))))
+                 (read-all-text-utf path)))
 
 (defun trans (all-text-translated f)
   (let ((slime-patched (read-rom "slime_original.gba")))

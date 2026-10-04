@@ -4,8 +4,8 @@
   "source_rom_sha256": "f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661",
   "gba_base_address": 134217728,
   "pointer_table_offset": 7411532,
-  "original_dialogue_file": "text-dumps/rom-dialogue.txt",
-  "original_dialogue_sha256": "27d24535d57d7d349574ca151f554f9ca38d705211501116a4107b48847bf2ef",
+  "original_dialogue_file": "text-dumps/rom.txt",
+  "original_dialogue_sha256": "543857f670a946b63b2a3f3146e4b0f254f177b574cc0ec45ddf92d289399427",
   "font_records": [
     [
       16,
