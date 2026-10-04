@@ -1,247 +1,8 @@
 {
   "rom_sha256": "f86a933440369e13a6898864d1ac10b8af409674c489a2ccc9a89cdfa6d2a661",
-  "entries": 2287,
-  "repairs": [
-    {
-      "index": 1311,
-      "changes": [
-        "Recovered (CONTROL 10 4)"
-      ]
-    },
-    {
-      "index": 1323,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1325,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1328,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1332,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1333,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1334,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1338,
-      "changes": [
-        "Recovered (CONTROL 10 0)"
-      ]
-    },
-    {
-      "index": 1613,
-      "changes": [
-        "Recovered (CONTROL 10 3)"
-      ]
-    },
-    {
-      "index": 1881,
-      "changes": [
-        "Recovered (CONTROL 13 0)",
-        "Restored original terminal 07 08 after counter text"
-      ]
-    },
-    {
-      "index": 2019,
-      "changes": [
-        "Recovered (CONTROL 6 64)"
-      ]
-    }
-  ],
-  "blocked": [
-    {
-      "index": 798,
-      "reason": "Unencodable glyphs: ['é']",
-      "translation": "(798 (NAME \"Drafille\") \"My dear \" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"!\" (NEWLINE) \"You have come to visit me?\" (BYTE 7) (BYTE 8) (NEWLINE) \"Beating up all those Plob, yes,\" (NEWLINE) \"you will be my fiancé.\" (BYTE 7) (BYTE 8) (NEWLINE) \"I've been dreaming about you\" (NEWLINE) \"night since. O-ho-ho-ho.\" (BYTE 7) (BYTE 8))",
-      "original": "(798 (NAME \"ドラフィーユ\") \"『\" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"さま〜！\" (NEWLINE) \"　わざわざ　会いに来てくれたのですね？\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『しっぽ団を　みんな　やっつけたとか…。\" (NEWLINE) \"　あぁ　さすがは　アタイの　フィアンセ…。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『さいきんは　まいばん　\" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"さまの\" (NEWLINE) \"　ユメを　見ますの…　オホホ。\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1522,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1522 (NAME \"スラッサ-\") \"In Nokke Woods remain \" (COLOR 2) (BYTE 13))",
-      "original": "(1522 (NAME \"スラッサー\") \"『ノッケの森には　まだ　\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"の\" (NEWLINE) \"　なかまが　つかまってるぜ！！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1574,
-      "reason": "Unencodable glyphs: ['#']",
-      "translation": "(1574 (NAME \"スクラテス\") \"When even 1 new monster comes\" (NEWLINE) \"to live in town,\" (BYTE 7) (BYTE 8) (NEWLINE) \"this room will display\" (NEWLINE) \"commemorative statues of them.\" (BYTE 7) (BYTE 8) (NEWLINE) \"And as the # of monsters increases,\" (NEWLINE) \"to \" (COLOR 2) \"25, 50 and 100\" (COLOR 0) \",\" (BYTE 7) (BYTE 8) (NEWLINE) \"enjoy it as new statues\" (NEWLINE) \"pop up each time!\" (BYTE 7) (BYTE 8))",
-      "original": "(1574 (NAME \"スクラテス\") \"『１匹でも　新しいまものが　この町に\" (NEWLINE) \"　すむようになったら…\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『それを　キネンして　そのまもののぞうを\" (NEWLINE) \"　かざっていく　お部屋です。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『さらに…　町にすむまものの　かずが\" (NEWLINE) \"　\" (COLOR 2) \"２５匹　５０匹　１００匹\" (COLOR 0) \"になったら…\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『そのつど　あらたな　ぞうを\" (NEWLINE) \"　ふやしていくので　おたのしみに！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1657,
-      "reason": "Unencodable glyphs: ['#']",
-      "translation": "(1657 (NAME \"ホイミィ\") \"Okay, match #1, \" (NEWLINE) (COLOR 1) (PLAYER-NAME) (COLOR 0) \"vs Plattystars!\" (BYTE 7) (BYTE 8) (NEWLINE) \"May the best team win\" (NEWLINE) \"fairly, good luck!\" (BYTE 7) (BYTE 8))",
-      "original": "(1657 (NAME \"ホイミィ\") \"『さあ　だいいちしあいは\" (NEWLINE) \"　\" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"たい　モジャロスターズ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『りょうしゃ　フェアプレーで\" (NEWLINE) \"　がんばってねー！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1658,
-      "reason": "Unencodable glyphs: ['#']",
-      "translation": "(1658 (NAME \"ホイミィ\") \"Match #2!\" (NEWLINE) (COLOR 1) (PLAYER-NAME) (COLOR 0) \" faces the Plattywhacks!\" (BYTE 7) (BYTE 8) (NEWLINE) \"How will you fare against the\" (NEWLINE) \"Plattywhacks' teamwork!?\" (BYTE 7) (BYTE 8))",
-      "original": "(1658 (NAME \"ホイミィ\") \"『だいにしあいです！\" (NEWLINE) \"　\" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"のあいては　モジャックス！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『モジャックスの　チームワークに\" (NEWLINE) \"　\" (COLOR 1) (PLAYER-NAME) (COLOR 0) \"は　どうやっていどむ！？\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1876,
-      "reason": "Non-ROM pointer 0x00000000"
-    },
-    {
-      "index": 1877,
-      "reason": "Non-ROM pointer 0x00000000"
-    },
-    {
-      "index": 1878,
-      "reason": "Non-ROM pointer 0x00000000"
-    },
-    {
-      "index": 1879,
-      "reason": "Non-ROM pointer 0x00000000"
-    },
-    {
-      "index": 1883,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1884,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1885,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1886,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1887,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1888,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1889,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1890,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1891,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1893,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1894,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1896,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1898,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1899,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1901,
-      "reason": "Credits have their own coordinate/text grammar"
-    },
-    {
-      "index": 1950,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1950 (NAME \"ホイミ-\") \"An' now we can all\" (NEWLINE) \"pway Slime Wangers!\" (BYTE 7) (BYTE 8) (NEWLINE) \"Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1950 (NAME \"ホイミー\") \"『これで　みんなと\" (NEWLINE) \"　スラレンジャーごっこ　できるでちゅ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごうでちゅ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『ありがとうでちゅ！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1952,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1952 (NAME \"ホイミ-\") \"Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1952 (NAME \"ホイミー\") \"『あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごうでちゅ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『たのしみでちゅ！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1964,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1964 (NAME \"バブブ\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (BYTE 7) (BYTE 8) (NEWLINE) \"Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1964 (NAME \"バブブ\") \"『これで　みんなと\" (NEWLINE) \"　スラレンジャーごっこ　できるぜ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごうだぜ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『サンキュー！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1966,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1966 (NAME \"バブブ\") \"Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1966 (NAME \"バブブ\") \"『あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごうだぜ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『へへへ　まちどおしいな！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1979,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1979 (NAME \"くろりん\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (BYTE 7) (BYTE 8) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is\" (COLOR 2) (BYTE 13))",
-      "original": "(1979 (NAME \"くろりん\") \"『これで　みんなと\" (NEWLINE) \"　スラレンジャーごっこ　できるぜ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『スラレンジャーの\" (NEWLINE) \"　ぜんいんしゅうごうまで　あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『たのんだぜ！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1981,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1981 (NAME \"くろりん\") \"All that's left for us\" (NEWLINE) \"to assemble\" (COLOR 2) (BYTE 13))",
-      "original": "(1981 (NAME \"くろりん\") \"『スラレンジャー　ぜんいんしゅうごうまで\" (NEWLINE) \"　あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『たのんだぜ！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1993,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1993 (NAME \"たまちゃん\") \"A-and now I can play\" (NEWLINE) \"Slime Ranger with everyone.\" (BYTE 7) (BYTE 8) (NEWLINE) \"N-Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1993 (NAME \"たまちゃん\") \"『こ　これで　みんなと\" (NEWLINE) \"　スラレンジャーごっこ　できるかも…。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『あ　あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごう…　だよ。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『ありがとう…。\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 1995,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(1995 (NAME \"たまちゃん\") \"N-Next,\" (COLOR 2) (BYTE 13))",
-      "original": "(1995 (NAME \"たまちゃん\") \"『あ　あと\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"で　スラレンジャーが\" (NEWLINE) \"　ぜんいんしゅうごう…　だよ。\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『たのしみだなぁ…。\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 2007,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(2007 (NAME \"ミニン\") \"And now I can play\" (NEWLINE) \"Slime Rangers with everyone!\" (BYTE 7) (BYTE 8) (NEWLINE) \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (BYTE 13))",
-      "original": "(2007 (NAME \"ミニン\") \"『これで　みんなと\" (NEWLINE) \"　スラレンジャーごっこ　できるっ！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『スラレンジャー　しゅうごう　まで\" (NEWLINE) \"　あと　\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『ワクワク！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 2009,
-      "reason": "Text truncated at zero-valued counter argument; missing translated ending",
-      "translation": "(2009 (NAME \"ミニン\") \"All that's left for us\" (NEWLINE) \"to assemble is \" (COLOR 2) (BYTE 13))",
-      "original": "(2009 (NAME \"ミニン\") \"『スラレンジャー　しゅうごう　まで\" (NEWLINE) \"　あと　\" (COLOR 2) (DYNAMIC-TEXT 0) \"匹\" (COLOR 0) \"！\" (SHOW-PROMPT) (WAIT-INPUT) (NEWLINE) \"『がんばれ！\" (SHOW-PROMPT) (WAIT-INPUT))"
-    },
-    {
-      "index": 2086,
-      "reason": "Non-ROM pointer 0x00000000"
-    }
-  ],
+  "entries": 2267,
+  "repairs": [],
+  "blocked": [],
   "review": [
     {
       "index": 58,
@@ -1938,7 +1699,51 @@
   ],
   "missing": [
     {
+      "index": 1883,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1884,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1885,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1886,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1887,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1888,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1889,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1890,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1891,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
       "index": 1892,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1893,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1894,
       "reason": "Credits have their own coordinate/text grammar"
     },
     {
@@ -1946,11 +1751,27 @@
       "reason": "Credits have their own coordinate/text grammar"
     },
     {
+      "index": 1896,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
       "index": 1897,
       "reason": "Credits have their own coordinate/text grammar"
     },
     {
+      "index": 1898,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1899,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
       "index": 1900,
+      "reason": "Credits have their own coordinate/text grammar"
+    },
+    {
+      "index": 1901,
       "reason": "Credits have their own coordinate/text grammar"
     },
     {
@@ -2352,7 +2173,7 @@
       }
     ]
   },
-  "preview_entries": 2252,
+  "preview_entries": 2267,
   "release_ready": false,
-  "script": "text-dumps/after-translate2.txt"
+  "script": "text-dumps/professional-dialogue.txt"
 }

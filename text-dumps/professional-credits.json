@@ -1,0 +1,877 @@
+{
+  "scope": "All 15 professionally translated credit cards, recovered into the separate coordinate/text grammar. Four missing translations remain null. Not injected by the dialogue preview. Names/romanization retained for separate editorial review.",
+  "format_repairs": [
+    "Recover coordinates from the original ROM: BYTE 6/10/etc were row coordinates, COLOR 255 was row 12/center, PLAYER-NAME was row 14; leading ザ and comma represented x coordinates, not printable text.",
+    "Split the overwide title at its unencodable colon into two centered lines (rows 4 and 6).",
+    "Split the added fan-translator line into two centered lines (rows 15 and 17), keeping each inside the renderer temporary buffer."
+  ],
+  "cards": [
+    {
+      "index": 1883,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 18,
+          "text": "すらいむ　もりもり　どらごんくえすと"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 4,
+          "text": "すたっふ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 4,
+          "x": "center",
+          "tokens": [
+            "Dragon Quest"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Rocket Slime 0"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Staff"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1884,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 15,
+          "text": "えぐぜくてぃぶ　ぷろでゅーさー"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "ほりい　ゆうじ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Executive Producer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Yuuji Horii"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1885,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 11,
+          "text": "きゃらくたー　でざいん"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "とりやま　あきら"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Character Design"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Akira Toriyama"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1886,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 4,
+          "text": "おんがく"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "すぎやま　こういち"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Music"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Koichi Sugiyama"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1887,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 3,
+          "text": "とーせ"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 4,
+          "text": "すたっふ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Tose"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Staff"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1888,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 6,
+          "text": "でぃれくたー"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "ほそやま　たくみ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Director"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Takumi Hosoyama"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1889,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 10,
+          "text": "めいん　ぷろぐらまー"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "ひぐち　あつお"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Main Programmer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Otsuo Higuchi"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1890,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "めいん　でざいなー"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "やまだ　しんのすけ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Main Designer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Shinosuke Yamada"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1891,
+      "original": [
+        {
+          "tile_row": 3,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "こーでぃねーたー"
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "しんたに　なおじ"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "なべしま　ひろゆき"
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "いながき　かな"
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "しまづ　たつや"
+        },
+        {
+          "tile_row": 15,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "さわさき　ともこ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 3,
+          "x": "center",
+          "tokens": [
+            "Coordinator"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "tokens": [
+            "Naoji Shintani"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "tokens": [
+            "Hiroyuki Nabeshima"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "tokens": [
+            "Kana Inakaki"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "tokens": [
+            "Tatsuya Shimazu"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 15,
+          "x": "center",
+          "tokens": [
+            "Tomogo Sawasaki"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1892,
+      "original": [
+        {
+          "tile_row": 5,
+          "x": "center",
+          "encoded_bytes": 6,
+          "text": "ぷろぐらまー"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "かわて　だいち"
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "ときだ　やすたか"
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "こう　まさふみ"
+        }
+      ],
+      "translation": null
+    },
+    {
+      "index": 1893,
+      "original": [
+        {
+          "tile_row": 4,
+          "x": "center",
+          "encoded_bytes": 13,
+          "text": "でざいなー　（もんすたー）"
+        },
+        {
+          "tile_row": 8,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "さわむら　あつみ"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "うの　こうじろう"
+        },
+        {
+          "tile_row": 12,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "あさはら　くにお"
+        },
+        {
+          "tile_row": 14,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "すずき　もとひろ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 4,
+          "x": "center",
+          "tokens": [
+            "Designer (Monster)"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 8,
+          "x": "center",
+          "tokens": [
+            "Atsumi Sawamura"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Kojiro Uno"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 12,
+          "x": "center",
+          "tokens": [
+            "Kunio Asahara"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 14,
+          "x": "center",
+          "tokens": [
+            "Motohiro Suzuki"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1894,
+      "original": [
+        {
+          "tile_row": 3,
+          "x": "center",
+          "encoded_bytes": 11,
+          "text": "でざいなー　（まっぷ）"
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "みずじり　のりこ"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "きくもと　たかこ"
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "ひのきだに　ゆきこ"
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "いしざき　まさこ"
+        },
+        {
+          "tile_row": 15,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "かくやま　よしこ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 3,
+          "x": "center",
+          "tokens": [
+            "Designer (Map)"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "tokens": [
+            "Noriko Mizujiri"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "tokens": [
+            "Takako Kikumoto"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "tokens": [
+            "Yukiko Hinokidani"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "tokens": [
+            "Masako Ishizaki"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 15,
+          "x": "center",
+          "tokens": [
+            "Yoshiko Kakuyama"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1895,
+      "original": [
+        {
+          "tile_row": 5,
+          "x": "center",
+          "encoded_bytes": 6,
+          "text": "おんがくしつ"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "みやなが　ひでのり"
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "たかぎ　りょうえ"
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "つねもと　まさや"
+        }
+      ],
+      "translation": null
+    },
+    {
+      "index": 1896,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 11,
+          "text": "すくうぇあ・えにっくす"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 4,
+          "text": "すたっふ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Square-Enix"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Staff"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1897,
+      "original": [
+        {
+          "tile_row": 5,
+          "x": "center",
+          "encoded_bytes": 9,
+          "text": "だい９　かいはつぶ"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 4,
+          "text": "ぶちょー"
+        },
+        {
+          "tile_row": 13,
+          "x": "center",
+          "encoded_bytes": 6,
+          "text": "みやけ　ゆう"
+        }
+      ],
+      "translation": null
+    },
+    {
+      "index": 1898,
+      "original": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "ぷろでゅーさー"
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "わたべ　よしき"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 6,
+          "x": "center",
+          "tokens": [
+            "Producer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": "center",
+          "tokens": [
+            "Yoshigi Watabe"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1899,
+      "original": [
+        {
+          "tile_row": 4,
+          "x": "center",
+          "encoded_bytes": 11,
+          "text": "ちーふ　ぷろでゅーさー"
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "いぬづか　たいち"
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "encoded_bytes": 12,
+          "text": "ぜねらる　ぷろでゅーさー"
+        },
+        {
+          "tile_row": 14,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "ちだ　ゆきのぶ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 4,
+          "x": "center",
+          "tokens": [
+            "Chief Producer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 7,
+          "x": "center",
+          "tokens": [
+            "Taichi Inuzuka"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 11,
+          "x": "center",
+          "tokens": [
+            "General Producer"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 14,
+          "x": "center",
+          "tokens": [
+            "Yukinobu Chida"
+          ],
+          "separator": 0
+        }
+      ]
+    },
+    {
+      "index": 1900,
+      "original": [
+        {
+          "tile_row": 5,
+          "x": "center",
+          "encoded_bytes": 8,
+          "text": "ぱぶりっしゃーず"
+        },
+        {
+          "tile_row": 9,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "わだ　よういち"
+        },
+        {
+          "tile_row": 12,
+          "x": "center",
+          "encoded_bytes": 7,
+          "text": "ほんだ　けいじ"
+        }
+      ],
+      "translation": null
+    },
+    {
+      "index": 1901,
+      "original": [
+        {
+          "tile_row": 4,
+          "x": 18,
+          "encoded_bytes": 20,
+          "text": "©２００３　ＡＲＭＯＲ　ＰＲＯＪＥＣＴ"
+        },
+        {
+          "tile_row": 7,
+          "x": 18,
+          "encoded_bytes": 18,
+          "text": "©２００３　ＢＩＲＤ　ＳＴＵＤＩＯ"
+        },
+        {
+          "tile_row": 10,
+          "x": 18,
+          "encoded_bytes": 22,
+          "text": "©２００３　ＫＯＩＣＨＩ　ＳＵＧＩＹＡＭＡ"
+        },
+        {
+          "tile_row": 13,
+          "x": 18,
+          "encoded_bytes": 18,
+          "text": "©２００３　ＳＱＵＡＲＥ　ＥＮＩＸ"
+        }
+      ],
+      "translation": [
+        {
+          "tile_row": 4,
+          "x": 18,
+          "tokens": [
+            "<Copyright>2003 ARMOR PROJECT"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 7,
+          "x": 18,
+          "tokens": [
+            "<Copyright>2003 BIRD STUDIO"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 10,
+          "x": 18,
+          "tokens": [
+            "<Copyright>2003 KOICHI SUGIYAMA"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 13,
+          "x": 18,
+          "tokens": [
+            "<Copyright>2003 SQUARE ENIX"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 15,
+          "x": "center",
+          "tokens": [
+            "Team Rockets"
+          ],
+          "separator": 2
+        },
+        {
+          "tile_row": 17,
+          "x": "center",
+          "tokens": [
+            "Fan Translators Int."
+          ],
+          "separator": 0
+        }
+      ]
+    }
+  ]
+}

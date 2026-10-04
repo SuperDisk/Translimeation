@@ -336,20 +336,23 @@ entries. Null slots and credits are excluded because they aren't dialogue.
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rom', default='slime_original.gba')
-    parser.add_argument('--script', default='text-dumps/after-translate2.txt')
+    parser.add_argument('--script', default='text-dumps/professional-dialogue.txt')
     parser.add_argument('--report', default='text-dumps/translation-audit.json')
-    parser.add_argument('--review-script', default='text-dumps/after-translate2-named.txt')
+    parser.add_argument('--review-script', help='Optional named migration output; never overwrite the input')
     parser.add_argument('--preview-script', default='text-dumps/after-translate2-preview.txt')
     args = parser.parse_args()
+    if args.review_script and Path(args.review_script).resolve() == Path(args.script).resolve():
+        parser.error('--review-script must differ from --script')
     root = Path(__file__).resolve().parent.parent
     rom, entries = Path(args.rom).read_bytes(), read_script(args.script)
     report, repaired = audit(rom, entries, root)
-    named = migrate_professional_dialogue(rom, entries, root)
-    Path(args.review_script).write_text(
-        '; HUMAN DIALOGUE REVIEW COPY: named commands, original prose retained.\n'
-        '; Known missing endings/unencodable glyphs remain blocked; see translation-audit.json.\n'
-        '; Credits and null slots excluded. This is NOT the partial preview input.\n' +
-        '\n'.join(map(sexp, named)) + '\n', encoding='utf-8')
+    if args.review_script:
+        named = migrate_professional_dialogue(rom, entries, root)
+        Path(args.review_script).write_text(
+            '; HUMAN DIALOGUE REVIEW COPY: named commands, original prose retained.\n'
+            '; Known missing endings/unencodable glyphs remain blocked; see translation-audit.json.\n'
+            '; Credits and null slots excluded. This is NOT the partial preview input.\n' +
+            '\n'.join(map(sexp, named)) + '\n', encoding='utf-8')
     report['script'] = args.script
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     Path(args.preview_script).write_text(

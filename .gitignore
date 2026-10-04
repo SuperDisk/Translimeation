@@ -27,3 +27,5 @@ text-dumps/preview-reflowed.txt
 !/tools/extract_text.py
 !/tools/probe_text_opcodes.py
 !/tools/test_extraction.py
+!/tools/check_professional.py
+!/tools/test_professional.py

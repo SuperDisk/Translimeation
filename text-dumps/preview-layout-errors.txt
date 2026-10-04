@@ -1,8 +1,4 @@
 (55 "Entry 55 needs more than 2 lines; select a layout explicitly.")
-(1241 "Entry 1241 has a word wider than 208 pixels: (\"F\" \"'\" \"h\" \"e\" \"e\" \"e\" \"e\" \"e\"
-                                              \"e\" \"-\" \"h\" \"e\" \"e\" \"-\" \"h\" \"e\"
-                                              \"e\" \"-\" \"h\" \"e\" \"e\" \"-\" \"h\" \"e\"
-                                              \"e\" \"!\")")
 (1346 "Entry 1346 needs more than 2 lines; select a layout explicitly.")
 (1347 "Entry 1347 needs more than 2 lines; select a layout explicitly.")
 (1348 "Entry 1348 needs more than 2 lines; select a layout explicitly.")

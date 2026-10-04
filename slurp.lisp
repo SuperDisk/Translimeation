@@ -16,7 +16,7 @@
 
 (defparameter txt nil)
 (defun load-texts ()
-  (setf txt (read-all-text-utf "text-dumps/after-translate2-named.txt")))
+  (setf txt (read-all-text-utf "text-dumps/professional-dialogue.txt")))
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *font-records* nil)

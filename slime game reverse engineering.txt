@@ -343,10 +343,18 @@ only the dialogue selector will not make speaker labels proportional.
 Remaining validation before release
 -----------------------------------
 Determine dimensions and input behavior of mail, minigame/UI and other custom
-windows; review the 56 held entries, including previously noted crash line 1403.
-Recover/translate the eleven missing endings, the missing dialogue, and four
-credit cards. Decide how to render unavailable punctuation and accents. Review
-speaker label lengths, substitutions, color placement, and Japanese proper names.
+windows; review the 55 held entries, including previously noted crash line 1403.
+The formatting-reviewed professional-dialogue.txt now supplies the eleven lost
+endings (new English, attributed in professional-formatting-review.json), fixes
+the four unsupported-glyph entries, and records 303 edited entries. Every
+execution-control sequence matches the recovered source; player-name differences
+were reviewed in context. Six separate meaning issues remain in that review.
+Translate the missing dialogue, additional source-only text, and four missing
+credit cards. professional-credits.json recovers the 15 delivered credit cards
+into coordinate/text records; these are not injected by the dialogue preview.
+The tablet variants now share one glyph/line map and correct reveal-channel
+subsets, but their specialized screen layout still requires validation. Review
+speaker label lengths and Japanese proper names.
 Playtest ordinary dialogue, long names, choices, counters, window moves, mail,
 minigames, and all credits on a full GBA emulator. Check SRAM/save compatibility.
 The automated checks establish byte/layout correctness for the covered paths,
