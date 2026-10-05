@@ -24,8 +24,8 @@ class GerbTests(unittest.TestCase):
     def test_whole_corpus_against_rom(self):
         result = validate()
         self.assertEqual(result['errors'], [])
-        self.assertEqual(result['dialogue_entries'], 2267)
-        self.assertEqual(result['translated_credit_cards'], 15)
+        self.assertEqual(result['dialogue_entries'], 2268)
+        self.assertEqual(result['credit_cards'], 19)
 
     def test_control_boundaries_do_not_supply_word_spaces(self):
         self.assertEqual(list(word_boundaries(['10', ['COLOR', 0], 'pots'])), [('10', 'pots')])

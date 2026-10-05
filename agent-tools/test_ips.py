@@ -17,7 +17,7 @@ from pathlib import Path
 from text_codec import read_script, read_dialogue
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
-from rocket_font import ASSET, HOOK, SPACING_HOOK, load_font, font_metrics
+from rocket_font import ASSET, HOOK, HOOK_SIZE, SPACING_HOOK, load_font, font_metrics
 from text_layout import LAYOUTS, READING_CODE, READING_SOURCE, READING_HOOKS
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
@@ -116,7 +116,7 @@ class RomFreeBuildTests(unittest.TestCase):
         base = self.profile['source_rom_size']
         table = self.profile['pointer_table_offset']
         expected_slots = {table + 4 * i + n for i in self.report['injected_entries'] for n in range(4)}
-        expected_slots.update(range(HOOK, HOOK + 48))
+        expected_slots.update(range(HOOK, HOOK + HOOK_SIZE))
         expected_slots.update(range(SPACING_HOOK, SPACING_HOOK + 4))
         expected_slots.update(address + n for address in READING_HOOKS for n in range(4))
         touched, cursor = set(), base

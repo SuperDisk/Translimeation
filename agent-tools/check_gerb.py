@@ -135,7 +135,7 @@ def validate(root=ROOT, entries=None):
             require(x + width <= 240, f"Credit {card['index']}: line exceeds screen width")
             require(bottom <= line['tile_row'] <= 18, f"Credit {card['index']}: vertical overlap/overflow")
             bottom = line['tile_row'] + 2
-    return {'dialogue_entries': len(rows), 'translated_credit_cards': len(credits),
+    return {'dialogue_entries': len(rows), 'credit_cards': len(credits),
             'player_name_count_differences': name_differences, 'errors': errors}
 
 
@@ -143,7 +143,7 @@ def main():
     result = validate()
     for error in result['errors']:
         print(error)
-    print(f"{result['dialogue_entries']} dialogue entries; {result['translated_credit_cards']} credit cards; "
+    print(f"{result['dialogue_entries']} dialogue entries; {result['credit_cards']} credit cards; "
           f"{len(result['errors'])} formatting errors.")
     raise SystemExit(bool(result['errors']))
 

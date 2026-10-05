@@ -11,7 +11,7 @@ from pathlib import Path
 
 from unicorn.arm_const import *
 from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE
-from probe_text_renderer import create_cpu, draw, reset, descriptor, ROM, CONTEXT, DEST
+from probe_text_renderer import create_cpu, draw, reset, descriptor, glyph_pixels, ROM, CONTEXT, DEST
 from rocket_font import load_font, import_font, nds_file, ASSET
 
 
@@ -41,7 +41,7 @@ class RocketFontTests(unittest.TestCase):
             self.cpu.reg_write(reg, value)
         self.cpu.reg_write(UC_ARM_REG_SP, 0x03007000)
         self.cpu.reg_write(UC_ARM_REG_LR, 0x03000001)
-        self.cpu.emu_start(address | 1, 0x03000000, count=200000)
+        self.cpu.emu_start(address | 1, 0x03000000, count=2000000)
         self.assertEqual(self.cpu.reg_read(UC_ARM_REG_PC), 0x03000000)
         return self.cpu.reg_read(UC_ARM_REG_R0)
 
@@ -83,24 +83,46 @@ class RocketFontTests(unittest.TestCase):
             left = (16 - width) // 2
             self.assertEqual(self.pixels(16), [[1] * left + row + [1] * (16 - left - width) for row in glyph])
             reset(self.cpu)
+            width, glyph = descriptor(code)[2], glyph_pixels(code, 0)
             raw = bytes([code]) if code < 256 else bytes([1, code - 256])
             self.cpu.mem_write(0x02030000, raw + b'\0')
             tiles = self.call(0x08096C40, DEST, 0x02030000, 0, 0)
-            self.assertEqual(tiles, ((width + 7) // 8) * 2)
-            self.assertEqual(self.pixels(width), glyph)
+            self.assertEqual(tiles, ((width + 1 + 7) // 8) * 2)
+            self.assertEqual(self.pixels(width + 1), [[1] + row for row in glyph])
 
     def test_selector_preserves_callee_saved_registers(self):
         registers = [UC_ARM_REG_R4, UC_ARM_REG_R5, UC_ARM_REG_R6, UC_ARM_REG_R7,
                      UC_ARM_REG_R8, UC_ARM_REG_R9, UC_ARM_REG_R10, UC_ARM_REG_R11]
         for reg in registers:
-            self.cpu.reg_write(reg, 0x12345678)
+            self.cpu.reg_write(reg, CONTEXT if reg == UC_ARM_REG_R6 else 0x12345678)
         for code in range(16, 0x1B9):
             ptr = self.call(0x080971EC, 0xABCD0000 | code)
             _, first, width, stride = struct.unpack('<IHBB', self.cpu.mem_read(ptr, 8))
             self.assertEqual(width, self.expected(code, 0)[0])
             self.assertLessEqual(first, code)
             self.assertEqual(stride, width * 4)
-        self.assertTrue(all(self.cpu.reg_read(reg) == 0x12345678 for reg in registers))
+        self.assertTrue(all(self.cpu.reg_read(reg) == (CONTEXT if reg == UC_ARM_REG_R6 else 0x12345678)
+                            for reg in registers))
+
+    def test_fixed_ui_tile_strips_match_original_rom(self):
+        from text_codec import read_script
+        original = create_cpu(ROM)
+        patched = self.cpu
+        # All extracted PLAIN strings, including the pot-breaking results strip.
+        try:
+            for entry in read_script('text-dumps/rom.txt'):
+                if not (len(entry) > 1 and isinstance(entry[1], list) and entry[1][0] == 'PLAIN'):
+                    continue
+                outputs = []
+                for self.cpu in (original, patched):
+                    self.cpu.mem_write(DEST, b'\0' * 0x4000)
+                    count = self.call(0x080970D0, DEST, 0x08000000 + entry[0])
+                    outputs.append((count, bytes(self.cpu.mem_read(DEST, 0x4000))))
+                self.assertEqual(outputs[0], outputs[1], hex(entry[0]))
+                if entry[0] == 0x713F52:
+                    self.assertEqual(outputs[1][0], 72)
+        finally:
+            self.cpu = patched
 
     def test_asset_matches_ds_rom(self):
         path = Path('Dragon Quest Heroes - Rocket Slime (USA).nds')

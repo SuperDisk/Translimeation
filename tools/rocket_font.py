@@ -16,6 +16,7 @@ ASSET = 'tools/rocket-font.txt'
 NDS_SHA256 = '99dc6346b9f66d0a578a7dcb2fe8f8566551e76082f7fd0afa7c2573e804c374'
 HOOK = 0x971EC
 SPACING_HOOK = 0x96AC6
+HOOK_SIZE = 80
 ORIGINAL_HOOK = bytes.fromhex('00b50004010c0b1c0922132901d80022')
 GRAPHICS = (0x738904, 0x738944, 0x7389A8, 0x738AB0, 0x738D88,
             0x7392A8, 0x73998C, 0x73A224, 0x73ACCC, 0x73B6BC)
@@ -106,31 +107,31 @@ def pack_font(offset, profile, glyphs):
         raise ValueError('Font descriptors must be word aligned')
     base = profile['gba_base_address']
     records = bytearray(0x1B9 * 8)
+    stock_records = bytearray(len(records))
     bitmaps = bytearray()
     for code in range(0x1B9):
+        n = next(n for n, (_, end, _) in enumerate(profile['font_records']) if code <= end)
+        first, _, width = profile['font_records'][n]
+        pointer = base + GRAPHICS[n]
+        struct.pack_into('<IHBB', stock_records, code * 8, pointer, first, width, width * 4)
         if code in glyphs:
             width, data = glyphs[code]
-            pointer, first = base + offset + len(records) + len(bitmaps), code
+            pointer, first = base + offset + 2 * len(records) + len(bitmaps), code
             bitmaps.extend(data)
-        else:
-            n = next(n for n, (_, end, _) in enumerate(profile['font_records']) if code <= end)
-            first, _, width = profile['font_records'][n]
-            pointer = base + GRAPHICS[n]
         struct.pack_into('<IHBB', records, code * 8, pointer, first, width, width * 4)
-    # In-place Thumb selector, no trampoline or assembler dependency:
-    # lsls r0,r0,#16; lsrs r0,r0,#13; ldr r1,[pc,#4]; adds r0,r0,r1;
-    # bx lr; nop; .word descriptors. Only caller-saved r0/r1 are clobbered.
-    selector = bytes.fromhex('0004400b014940187047c046') + struct.pack('<I', base + offset)
-    # At 08096AC6 replace CMP/BEQ with BL 080971FC, in the unused tail of
-    # the old selector. r10 holds the glyph; r2 holds the original x test.
-    # Imported bitmap pointers are >=08800000: skip the GBA's extra pixel.
-    # Original Japanese bitmaps retain the x!=0 spacing behavior.
-    # mov r0,r10; lsls r0,#3; ldr r1,table; ldr r0,[r1,r0]; lsrs r0,#23;
-    # cmp r0,#17; bhs skip; cmp r2,#0; beq skip; bx lr;
-    # skip: ldr r0,resume; bx r0; table: .word ...; resume: .word 08096B29
-    spacing = (bytes.fromhex('5046c00004490858c00d112802d2002a00d0704701480047')
-               + struct.pack('<II', base + offset, 0x08096B29))
-    return [(HOOK, selector + spacing), (SPACING_HOOK, bytes.fromhex('00f099fb'))], bytes(records + bitmaps)
+    # The compositor keeps its context in r6 (r5 in the centered-cell caller).
+    # Only the dialogue context at 02001080 uses DS metrics. Plain UI strings use stack-local contexts and
+    # fixed tile slices, so their original glyphs AND spacing must be retained.
+    # Selector: r0=(u16 glyph)*8; r1=dialogue/stock table selected by r6/r5; return r0+r1.
+    # Spacing helper at HOOK+32: retain stock spacing outside dialogue; otherwise
+    # omit the leading pixel only for imported bitmaps (pointers >=08800000).
+    # Both routines fit within the original 104-byte selector; no new RAM state.
+    hook = (bytes.fromhex(
+        '0004400b0f498e4201d08d4201d10e4900e00e4940187047c046c046c046c046'
+        '0848864206d15046c00007490858c00d112802d2002a00d0704701480047c046'
+        '296b090880100002')
+            + struct.pack('<II', base + offset, base + offset + len(records)))
+    return [(HOOK, hook), (SPACING_HOOK, bytes.fromhex('00f0a1fb'))], bytes(records + stock_records + bitmaps)
 
 
 def verify_font_source(rom, profile):

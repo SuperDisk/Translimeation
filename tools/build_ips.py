@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from text_codec import Codec, read_script, sexp, validate_dialogue
+from text_codec import Codec, read_script, read_dialogue, sexp, validate_dialogue
 from rocket_font import ASSET, load_font, font_metrics, pack_font, verify_font_source
 from text_layout import (LAYOUTS, READING_CODE, READING_SOURCE, load_layouts,
                          validate_layouts, lisp_layouts, pack_reading_pause, verify_reading_hooks)
@@ -118,7 +118,7 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
     script, output = Path(script).resolve(), Path(output).resolve()
     profile, slots = load_profile(root)
     codec = Codec(root)
-    entries = [row for row in read_script(script) if not 1883 <= row[0] <= 1901]
+    entries = read_dialogue(script)
     validate_entries(entries, slots, codec)
     layouts = load_layouts(root)
     validate_layouts(entries, layouts, manual_breaks=not automatic_pages)
