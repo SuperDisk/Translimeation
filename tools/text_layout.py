@@ -31,11 +31,22 @@ def load_layouts(root=ROOT):
     return layouts
 
 
-def validate_layouts(entries, layouts):
+def validate_layouts(entries, layouts, *, manual_breaks=False):
     for index, *tokens in entries:
         if index not in layouts:
             raise ValueError(f'{index}: choose a layout in {LAYOUTS} before building')
         mode, ending, cues = layouts[index]
+        if manual_breaks:
+            if mode == 'fixed':
+                continue
+            if any(t in (['CUE'], ['PAGE']) for t in tokens):
+                raise ValueError(f'{index}: CUE/PAGE requires --automatic-pages')
+            waits = tokens.count(['WAIT-INPUT']) + tokens.count(['WAIT-FOR-A'])
+            if mode in ('cued', 'choice') and waits != cues + (ending == 'wait'):
+                raise ValueError(f'{index}: preserve the inherited scene/menu waits')
+            if mode == 'static' and waits:
+                raise ValueError(f'{index}: static text cannot wait for input')
+            continue
         if tokens.count(['CUE']) != cues:
             raise ValueError(f'{index}: expected {cues} scene cues; preserve their order when editing')
         if mode == 'fixed':

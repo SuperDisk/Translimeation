@@ -1,9 +1,10 @@
 ;; Internal bridge for build_ips.py. No ROM is read or synthesized here.
 (load "slurp.lisp")
 (in-package :slurp)
-(destructuring-bind (script metrics layouts directory) (uiop:command-line-arguments)
+(destructuring-bind (script metrics layouts directory pagination) (uiop:command-line-arguments)
   (let* ((*font-records* (read-all-text-utf metrics))
          (*text-layouts* (read-all-text-utf layouts))
+         (*automatic-pages* (string= pagination "automatic"))
          (out (uiop:ensure-directory-pathname directory))
          (encoding (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
          (small (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))))

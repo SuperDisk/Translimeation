@@ -114,14 +114,14 @@ def verify_profile(rom, profile, slots):
         raise ValueError('Profile dialogue slots differ from the ROM')
 
 
-def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
+def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic_pages=False):
     script, output = Path(script).resolve(), Path(output).resolve()
     profile, slots = load_profile(root)
     codec = Codec(root)
     entries = [row for row in read_script(script) if not 1883 <= row[0] <= 1901]
     validate_entries(entries, slots, codec)
     layouts = load_layouts(root)
-    validate_layouts(entries, layouts)
+    validate_layouts(entries, layouts, manual_breaks=not automatic_pages)
     if output_rom is not None and verify_rom is None:
         raise ValueError('--output-rom requires --verify-rom')
     if output_rom is not None and Path(output_rom).resolve() == Path(verify_rom).resolve():
@@ -138,7 +138,8 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
         policies = temp / 'layouts.txt'
         policies.write_text('\n'.join(map(sexp, lisp_layouts(layouts))) + '\n')
         subprocess.run(['sbcl', '--script', str(root / 'tools/build_patch_data.lisp'),
-                        str(script), str(metrics), str(policies), str(temp)], cwd=root, check=True)
+                        str(script), str(metrics), str(policies), str(temp),
+                        "automatic" if automatic_pages else "manual"], cwd=root, check=True)
         payload = (temp / 'payload.bin').read_bytes()
         records = read_script(temp / 'records.txt')
         held = read_script(temp / 'held.txt')
@@ -202,7 +203,7 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
               'reading_pause_offset': reading_offset,
               'injected_entries': [r[0] for r in records],
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],
-              'credits_included': False}
+              'credits_included': False, 'automatic_pages': automatic_pages}
     output.mkdir(parents=True, exist_ok=True)
     for name, data in [('slime-patch.ips', patch),
                        ('build-report.json', (json.dumps(report, indent=2) + '\n').encode())]:
@@ -229,9 +230,12 @@ def main():
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist')
     parser.add_argument('--verify-rom', type=Path, help='Optional local metadata verification; never uploaded or copied')
     parser.add_argument('--output-rom', type=Path, help='Also create a local ROM using --verify-rom as the source')
+    parser.add_argument('--automatic-pages', action='store_true',
+                        help='Use automatic reading pages with a CUE-based script')
     args = parser.parse_args()
     try:
-        build(args.script, args.output_dir, verify_rom=args.verify_rom, output_rom=args.output_rom)
+        build(args.script, args.output_dir, verify_rom=args.verify_rom, output_rom=args.output_rom,
+              automatic_pages=args.automatic_pages)
     except (ValueError, OSError, subprocess.CalledProcessError) as exc:
         parser.exit(1, f'IPS build failed: {exc}\n')
 

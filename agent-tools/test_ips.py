@@ -150,6 +150,7 @@ class RomFreeBuildTests(unittest.TestCase):
             self.assertEqual(offset, base)
             tokens, base = codec.decode(data, offset)
             self.assertEqual(codec.encode(tokens), data[offset:base])
+            self.assertNotIn(['PAGE'], tokens)  # Default builds preserve manual pauses.
             x, pos = 0, offset
             while data[pos]:
                 code = data[pos]

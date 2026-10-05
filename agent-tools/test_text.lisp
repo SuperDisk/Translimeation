@@ -29,6 +29,15 @@
   (check (equal (reflow-string '(52 "A A A" (cue) "B") :width 9 :paginate t :ending 1)
                 '(52 "A" (newline) "A" (page) (clear) "A" (show-prompt) (wait-input)
                   (clear) "B" (show-prompt) (wait-input))))
+  ;; Manual mode retains authored waits/scrolling and the legacy overflow fallback.
+  (check (equal (reflow-string '(52 "A A A") :width 9 :paginate t :manual-breaks t)
+                '(52 "A" (newline) "A" (show-prompt) (wait-input) (newline) "A")))
+  (check (equal (reflow-string '(52 "A" (show-prompt) (wait-input)
+                                  (force-newline) "B") :paginate t :manual-breaks t)
+                '(52 "A" (show-prompt) (wait-input) (newline) "B")))
+  (check (equal (reflow-string '(52 "A" (switch-window) (name "B") "B")
+                               :paginate t :manual-breaks t)
+                '(52 "A" (switch-window) (name "B") "B")))
   ;; A speaker name or choice does not grant pagination permission.
   (rejects (lambda () (reflow-string '(52 (name "A") "A A A") :width 9)))
   (rejects (lambda () (reflow-string '(52 "A A A" (yes-no)) :width 9)))

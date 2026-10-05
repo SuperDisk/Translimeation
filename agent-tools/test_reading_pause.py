@@ -106,11 +106,18 @@ class ReadingPauseTests(unittest.TestCase):
     def test_layout_registry_guards_cues_and_noninteractive_text(self):
         layouts = load_layouts()
         entries = read_dialogue('text-dumps/gerb.txt')
-        validate_layouts(entries, layouts)
+        validate_layouts(entries, layouts, manual_breaks=True)
         entry = next(row for row in entries if row[0] == 1155)
-        broken = [entry[0], *[t for t in entry[1:] if t != ['CUE']]]
+        broken = [entry[0], *[t for t in entry[1:] if t != ['WAIT-INPUT']]]
         with self.assertRaises(ValueError):
-            validate_layouts([broken], layouts)
+            validate_layouts([broken], layouts, manual_breaks=True)
+        # The optional automatic mode still requires explicit scene cues.
+        mode, ending, cues = layouts[1155]
+        validate_layouts([[1155, 'A', *([['CUE']] * cues)]], layouts)
+        with self.assertRaises(ValueError):
+            validate_layouts([[1155, 'A']], layouts)
+        with self.assertRaises(ValueError):
+            validate_layouts([[1033, 'A', ['PAGE']]], layouts, manual_breaks=True)
         for index in (55, 1169, 1170, 1325, 1403):
             with self.assertRaises(ValueError):
                 validate_layouts([[index, 'A', ['PAGE']]], layouts)

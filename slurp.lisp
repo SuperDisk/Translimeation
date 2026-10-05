@@ -21,6 +21,7 @@
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *font-records* nil)
 (defparameter *text-layouts* nil)
+(defparameter *automatic-pages* nil)
 ;; 080971EC selects one of ten records at ROM offset 713EB8.
 ;; Each record is {u32 bitmap-pointer, u16 first-code, u8 width, u8 stride}.
 (defparameter *font-range-ends* '(#x13 #x18 #x23 #x3d #x66 #x97 #xce #x10c #x141 #x1b8))
@@ -157,7 +158,7 @@ Use SCAN-ROM for the complete, format-aware inventory including non-table text."
         do (incf pos (length (car match)))))
 
 (defun reflow-string (entry &key (width *textbox-size*) (lines-per-page 2)
-                                (paginate nil) (ending 0))
+                                (paginate nil) (ending 0) (manual-breaks nil))
   "Wrap using explicit layout permission. PAGE pauses reading; CUE signals a scene.
 NEWLINE is soft; FORCE-NEWLINE is hard. ENDING comes from the entry's layout."
   (unless (and (integerp (car entry)) (plusp width) (plusp lines-per-page))
@@ -198,6 +199,16 @@ NEWLINE is soft; FORCE-NEWLINE is hard. ENDING comes from the entry's layout."
                (setf after-wait t unread nil))
              (line-break ()
                (cond
+                 (manual-breaks
+                  ;; Preserve the old script's pauses and scrolling. Only add a
+                  ;; native overflow wait if an authored section fills the box.
+                  (when (and (>= lines lines-per-page) (not after-wait))
+                    (unless paginate
+                      (error "Entry ~D exceeds its non-paginating layout." (car entry)))
+                    (emit '(show-prompt)) (emit '(wait-input)) (setf lines 0))
+                  (emit '(newline))
+                  (setf pixels 0 pending-space nil after-wait nil)
+                  (incf lines))
                  (needs-clear (clear-page))
                  ((and (>= lines lines-per-page) (not after-wait))
                   (reading-pause) (clear-page))
@@ -247,7 +258,7 @@ NEWLINE is soft; FORCE-NEWLINE is hard. ENDING comes from the entry's layout."
           (t
            (flush-word)
            ;; A generated pause protects text before a destructive window change.
-           (when (and paginate unread
+           (when (and (not manual-breaks) paginate unread
                       (or (member item '((clear) (switch-window)) :test #'equal)
                           (and (consp item) (eq (car item) 'name))))
              (reading-pause)
@@ -282,7 +293,9 @@ Returns injectable entries and layout/encoding holds as two values."
             (declare (ignore index))
             (when (string= mode "fixed") (error "Fixed tablet reveal layout; retain original until separately edited"))
             (let ((flowed (reflow-string entry :width width :lines-per-page lines
-                                         :paginate (= paginate 1) :ending ending)))
+                                         :paginate (= paginate 1)
+                                         :manual-breaks (not *automatic-pages*)
+                                         :ending (if *automatic-pages* ending 0))))
               (encode-string encoding small (cdr flowed))
               (push flowed passed)))
         (error (e) (push (list (car entry) (princ-to-string e)) failed))))
