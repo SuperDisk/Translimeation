@@ -1,17 +1,6 @@
 ;; Run from the repository root: sbcl --script tools/build_rom.lisp
-;; Intentionally partial preview: failures keep original pointers and ROM data.
-(load "slurp.lisp")
-(in-package :slurp)
-(ensure-directories-exist "dist/slime.gba")
-(let* ((entries (read-dialogue-text "text-dumps/gerb.txt"))
-       (rom (read-rom "slime_original.gba")))
-  (load-font-metrics rom)
-  (validate-dialogue-entries rom entries)
-  (multiple-value-bind (passed failed) (prepare-dialogue-preview entries)
-    (dump-all-text-utf "dist/layout-errors.txt" failed)
-    (dump-all-text-utf "dist/reflowed.txt" passed)
-    (patch-text rom (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
-                   (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
-                   passed)
-    (dump-rom rom "dist/slime.gba")
-    (format t "~D reflowed and injected; ~D held for layout review.~%" (length passed) (length failed))))
+;; Use the same font, reflow and writes as the ROM-free release build.
+(require :asdf)
+(uiop:run-program '("python3" "tools/build_ips.py" "--verify-rom" "slime_original.gba"
+                    "--output-rom" "dist/slime.gba")
+                  :output *standard-output* :error-output *error-output*)

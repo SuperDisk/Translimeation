@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the current dialogue preview as IPS without opening or creating a ROM.
 
-Only pointer replacements and newly encoded text enter the patch. The checked-in
-profile supplies ROM identity/size, font widths and valid pointer slots. --verify-rom is an
+The patch contains dialogue pointers/text and the Rocket Slime font/selector.
+The checked-in profile supplies ROM identity/size and valid pointer slots. --verify-rom is an
 optional LOCAL cross-check of that metadata against a user's original cartridge.
 """
 import argparse
@@ -15,6 +15,7 @@ import tempfile
 from pathlib import Path
 
 from text_codec import Codec, read_script, sexp, validate_dialogue
+from rocket_font import ASSET, load_font, font_metrics, pack_font, verify_font_source
 
 ROOT = Path(__file__).resolve().parent.parent
 IPS_LIMIT = 1 << 24
@@ -95,6 +96,7 @@ def validate_entries(entries, slots, codec):
 def verify_profile(rom, profile, slots):
     if len(rom) != profile['source_rom_size'] or sha256(rom) != profile['source_rom_sha256']:
         raise ValueError('Wrong source ROM; use the unmodified ROM identified by patch_profile.json')
+    verify_font_source(rom, profile)
     for n, (first, _, width) in enumerate(profile['font_records']):
         if struct.unpack_from('<HB', rom, 0x713EB8 + n * 8 + 4) != (first, width):
             raise ValueError('Profile font metrics differ from the ROM')
@@ -109,18 +111,25 @@ def verify_profile(rom, profile, slots):
         raise ValueError('Profile dialogue slots differ from the ROM')
 
 
-def build(script, output, root=ROOT, verify_rom=None):
+def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
     script, output = Path(script).resolve(), Path(output).resolve()
     profile, slots = load_profile(root)
     codec = Codec(root)
     entries = [row for row in read_script(script) if not 1883 <= row[0] <= 1901]
     validate_entries(entries, slots, codec)
+    if output_rom is not None and verify_rom is None:
+        raise ValueError('--output-rom requires --verify-rom')
+    if output_rom is not None and Path(output_rom).resolve() == Path(verify_rom).resolve():
+        raise ValueError('Refusing to overwrite the original ROM')
+    original = None
     if verify_rom is not None:
-        verify_profile(Path(verify_rom).read_bytes(), profile, slots)
+        original = Path(verify_rom).read_bytes()
+        verify_profile(original, profile, slots)
+    glyphs = load_font(root)
     with tempfile.TemporaryDirectory(prefix='translimeation-ips-') as tmp:
         temp = Path(tmp)
         metrics = temp / 'metrics.txt'
-        metrics.write_text('\n'.join(map(sexp, profile['font_records'])) + '\n')
+        metrics.write_text('\n'.join(map(sexp, font_metrics(profile, glyphs))) + '\n')
         subprocess.run(['sbcl', '--script', str(root / 'tools/build_patch_data.lisp'),
                         str(script), str(metrics), str(temp)], cwd=root, check=True)
         payload = (temp / 'payload.bin').read_bytes()
@@ -148,11 +157,16 @@ def build(script, output, root=ROOT, verify_rom=None):
         cursor += size
     if cursor != len(payload):
         raise ValueError('Unaccounted bytes in appended text')
-    writes.append((base, payload))
+    text_bytes = len(payload)
+    payload += bytes((-len(payload)) & 3)
+    font_offset = base + len(payload)
+    font_writes, font = pack_font(font_offset, profile, glyphs)
+    payload += font
+    writes.extend(font_writes + [(base, payload)])
     patch = ips_patch(writes)
     sources = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl', 'tools/patch_profile.json',
                'tools/build_patch_data.lisp',
-               'tools/build_ips.py', 'tools/text_codec.py']
+               'tools/build_ips.py', 'tools/text_codec.py', 'tools/rocket_font.py', ASSET]
     inputs = {p: sha256((root / p).read_bytes()) for p in sources}
     try:
         script_label = script.relative_to(root).as_posix()
@@ -171,6 +185,7 @@ def build(script, output, root=ROOT, verify_rom=None):
               'source_rom_size': base, 'source_rom_sha256': profile['source_rom_sha256'],
               'patched_rom_size': base + len(payload), 'patch_sha256': sha256(patch),
               'patch_bytes': len(patch), 'appended_bytes': len(payload),
+              'text_bytes': text_bytes, 'font_offset': font_offset, 'font_bytes': len(font),
               'injected_entries': [r[0] for r in records],
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],
               'credits_included': False}
@@ -181,6 +196,14 @@ def build(script, output, root=ROOT, verify_rom=None):
             f.write(data)
             staged = Path(f.name)
         staged.replace(output / name)
+    if output_rom is not None:
+        result = bytearray(original)
+        result.extend(bytes(base + len(payload) - len(result)))
+        for offset, data in writes:
+            result[offset:offset + len(data)] = data
+        destination = Path(output_rom)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(result)
     print(f'{len(records)} entries; {len(held)} layout holds; {len(patch):,}-byte IPS: '
           f'{output / "slime-patch.ips"}')
     return report
@@ -191,9 +214,10 @@ def main():
     parser.add_argument('--script', type=Path, default=ROOT / 'text-dumps/gerb.txt')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist')
     parser.add_argument('--verify-rom', type=Path, help='Optional local metadata verification; never uploaded or copied')
+    parser.add_argument('--output-rom', type=Path, help='Also create a local ROM using --verify-rom as the source')
     args = parser.parse_args()
     try:
-        build(args.script, args.output_dir, verify_rom=args.verify_rom)
+        build(args.script, args.output_dir, verify_rom=args.verify_rom, output_rom=args.output_rom)
     except (ValueError, OSError, subprocess.CalledProcessError) as exc:
         parser.exit(1, f'IPS build failed: {exc}\n')
 

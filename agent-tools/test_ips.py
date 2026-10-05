@@ -1,7 +1,7 @@
 """IPS format tests and a complete build in a checkout containing no ROM.
 
-If slime_original.gba is present locally, also compare the IPS result byte for
-byte with a fresh run of the original ROM-based injector in a temporary tree.
+If slime_original.gba is present locally, also compare independent IPS application
+byte for byte with the local ROM build in a temporary tree.
 """
 import _paths
 
@@ -17,10 +17,12 @@ from pathlib import Path
 from text_codec import read_script, read_dialogue
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
+from rocket_font import ASSET, HOOK, SPACING_HOOK, load_font, font_metrics
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
           'tools/build_rom.lisp', 'tools/text_codec.py',
+          'tools/rocket_font.py', ASSET,
           'text-dumps/gerb.txt']
 
 
@@ -103,14 +105,17 @@ class RomFreeBuildTests(unittest.TestCase):
         cls.report = json.loads((cls.checkout / 'dist/build-report.json').read_text())
         cls.profile, cls.slots = load_profile(cls.checkout)
 
-    def test_build_contains_only_pointer_writes_and_contiguous_append(self):
+    def test_build_contains_only_pointer_and_font_hook_writes_and_contiguous_append(self):
         self.assertFalse(list(self.checkout.rglob('*.gba')))
+        self.assertFalse(list(self.checkout.rglob('*.nds')))
         self.assertFalse((self.checkout / 'text-dumps/rom.txt').exists())
         self.assertEqual({p.name for p in (self.checkout / 'dist').iterdir()},
                          {'slime-patch.ips', 'build-report.json'})
         base = self.profile['source_rom_size']
         table = self.profile['pointer_table_offset']
         expected_slots = {table + 4 * i + n for i in self.report['injected_entries'] for n in range(4)}
+        expected_slots.update(range(HOOK, HOOK + 48))
+        expected_slots.update(range(SPACING_HOOK, SPACING_HOOK + 4))
         touched, cursor = set(), base
         for offset, payload in read_ips(self.patch):
             if offset < base:
@@ -133,6 +138,9 @@ class RomFreeBuildTests(unittest.TestCase):
         # Apply to a dummy buffer, not a reconstructed game ROM.
         data = apply_ips(bytes(self.profile['source_rom_size']), self.patch)
         base = self.profile['source_rom_size']
+        metrics = font_metrics(self.profile, load_font(self.checkout))
+        widths = {a: w for a, _, w, _ in metrics}
+        spacing = {a: s for a, _, _, s in metrics}
         codec = Codec(self.checkout)
         for i in self.report['injected_entries']:
             offset = struct.unpack_from('<I', data, self.profile['pointer_table_offset'] + i * 4)[0] - self.profile['gba_base_address']
@@ -147,8 +155,8 @@ class RomFreeBuildTests(unittest.TestCase):
                     code = 256 + data[pos]
                     pos += 1
                 if code >= 16:
-                    width = next(w for a, b, w in self.profile['font_records'] if a <= code <= b)
-                    x += width + bool(x)
+                    width = widths[code]
+                    x += width + (spacing[code] if x else 0)
                 elif code == 5:
                     while data[pos] != 5:
                         pos += 1
@@ -156,13 +164,15 @@ class RomFreeBuildTests(unittest.TestCase):
                 elif code in (6, 10, 12, 13):
                     pos += 1
                     if code == 13:
-                        x += 40 - (not x)
+                        x += 5 * max(widths[c] + spacing[c] for c in range(0x28, 0x32)) - (spacing[0x28] if not x else 0)
                 elif code == 14:
-                    x += 56 - (not x)
+                    x += 4 * (1 + max(widths.values())) - (not x)
                 elif code in (2, 3, 4, 11):
                     x = 0
                 self.assertLessEqual(x, 208, f'Entry {i} exceeds dialogue width')
-        self.assertEqual(base, len(data))
+        self.assertEqual(base, self.profile['source_rom_size'] + self.report['text_bytes'])
+        self.assertEqual(self.report['font_offset'], (base + 3) & ~3)
+        self.assertEqual(len(data), self.report['font_offset'] + self.report['font_bytes'])
 
     def test_deterministic_build(self):
         first_report = (self.checkout / 'dist/build-report.json').read_bytes()

@@ -34,9 +34,18 @@
 
 (defun glyph-width (code)
   (unless *font-records* (load-font-metrics))
-  (or (loop for (start end width) in *font-records*
+  (or (loop for (start end width . rest) in *font-records*
             when (<= start code end) return width)
       (error "No font metric for glyph ~X" code)))
+
+(defun glyph-spacing (code)
+  ;; Stock three-field records insert one pixel; imported DS glyphs insert none.
+  (or (loop for (start end width . spacing) in *font-records*
+            when (<= start code end) return (if spacing (car spacing) 1))
+      (error "No font metric for glyph ~X" code)))
+
+(defun glyph-advance (code x)
+  (+ (glyph-width code) (if (zerop x) 0 (glyph-spacing code))))
 
 (defparameter *player-name-max-glyphs* 4)
 ;; 0809670C formats a u16 using five decimal places; reserve the full range.
@@ -79,14 +88,11 @@ Optional detailed reports: tools/extract_text.py --report-dir dist/extraction."
                  (read-all-text-utf path)))
 
 (defun trans (all-text-translated f)
-  (let ((slime-patched (read-rom "slime_original.gba")))
-    (load-font-metrics slime-patched)
-    (validate-dialogue-entries slime-patched all-text-translated)
-    (patch-text slime-patched
-                (invert-alist (reverse (load-translation-table "SlimeDialog.tbl")))
-                (invert-alist (reverse (load-translation-table "Slime_Small.tbl")))
-                (mapcar #'reflow-string all-text-translated))
-    (dump-rom slime-patched f)))
+  (uiop:with-temporary-file (:pathname script :type "txt")
+    (dump-all-text-utf script all-text-translated)
+    (uiop:run-program (list "python3" "tools/build_ips.py" "--script" (namestring script)
+                            "--verify-rom" "slime_original.gba" "--output-rom" (namestring (pathname f)))
+                      :output *standard-output* :error-output *error-output*)))
 
 (define-condition malformed-string-error (error)
   ((text :initarg :text :reader text)))
@@ -174,16 +180,16 @@ Existing waits and terminal behavior are retained. No final wait is invented."
                      do (cond
                           ((stringp item)
                            (dolist (g (text-glyphs item table))
-                             (incf x (+ (glyph-width (cdr g)) (if (zerop x) 0 1)))))
+                             (incf x (glyph-advance (cdr g) x))))
                           ((and (consp item) (eq (car item) 'glyph))
-                           (incf x (+ (glyph-width (cadr item)) (if (zerop x) 0 1))))
+                           (incf x (glyph-advance (cadr item) x)))
                           ((equal item '(player-name))
                            (incf x (- (* *player-name-max-glyphs*
                                         (1+ (reduce #'max *font-records* :key #'third)))
                                       (if (zerop x) 1 0))))
                           ((and (consp item) (eq (car item) 'dynamic-text))
-                           (incf x (- (* *dynamic-number-max-glyphs* (1+ (glyph-width #x28)))
-                                      (if (zerop x) 1 0)))))
+                           (incf x (- (* *dynamic-number-max-glyphs* (glyph-advance #x28 1))
+                                      (if (zerop x) (glyph-spacing #x28) 0)))))
                      finally (return x)))
              (line-break ()
                (when (and (>= lines lines-per-page) (not after-wait))

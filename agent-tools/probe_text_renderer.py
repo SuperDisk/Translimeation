@@ -19,12 +19,12 @@ CONTEXT = 0x02001080
 DEST = 0x06008000
 
 
-def create_cpu():
+def create_cpu(rom=ROM):
     cpu = Uc(UC_ARCH_ARM, UC_MODE_THUMB)
-    for address, size in [(0x08000000, 0x800000), (0x02000000, 0x40000),
+    for address, size in [(0x08000000, (len(rom) + 4095) & ~4095), (0x02000000, 0x40000),
                           (0x03000000, 0x8000), (0x06000000, 0x20000), (0x04000000, 0x1000)]:
         cpu.mem_map(address, size)
-    cpu.mem_write(0x08000000, ROM)
+    cpu.mem_write(0x08000000, rom)
 
     def dma(cpu, access, address, size, value, data):
         if address != 0x040000DC or not value & (1 << 31):

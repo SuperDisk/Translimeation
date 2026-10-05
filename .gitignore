@@ -6,6 +6,7 @@ NO$*
 *.appimage
 *.lnk
 *.gba
+*.nds
 *.sav
 *.ss*
 *disasm.txt
