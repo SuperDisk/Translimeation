@@ -16,6 +16,8 @@ from pathlib import Path
 
 from text_codec import Codec, read_script, sexp, validate_dialogue
 from rocket_font import ASSET, load_font, font_metrics, pack_font, verify_font_source
+from text_layout import (LAYOUTS, READING_CODE, READING_SOURCE, load_layouts,
+                         validate_layouts, lisp_layouts, pack_reading_pause, verify_reading_hooks)
 
 ROOT = Path(__file__).resolve().parent.parent
 IPS_LIMIT = 1 << 24
@@ -97,6 +99,7 @@ def verify_profile(rom, profile, slots):
     if len(rom) != profile['source_rom_size'] or sha256(rom) != profile['source_rom_sha256']:
         raise ValueError('Wrong source ROM; use the unmodified ROM identified by patch_profile.json')
     verify_font_source(rom, profile)
+    verify_reading_hooks(rom)
     for n, (first, _, width) in enumerate(profile['font_records']):
         if struct.unpack_from('<HB', rom, 0x713EB8 + n * 8 + 4) != (first, width):
             raise ValueError('Profile font metrics differ from the ROM')
@@ -117,6 +120,8 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
     codec = Codec(root)
     entries = [row for row in read_script(script) if not 1883 <= row[0] <= 1901]
     validate_entries(entries, slots, codec)
+    layouts = load_layouts(root)
+    validate_layouts(entries, layouts)
     if output_rom is not None and verify_rom is None:
         raise ValueError('--output-rom requires --verify-rom')
     if output_rom is not None and Path(output_rom).resolve() == Path(verify_rom).resolve():
@@ -130,8 +135,10 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
         temp = Path(tmp)
         metrics = temp / 'metrics.txt'
         metrics.write_text('\n'.join(map(sexp, font_metrics(profile, glyphs))) + '\n')
+        policies = temp / 'layouts.txt'
+        policies.write_text('\n'.join(map(sexp, lisp_layouts(layouts))) + '\n')
         subprocess.run(['sbcl', '--script', str(root / 'tools/build_patch_data.lisp'),
-                        str(script), str(metrics), str(temp)], cwd=root, check=True)
+                        str(script), str(metrics), str(policies), str(temp)], cwd=root, check=True)
         payload = (temp / 'payload.bin').read_bytes()
         records = read_script(temp / 'records.txt')
         held = read_script(temp / 'held.txt')
@@ -162,11 +169,17 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
     font_offset = base + len(payload)
     font_writes, font = pack_font(font_offset, profile, glyphs)
     payload += font
+    payload += bytes((-len(payload)) & 3)
+    reading_offset = base + len(payload)
+    reading_writes, reading_code = pack_reading_pause(reading_offset, root)
+    payload += reading_code
     writes.extend(font_writes + [(base, payload)])
+    writes.extend(reading_writes)
     patch = ips_patch(writes)
     sources = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl', 'tools/patch_profile.json',
                'tools/build_patch_data.lisp',
-               'tools/build_ips.py', 'tools/text_codec.py', 'tools/rocket_font.py', ASSET]
+               'tools/build_ips.py', 'tools/text_codec.py', 'tools/rocket_font.py', ASSET,
+               'tools/text_layout.py', LAYOUTS, READING_CODE, READING_SOURCE]
     inputs = {p: sha256((root / p).read_bytes()) for p in sources}
     try:
         script_label = script.relative_to(root).as_posix()
@@ -186,6 +199,7 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None):
               'patched_rom_size': base + len(payload), 'patch_sha256': sha256(patch),
               'patch_bytes': len(patch), 'appended_bytes': len(payload),
               'text_bytes': text_bytes, 'font_offset': font_offset, 'font_bytes': len(font),
+              'reading_pause_offset': reading_offset,
               'injected_entries': [r[0] for r in records],
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],
               'credits_included': False}

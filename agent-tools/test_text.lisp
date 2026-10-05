@@ -24,8 +24,14 @@
                 '(52 "a" (color 2) "b" (color 0) " c!")))
   (check (equal (reflow-string '(52 "A" (show-prompt) (wait-input) (newline) "B" (wait-input)))
                 '(52 "A" (show-prompt) (wait-input) (newline) "B" (wait-input))))
-  (check (equal (reflow-string '(52 "A A A" (yes-no)) :width 9)
-                '(52 "A" (newline) "A" (show-prompt) (wait-input) (newline) "A" (yes-no))))
+  (check (equal (reflow-string '(52 "A A A" (yes-no)) :width 9 :paginate t)
+                '(52 "A" (newline) "A" (page) (clear) "A" (yes-no))))
+  (check (equal (reflow-string '(52 "A A A" (cue) "B") :width 9 :paginate t :ending 1)
+                '(52 "A" (newline) "A" (page) (clear) "A" (show-prompt) (wait-input)
+                  (clear) "B" (show-prompt) (wait-input))))
+  ;; A speaker name or choice does not grant pagination permission.
+  (rejects (lambda () (reflow-string '(52 (name "A") "A A A") :width 9)))
+  (rejects (lambda () (reflow-string '(52 "A A A" (yes-no)) :width 9)))
   (check (equal (reflow-string '(55 "A A A") :width 9 :lines-per-page 3 :paginate nil)
                 '(55 "A" (newline) "A" (newline) "A")))
   ;; Showing an indicator alone does not acknowledge a page or reset line count.

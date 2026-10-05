@@ -13,6 +13,7 @@ OPS = {2: ('NEWLINE', 0), 3: ('SCROLL', 0), 4: ('CLEAR', 0),
        15: ('NOP', 0)}
 BY_NAME = {name: (code, nargs) for code, (name, nargs) in OPS.items()}
 SYMBOLS = set(BY_NAME) | {'NAME', 'GLYPH', 'ALIGN', 'FORCE-NEWLINE', 'WAIT-FOR-A',
+                          'CUE', 'PAGE',
                           'CREDITS', 'PLAIN', 'SMALL', 'DIALOGUE', 'NAME-GRID',
                           'DIGIT-TABLE', 'DAKUTEN', 'HANDAKUTEN'}
 
@@ -150,7 +151,11 @@ class Codec:
             if c == 0:
                 return result, pos
             if c == 1 or c >= 16:
-                self.glyph(result, 256 + get() if c == 1 else c)
+                code = 256 + get() if c == 1 else c
+                if kind == 'dialogue' and code == 0x1FE:
+                    result.append(['PAGE'])
+                else:
+                    self.glyph(result, code)
             elif kind == 'plain':
                 if c != 2:
                     raise ValueError(f'Invalid plain text code {c:02X} at {pos-1:06X}')
@@ -195,6 +200,10 @@ class Codec:
                 result.append(2)
             elif t == ['WAIT-FOR-A']:
                 result.extend([7, 8])
+            elif t == ['CUE']:
+                result.extend([7, 8])
+            elif t == ['PAGE']:
+                result.extend([1, 254])
             elif t[0] == 'NAME' and len(t) == 2 and t[1]:
                 result.extend(b'\x05' + self.encode_text(t[1], True) + b'\x05')
             else:

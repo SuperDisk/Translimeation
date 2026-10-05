@@ -18,11 +18,13 @@ from text_codec import read_script, read_dialogue
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
 from rocket_font import ASSET, HOOK, SPACING_HOOK, load_font, font_metrics
+from text_layout import LAYOUTS, READING_CODE, READING_SOURCE, READING_HOOKS
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
           'tools/build_rom.lisp', 'tools/text_codec.py',
           'tools/rocket_font.py', ASSET,
+          'tools/text_layout.py', LAYOUTS, READING_CODE, READING_SOURCE,
           'text-dumps/gerb.txt']
 
 
@@ -116,6 +118,7 @@ class RomFreeBuildTests(unittest.TestCase):
         expected_slots = {table + 4 * i + n for i in self.report['injected_entries'] for n in range(4)}
         expected_slots.update(range(HOOK, HOOK + 48))
         expected_slots.update(range(SPACING_HOOK, SPACING_HOOK + 4))
+        expected_slots.update(address + n for address in READING_HOOKS for n in range(4))
         touched, cursor = set(), base
         for offset, payload in read_ips(self.patch):
             if offset < base:
@@ -154,6 +157,8 @@ class RomFreeBuildTests(unittest.TestCase):
                 if code == 1:
                     code = 256 + data[pos]
                     pos += 1
+                    if code == 0x1FE:  # Reading pause; the following CLEAR resets the cursor.
+                        continue
                 if code >= 16:
                     width = widths[code]
                     x += width + (spacing[code] if x else 0)
@@ -172,7 +177,9 @@ class RomFreeBuildTests(unittest.TestCase):
                 self.assertLessEqual(x, 208, f'Entry {i} exceeds dialogue width')
         self.assertEqual(base, self.profile['source_rom_size'] + self.report['text_bytes'])
         self.assertEqual(self.report['font_offset'], (base + 3) & ~3)
-        self.assertEqual(len(data), self.report['font_offset'] + self.report['font_bytes'])
+        self.assertEqual(self.report['reading_pause_offset'],
+                         (self.report['font_offset'] + self.report['font_bytes'] + 3) & ~3)
+        self.assertEqual(len(data), self.report['reading_pause_offset'] + 180)
 
     def test_deterministic_build(self):
         first_report = (self.checkout / 'dist/build-report.json').read_bytes()

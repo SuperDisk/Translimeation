@@ -20,6 +20,7 @@
 
 (defparameter pointer-table-pos '(#x71174c #x713CC4))
 (defparameter *font-records* nil)
+(defparameter *text-layouts* nil)
 ;; 080971EC selects one of ten records at ROM offset 713EB8.
 ;; Each record is {u32 bitmap-pointer, u16 first-code, u8 width, u8 stride}.
 (defparameter *font-range-ends* '(#x13 #x18 #x23 #x3d #x66 #x97 #xce #x10c #x141 #x1b8))
@@ -156,20 +157,15 @@ Use SCAN-ROM for the complete, format-aware inventory including non-table text."
         do (incf pos (length (car match)))))
 
 (defun reflow-string (entry &key (width *textbox-size*) (lines-per-page 2)
-                                (paginate (some (lambda (x)
-                                                  (or (and (consp x) (eq (car x) 'name))
-                                                      (member x '((show-prompt) (wait-input) (yes-no)
-                                                                  (wait-for-a)) :test #'equal)))
-                                                (cdr entry))))
-  "Reflow an indexed dialogue entry using ROM widths, preserving control order.
-NEWLINE is soft unless it follows a wait; FORCE-NEWLINE is always hard.
-Existing waits and terminal behavior are retained. No final wait is invented."
+                                (paginate nil) (ending 0))
+  "Wrap using explicit layout permission. PAGE pauses reading; CUE signals a scene.
+NEWLINE is soft; FORCE-NEWLINE is hard. ENDING comes from the entry's layout."
   (unless (and (integerp (car entry)) (plusp width) (plusp lines-per-page))
     (error "Expected an indexed text entry and a positive width: ~S" entry))
   (unless *font-records* (load-font-metrics))
   (let ((table (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
         (tokens nil) (out nil) (word nil) (pending-space nil)
-        (pixels 0) (lines 1) (after-wait nil))
+        (pixels 0) (lines 1) (after-wait nil) (needs-clear nil) (unread nil))
     (labels ((emit (x)
                (if (and (stringp x) (stringp (car out)))
                    (setf (car out) (concatenate 'string (car out) x))
@@ -191,17 +187,26 @@ Existing waits and terminal behavior are retained. No final wait is invented."
                            (incf x (- (* *dynamic-number-max-glyphs* (glyph-advance #x28 1))
                                       (if (zerop x) (glyph-spacing #x28) 0)))))
                      finally (return x)))
+             (clear-page ()
+               (emit '(clear))
+               (setf pixels 0 lines 1 pending-space nil after-wait nil needs-clear nil unread nil))
+             (reading-pause ()
+               (unless paginate
+                 (error "Entry ~D needs more than ~D lines; this layout cannot paginate."
+                        (car entry) lines-per-page))
+               (emit '(page))
+               (setf after-wait t unread nil))
              (line-break ()
-               (when (and (>= lines lines-per-page) (not after-wait))
-                 (unless paginate
-                   (error "Entry ~D needs more than ~D lines; select a layout explicitly."
-                          (car entry) lines-per-page))
-                 (emit '(show-prompt)) (emit '(wait-input)) (setf lines 0))
-               (emit '(newline))
-               (setf pixels 0 pending-space nil after-wait nil)
-               (incf lines))
+               (cond
+                 (needs-clear (clear-page))
+                 ((and (>= lines lines-per-page) (not after-wait))
+                  (reading-pause) (clear-page))
+                 (t (emit '(newline))
+                    (setf pixels 0 pending-space nil after-wait nil)
+                    (incf lines))))
              (flush-word ()
                (when word
+                 (when needs-clear (clear-page))
                  (let* ((items (reverse word))
                         (space (and pending-space (> pixels 0)))
                         (end (advance items (if space (advance '(" ") pixels) pixels))))
@@ -214,7 +219,7 @@ Existing waits and terminal behavior are retained. No final wait is invented."
                        (error "Entry ~D has a word wider than ~D pixels: ~S" (car entry) width items)))
                    (when space (emit " "))
                    (dolist (item items) (emit item))
-                   (setf pixels end word nil pending-space nil)))))
+                   (setf pixels end word nil pending-space nil unread t after-wait nil)))))
       ;; Keep color changes inside words, so punctuation and fragments around
       ;; zero-width controls cannot acquire or lose spaces.
       (dolist (item (cdr entry))
@@ -230,18 +235,35 @@ Existing waits and terminal behavior are retained. No final wait is invented."
            (flush-word)
            (if after-wait (line-break) (setf pending-space t)))
           ((equal item '(force-newline)) (flush-word) (line-break))
+          ((equal item '(cue))
+           (flush-word) (emit '(show-prompt)) (emit '(wait-input))
+           (setf after-wait t unread nil needs-clear t pending-space nil))
+          ((equal item '(page))
+           (flush-word) (reading-pause) (setf needs-clear t pending-space nil))
           ((or (stringp item) (equal item '(player-name))
                (and (consp item) (member (car item) '(color glyph)))
                (and (consp item) (eq (car item) 'dynamic-text)))
            (push item word))
           (t
-           (flush-word) (emit item)
+           (flush-word)
+           ;; A generated pause protects text before a destructive window change.
+           (when (and paginate unread
+                      (or (member item '((clear) (switch-window)) :test #'equal)
+                          (and (consp item) (eq (car item) 'name))))
+             (reading-pause)
+             (when (and (consp item) (eq (car item) 'name)) (clear-page)))
+           (emit item)
            (cond
              ((member item '((wait-input) (wait-for-a)) :test #'equal)
-              (setf after-wait t lines 0))
+              (setf after-wait t lines 0 unread nil))
+             ((member item '((yes-no) ) :test #'equal)
+              (setf unread nil))
+             ((and (consp item) (eq (car item) 'open-menu)) (setf unread nil))
              ((member item '((scroll) (clear) (switch-window)) :test #'equal)
-              (setf pixels 0 lines 1 pending-space nil after-wait nil))))))
+              (setf pixels 0 lines 1 pending-space nil after-wait nil needs-clear nil unread nil))))))
       (flush-word)
+      (when (plusp ending) (emit '(show-prompt)))
+      (when (= ending 1) (emit '(wait-input)))
       (cons (car entry) (nreverse out)))))
 
 (defun prepare-dialogue-preview (entries)
@@ -249,14 +271,20 @@ Existing waits and terminal behavior are retained. No final wait is invented."
 Callers validate authoring syntax and supply *FONT-RECORDS* first.
 Returns injectable entries and layout/encoding holds as two values."
   (unless *font-records* (error "Load font metrics before preparing a preview"))
+  (unless *text-layouts* (error "Load entry layout policies before preparing a preview"))
   (let ((encoding (invert-alist (reverse (load-translation-table "SlimeDialog.tbl"))))
         (small (invert-alist (reverse (load-translation-table "Slime_Small.tbl"))))
         (passed nil) (failed nil))
     (dolist (entry entries)
       (handler-case
-          (let ((flowed (reflow-string entry)))
-            (encode-string encoding small (cdr flowed))
-            (push flowed passed))
+          (destructuring-bind (index mode width lines paginate ending)
+              (or (assoc (car entry) *text-layouts*) (error "No layout for entry ~D" (car entry)))
+            (declare (ignore index))
+            (when (string= mode "fixed") (error "Fixed tablet reveal layout; retain original until separately edited"))
+            (let ((flowed (reflow-string entry :width width :lines-per-page lines
+                                         :paginate (= paginate 1) :ending ending)))
+              (encode-string encoding small (cdr flowed))
+              (push flowed passed)))
         (error (e) (push (list (car entry) (princ-to-string e)) failed))))
     (values (nreverse passed) (nreverse failed))))
 
@@ -280,7 +308,9 @@ Returns injectable entries and layout/encoding holds as two values."
       (loop for code = (get-code) do
         (cond
           ((zerop code) (return (nreverse out)))
-          ((= code 1) (put-glyph (+ 256 (get-code))))
+          ((= code 1)
+           (let ((extended (get-code)))
+             (if (= extended #xfe) (push '(page) out) (put-glyph (+ 256 extended)))))
           ((>= code 16) (put-glyph code))
           ((= code 5)
            (push (list 'name
@@ -301,6 +331,8 @@ Returns injectable entries and layout/encoding holds as two values."
     (cond
       ((stringp token) (mapcar #'cdr (text-glyphs token inv-translation-table)))
       ((equal token '(wait-for-a)) '(7 8)) ; historical explicit shorthand
+      ((equal token '(cue)) '(7 8))
+      ((equal token '(page)) '(#x01 #xfe))
       ((equal token '(force-newline)) '(2))
       ((and (consp token) (eq (car token) 'name) (= (length token) 2)
             (stringp (cadr token)) (plusp (length (cadr token))))
