@@ -17,13 +17,13 @@ from pathlib import Path
 from text_codec import read_script, read_dialogue
 from build_ips import ROOT, IPS_LIMIT, ips_patch, load_profile, validate_entries, verify_profile
 from text_codec import Codec
-from rocket_font import ASSET, HOOK, HOOK_SIZE, SPACING_HOOK, load_font, font_metrics
+from rocket_font import UI_CODE, UI_SOURCE, ASSET, HOOK, HOOK_SIZE, SPACING_HOOK, load_font, font_metrics
 from text_layout import LAYOUTS, READING_CODE, READING_SOURCE, READING_HOOKS
 
 INPUTS = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl',
           'tools/patch_profile.json', 'tools/build_patch_data.lisp', 'tools/build_ips.py',
           'tools/build_rom.lisp', 'tools/text_codec.py',
-          'tools/rocket_font.py', ASSET,
+          'tools/rocket_font.py', ASSET, UI_CODE, UI_SOURCE,
           'tools/text_layout.py', LAYOUTS, READING_CODE, READING_SOURCE,
           'text-dumps/gerb.txt']
 
@@ -119,9 +119,11 @@ class RomFreeBuildTests(unittest.TestCase):
         expected_slots.update(range(HOOK, HOOK + HOOK_SIZE))
         expected_slots.update(range(SPACING_HOOK, SPACING_HOOK + 4))
         expected_slots.update(address + n for address in READING_HOOKS for n in range(4))
-        if self.report['injected_plain_entries']:
-            expected_slots.update(range(0x7383F0, 0x7383FC))
-            expected_slots.update(range(0x73840C, 0x738410))
+        for address, size in ((0x96C40, 8), (0x970B4, 4), (0x970BA, 2)):
+            expected_slots.update(range(address, address + size))
+        for index in self.report['injected_plain_entries']:
+            for address in self.profile['plain_text'][f'{index:06x}']['pointers']:
+                expected_slots.update(range(address, address + 4))
         touched, cursor = set(), base
         for offset, payload in read_ips(self.patch):
             if offset < base:
@@ -181,12 +183,14 @@ class RomFreeBuildTests(unittest.TestCase):
                 self.assertLessEqual(x, 208, f'Entry {i} exceeds dialogue width')
         self.assertEqual(base, self.profile['source_rom_size'] + self.report['text_bytes'])
         self.assertEqual(self.report['menu_offset'], base)
-        if self.report['injected_plain_entries']:
-            pointer = struct.unpack_from('<I', data, 0x73840C)[0] - self.profile['gba_base_address']
-            self.assertEqual(pointer, base)
-            entry = next(r for r in read_script(self.checkout / 'text-dumps/gerb.txt') if r[0] == 0x713F08)
-            tokens, end = codec.decode(data, pointer, 'plain')
-            self.assertEqual(codec.encode(tokens, 'plain'), codec.encode(entry[1][1:], 'plain'))
+        for index in self.report['injected_plain_entries']:
+            layout = self.profile['plain_text'][f'{index:06x}']
+            for site in layout['pointers']:
+                pointer = struct.unpack_from('<I', data, site)[0] - self.profile['gba_base_address']
+                self.assertGreaterEqual(pointer, base)
+                self.assertLess(pointer, base + self.report['menu_bytes'])
+                tokens, end = codec.decode(data, pointer, 'plain')
+                self.assertLessEqual(end, base + self.report['menu_bytes'])
         self.assertEqual(self.report['font_offset'], (base + self.report['menu_bytes'] + 3) & ~3)
         self.assertEqual(self.report['reading_pause_offset'],
                          (self.report['font_offset'] + self.report['font_bytes'] + 3) & ~3)

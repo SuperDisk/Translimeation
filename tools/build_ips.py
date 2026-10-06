@@ -15,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 from text_codec import Codec, read_script, read_dialogue, sexp, validate_dialogue
-from rocket_font import ASSET, load_font, font_metrics, pack_font, verify_font_source
+from rocket_font import UI_CODE, UI_SOURCE, ASSET, load_font, font_metrics, pack_font, verify_font_source
 from text_layout import (LAYOUTS, READING_CODE, READING_SOURCE, load_layouts,
                          validate_layouts, lisp_layouts, pack_reading_pause, verify_reading_hooks)
 
@@ -96,46 +96,65 @@ def validate_entries(entries, slots, codec):
 
 
 def pack_menu_text(rows, profile, codec, offset):
-    """Render plain menu rows into a tile strip and rebuild their column maps.
+    """Relocate UI text, padding its fields to the verified tile allocations.
 
-    The stock UI renderer adds a pixel before each glyph; ALIGN rounds to an
-    eight-pixel boundary. Layouts describe verified descriptor/map locations.
+    The shared plain renderer selects DS metrics for expanded-ROM strings.
+    Original/RAM text retains stock metrics. Byte lookup tables are not rendered.
     """
     entries = {r[0]: r for r in rows}
-    widths = {c: width for first, last, width in profile['font_records']
+    widths = {c: width + 1 for first, last, width in profile['font_records']
               for c in range(first, last + 1)}
+    widths.update({c: width for c, (width, _) in load_font().items()})
     writes, payload, included = [], bytearray(), []
-    for layout in profile.get('plain_menus', []):
-        index = layout['text_offset']
+    for key, layout in profile.get('plain_text', {}).items():
+        index = int(key, 16)
         entry = entries.get(index)
         if entry is None:
             continue
         if len(entry) != 2 or not isinstance(entry[1], list) or entry[1][0] != 'PLAIN':
-            raise ValueError(f'{index}: expected a PLAIN menu record')
+            raise ValueError(f'{index}: expected a PLAIN UI record')
         tokens, options = entry[1][1:], [[]]
         for token in tokens:
             if token == ['ALIGN']:
                 options.append([])
             else:
                 options[-1].append(token)
-        if len(options) != layout['rows']:
-            raise ValueError(f"{index}: preserve {layout['rows']} menu rows separated by ALIGN")
-        tilemap, column = bytearray(), 0
-        for option in options:
-            data = iter(codec.encode(option, 'plain')[:-1])
-            glyphs = [256 + next(data) if c == 1 else c for c in data]
-            if not glyphs or any(c not in widths for c in glyphs):
-                raise ValueError(f'{index}: each menu row must contain supported text glyphs')
-            size = (sum(widths[c] + 1 for c in glyphs) + 7) // 8
-            columns = layout['text_columns']
-            if size > columns or column + size > 128:
-                raise ValueError(f'{index}: menu row exceeds its {columns * 8}-pixel layout')
-            tilemap.extend([255, *range(column, column + size), *([255] * (columns - size))])
-            column += size
+        encoded = bytearray()
+        if 'glyphs' in layout:
+            encoded = bytearray(codec.encode(tokens, 'plain'))
+            # These consumers read one encoded byte, or the two-byte 匹 glyph.
+            if layout['glyphs'] == 10:
+                if len(encoded) != 11 or any(c < 16 for c in encoded[:-1]):
+                    raise ValueError(f'{index}: digit lookup must contain ten single-byte glyphs')
+            elif len(encoded) > 3 or (len(encoded) == 3 and encoded[0] != 1):
+                raise ValueError(f'{index}: counter suffix must be empty or one glyph')
+            encoded.extend(bytes(max(0, 3 - len(encoded))))
+        else:
+            if len(options) != len(layout['columns']):
+                raise ValueError(f"{index}: preserve {len(layout['columns'])} fields separated by ALIGN")
+            for option, columns in zip(options, layout['columns']):
+                data = iter(codec.encode(option, 'plain')[:-1])
+                glyphs = [256 + next(data) if c == 1 else c for c in data]
+                while glyphs and glyphs[-1] == 0x1D:
+                    glyphs.pop()
+                # Leading blanks reserve room for fixed-position runtime numbers.
+                leading = 0
+                while leading < len(glyphs) and glyphs[leading] == 0x1D:
+                    leading += 1
+                glyphs[:leading] = [0x1D] * ((leading * 7 + widths[0x1D] - 1) // widths[0x1D])
+                pixels = sum(widths[c] for c in glyphs)
+                if pixels > columns * 8:
+                    raise ValueError(f'{index}: UI field needs {pixels} pixels; available {columns * 8}')
+                while (pixels + 7) // 8 < columns:
+                    glyphs.append(0x1D)
+                    pixels += widths[0x1D]
+                for c in glyphs:
+                    encoded.extend([1, c - 256] if c >= 256 else [c])
+                encoded.append(2)  # Flush the last partial tile as well.
+            encoded.append(0)
         pointer = profile['gba_base_address'] + offset + len(payload)
-        writes.extend([(layout['map_offset'], bytes(tilemap)),
-                       (layout['pointer_offset'], struct.pack('<I', pointer))])
-        payload.extend(codec.encode(tokens, 'plain'))
+        writes.extend((site, struct.pack('<I', pointer)) for site in layout['pointers'])
+        payload.extend(encoded)
         included.append(index)
     return writes, bytes(payload), included
 
@@ -228,7 +247,7 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
     patch = ips_patch(writes)
     sources = ['slurp.lisp', 'SlimeDialog.tbl', 'Slime_Small.tbl', 'tools/patch_profile.json',
                'tools/build_patch_data.lisp',
-               'tools/build_ips.py', 'tools/text_codec.py', 'tools/rocket_font.py', ASSET,
+               'tools/build_ips.py', 'tools/text_codec.py', 'tools/rocket_font.py', ASSET, UI_CODE, UI_SOURCE,
                'tools/text_layout.py', LAYOUTS, READING_CODE, READING_SOURCE]
     inputs = {p: sha256((root / p).read_bytes()) for p in sources}
     try:
@@ -251,6 +270,8 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
               'text_bytes': text_bytes, 'font_offset': font_offset, 'font_bytes': len(font),
               'menu_offset': menu_offset, 'menu_bytes': len(menu),
               'injected_plain_entries': menu_entries,
+              'unreferenced_plain_entries': [i for i in menu_entries
+                                            if not profile['plain_text'][f'{i:06x}']['pointers']],
               'reading_pause_offset': reading_offset,
               'injected_entries': [r[0] for r in records],
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],
@@ -270,7 +291,8 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
         destination = Path(output_rom)
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(result)
-    print(f'{len(records)} entries; {len(held)} layout holds; {len(patch):,}-byte IPS: '
+    print(f'{len(records)} dialogue entries; {len(menu_entries)} UI records; '
+          f'{len(held)} layout holds; {len(patch):,}-byte IPS: '
           f'{output / "slime-patch.ips"}')
     return report
 

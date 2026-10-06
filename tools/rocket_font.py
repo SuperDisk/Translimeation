@@ -13,6 +13,8 @@ from text_codec import Codec
 
 ROOT = Path(__file__).resolve().parent.parent
 ASSET = 'tools/rocket-font.txt'
+UI_CODE = 'tools/ui_font.bin'
+UI_SOURCE = 'tools/ui_font.s'
 NDS_SHA256 = '99dc6346b9f66d0a578a7dcb2fe8f8566551e76082f7fd0afa7c2573e804c374'
 HOOK = 0x971EC
 SPACING_HOOK = 0x96AC6
@@ -119,19 +121,28 @@ def pack_font(offset, profile, glyphs):
             pointer, first = base + offset + 2 * len(records) + len(bitmaps), code
             bitmaps.extend(data)
         struct.pack_into('<IHBB', records, code * 8, pointer, first, width, width * 4)
-    # The compositor keeps its context in r6 (r5 in the centered-cell caller).
-    # Only the dialogue context at 02001080 uses DS metrics. Plain UI strings use stack-local contexts and
-    # fixed tile slices, so their original glyphs AND spacing must be retained.
-    # Selector: r0=(u16 glyph)*8; r1=dialogue/stock table selected by r6/r5; return r0+r1.
-    # Spacing helper at HOOK+32: retain stock spacing outside dialogue; otherwise
-    # omit the leading pixel only for imported bitmaps (pointers >=08800000).
-    # Both routines fit within the original 104-byte selector; no new RAM state.
-    hook = (bytes.fromhex(
-        '0004400b0f498e4201d08d4201d10e4900e00e4940187047c046c046c046c046'
-        '0848864206d15046c00007490858c00d112802d2002a00d0704701480047c046'
-        '296b090880100002')
-            + struct.pack('<II', base + offset, base + offset + len(records)))
-    return [(HOOK, hook), (SPACING_HOOK, bytes.fromhex('00f0a1fb'))], bytes(records + stock_records + bitmaps)
+    payload = bytearray(records + stock_records + bitmaps)
+    payload += bytes((-len(payload)) & 3)
+    code_base = base + offset + len(payload)
+    code = (ROOT / UI_CODE).read_bytes()
+    if len(code) != 132:
+        raise ValueError('Reassemble ui_font.s and update entry offsets')
+    code = code.replace(struct.pack('<I', 0x11111110), struct.pack('<I', base + offset))
+    code = code.replace(struct.pack('<I', 0x22222220), struct.pack('<I', base + offset + len(records)))
+    payload += code
+    def veneer(address, register=1):
+        return struct.pack('<HHI', 0x4800 | register << 8, 0x4700 | register << 3, address | 1)
+    hook = bytearray(bytes.fromhex('c046') * (HOOK_SIZE // 2))
+    hook[:8] = veneer(code_base)
+    hook[32:40] = veneer(code_base + 0x10)
+    # Zero the two padding bytes in other glyph contexts. Both existing counters
+    # at 104/105 remain zero, as before. Plain's own initializer sets its flag.
+    writes = [(HOOK, bytes(hook)), (SPACING_HOOK, bytes.fromhex('00f0a1fb')),
+              (0x96C40, veneer(code_base + 0x54, 3)),
+              (0x970B4, bytes.fromhex('01800633')),
+              (0x970BA, bytes.fromhex('0180'))]
+    return writes, bytes(payload)
+
 
 
 def verify_font_source(rom, profile):
@@ -139,6 +150,10 @@ def verify_font_source(rom, profile):
         raise ValueError('Unexpected original font selector')
     if rom[SPACING_HOOK:SPACING_HOOK + 4] != bytes.fromhex('002a2ed0'):
         raise ValueError('Unexpected original glyph-spacing branch')
+    for offset, expected in ((0x96C40, 'f0b5c2b00c1c1206'),
+                             (0x970B4, '01700533'), (0x970BA, '0170')):
+        if rom[offset:offset + len(expected) // 2] != bytes.fromhex(expected):
+            raise ValueError(f'Unexpected original UI renderer at {offset:06x}')
     for n, (start, _, width) in enumerate(profile['font_records']):
         actual = struct.unpack_from('<IHBB', rom, 0x713EB8 + n * 8)
         expected = (profile['gba_base_address'] + GRAPHICS[n], start, width, width * 4)

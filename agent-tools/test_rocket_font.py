@@ -142,9 +142,9 @@ class RocketFontTests(unittest.TestCase):
         count = self.call(0x080970D0, DEST, pointer)
         combined = bytes(self.cpu.mem_read(DEST, count * 32))
         for row, option in enumerate((tokens[:split], tokens[split + 1:])):
-            self.cpu.mem_write(0x02030000, codec.encode(option, 'plain'))
+            self.cpu.mem_write(0x08800000, codec.encode(option, 'plain'))
             self.cpu.mem_write(DEST, b'\x11' * 0x1000)
-            self.call(0x080970D0, DEST, 0x02030000)
+            self.call(0x080970D0, DEST, 0x08800000)
             expected = bytes(self.cpu.mem_read(DEST, 5 * 64))
             indices = self.rom[0x7383F0 + row * 6:0x7383F6 + row * 6]
             self.assertEqual(indices[0], 255)  # Cursor column remains blank.
