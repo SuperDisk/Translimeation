@@ -119,6 +119,9 @@ class RomFreeBuildTests(unittest.TestCase):
         expected_slots.update(range(HOOK, HOOK + HOOK_SIZE))
         expected_slots.update(range(SPACING_HOOK, SPACING_HOOK + 4))
         expected_slots.update(address + n for address in READING_HOOKS for n in range(4))
+        if self.report['injected_plain_entries']:
+            expected_slots.update(range(0x7383F0, 0x7383FC))
+            expected_slots.update(range(0x73840C, 0x738410))
         touched, cursor = set(), base
         for offset, payload in read_ips(self.patch):
             if offset < base:
@@ -177,7 +180,14 @@ class RomFreeBuildTests(unittest.TestCase):
                     x = 0
                 self.assertLessEqual(x, 208, f'Entry {i} exceeds dialogue width')
         self.assertEqual(base, self.profile['source_rom_size'] + self.report['text_bytes'])
-        self.assertEqual(self.report['font_offset'], (base + 3) & ~3)
+        self.assertEqual(self.report['menu_offset'], base)
+        if self.report['injected_plain_entries']:
+            pointer = struct.unpack_from('<I', data, 0x73840C)[0] - self.profile['gba_base_address']
+            self.assertEqual(pointer, base)
+            entry = next(r for r in read_script(self.checkout / 'text-dumps/gerb.txt') if r[0] == 0x713F08)
+            tokens, end = codec.decode(data, pointer, 'plain')
+            self.assertEqual(codec.encode(tokens, 'plain'), codec.encode(entry[1][1:], 'plain'))
+        self.assertEqual(self.report['font_offset'], (base + self.report['menu_bytes'] + 3) & ~3)
         self.assertEqual(self.report['reading_pause_offset'],
                          (self.report['font_offset'] + self.report['font_bytes'] + 3) & ~3)
         self.assertEqual(len(data), self.report['reading_pause_offset'] + 180)

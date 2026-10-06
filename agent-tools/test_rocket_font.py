@@ -130,6 +130,28 @@ class RocketFontTests(unittest.TestCase):
             self.skipTest('Local DS ROM unavailable')
         self.assertEqual(import_font(path), Path(ASSET).read_text())
 
+    def test_yes_no_menu_tiles_match_separately_rendered_choices(self):
+        from text_codec import Codec, read_script
+        codec = Codec()
+        entry = next(r for r in read_script('text-dumps/gerb.txt') if r[0] == 0x713F08)
+        tokens = entry[1][1:]
+        split = tokens.index(['ALIGN'])
+        pointer = struct.unpack_from('<I', self.rom, 0x73840C)[0]
+        self.assertGreaterEqual(pointer, 0x08800000)
+        self.cpu.mem_write(DEST, b'\x11' * 0x1000)
+        count = self.call(0x080970D0, DEST, pointer)
+        combined = bytes(self.cpu.mem_read(DEST, count * 32))
+        for row, option in enumerate((tokens[:split], tokens[split + 1:])):
+            self.cpu.mem_write(0x02030000, codec.encode(option, 'plain'))
+            self.cpu.mem_write(DEST, b'\x11' * 0x1000)
+            self.call(0x080970D0, DEST, 0x02030000)
+            expected = bytes(self.cpu.mem_read(DEST, 5 * 64))
+            indices = self.rom[0x7383F0 + row * 6:0x7383F6 + row * 6]
+            self.assertEqual(indices[0], 255)  # Cursor column remains blank.
+            actual = b''.join(b'\x11' * 64 if n == 255 else combined[n * 64:(n + 1) * 64]
+                              for n in indices[1:])
+            self.assertEqual(actual, expected)
+
     def test_spacing_and_pixels_match_actual_ds_blitter(self):
         path = Path('Dragon Quest Heroes - Rocket Slime (USA).nds')
         if not path.exists():

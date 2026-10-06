@@ -95,6 +95,51 @@ def validate_entries(entries, slots, codec):
             raise ValueError(f'{i}: {exc}') from exc
 
 
+def pack_menu_text(rows, profile, codec, offset):
+    """Render plain menu rows into a tile strip and rebuild their column maps.
+
+    The stock UI renderer adds a pixel before each glyph; ALIGN rounds to an
+    eight-pixel boundary. Layouts describe verified descriptor/map locations.
+    """
+    entries = {r[0]: r for r in rows}
+    widths = {c: width for first, last, width in profile['font_records']
+              for c in range(first, last + 1)}
+    writes, payload, included = [], bytearray(), []
+    for layout in profile.get('plain_menus', []):
+        index = layout['text_offset']
+        entry = entries.get(index)
+        if entry is None:
+            continue
+        if len(entry) != 2 or not isinstance(entry[1], list) or entry[1][0] != 'PLAIN':
+            raise ValueError(f'{index}: expected a PLAIN menu record')
+        tokens, options = entry[1][1:], [[]]
+        for token in tokens:
+            if token == ['ALIGN']:
+                options.append([])
+            else:
+                options[-1].append(token)
+        if len(options) != layout['rows']:
+            raise ValueError(f"{index}: preserve {layout['rows']} menu rows separated by ALIGN")
+        tilemap, column = bytearray(), 0
+        for option in options:
+            data = iter(codec.encode(option, 'plain')[:-1])
+            glyphs = [256 + next(data) if c == 1 else c for c in data]
+            if not glyphs or any(c not in widths for c in glyphs):
+                raise ValueError(f'{index}: each menu row must contain supported text glyphs')
+            size = (sum(widths[c] + 1 for c in glyphs) + 7) // 8
+            columns = layout['text_columns']
+            if size > columns or column + size > 128:
+                raise ValueError(f'{index}: menu row exceeds its {columns * 8}-pixel layout')
+            tilemap.extend([255, *range(column, column + size), *([255] * (columns - size))])
+            column += size
+        pointer = profile['gba_base_address'] + offset + len(payload)
+        writes.extend([(layout['map_offset'], bytes(tilemap)),
+                       (layout['pointer_offset'], struct.pack('<I', pointer))])
+        payload.extend(codec.encode(tokens, 'plain'))
+        included.append(index)
+    return writes, bytes(payload), included
+
+
 def verify_profile(rom, profile, slots):
     if len(rom) != profile['source_rom_size'] or sha256(rom) != profile['source_rom_sha256']:
         raise ValueError('Wrong source ROM; use the unmodified ROM identified by patch_profile.json')
@@ -166,6 +211,10 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
     if cursor != len(payload):
         raise ValueError('Unaccounted bytes in appended text')
     text_bytes = len(payload)
+    menu_offset = base + len(payload)
+    menu_writes, menu, menu_entries = pack_menu_text(read_script(script), profile, codec, menu_offset)
+    writes.extend(menu_writes)
+    payload += menu
     payload += bytes((-len(payload)) & 3)
     font_offset = base + len(payload)
     font_writes, font = pack_font(font_offset, profile, glyphs)
@@ -200,6 +249,8 @@ def build(script, output, root=ROOT, verify_rom=None, output_rom=None, automatic
               'patched_rom_size': base + len(payload), 'patch_sha256': sha256(patch),
               'patch_bytes': len(patch), 'appended_bytes': len(payload),
               'text_bytes': text_bytes, 'font_offset': font_offset, 'font_bytes': len(font),
+              'menu_offset': menu_offset, 'menu_bytes': len(menu),
+              'injected_plain_entries': menu_entries,
               'reading_pause_offset': reading_offset,
               'injected_entries': [r[0] for r in records],
               'held_entries': [{'index': i, 'reason': reason} for i, reason in held],

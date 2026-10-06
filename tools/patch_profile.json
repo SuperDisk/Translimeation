@@ -56,6 +56,15 @@
       13
     ]
   ],
+  "plain_menus": [
+    {
+      "text_offset": 7421704,
+      "pointer_offset": 7570444,
+      "map_offset": 7570416,
+      "text_columns": 5,
+      "rows": 2
+    }
+  ],
   "dialogue_slot_ranges": [
     [
       52,

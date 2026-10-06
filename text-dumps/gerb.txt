@@ -1,4 +1,4 @@
-; Gerb working script. CREDITS and offset-keyed tagged records are retained for editing but are not injected yet.
+; Gerb working script. Dialogue and yes/no (7421704) are injected; other tagged records are retained for editing.
 (52 "Thanks for saving me! (slurp)" (SHOW-PROMPT) (WAIT-INPUT) (FORCE-NEWLINE) "I want you to take me back to town!" (SHOW-PROMPT) (WAIT-INPUT))
 (53 "It's not goo-d if you get this!" (SHOW-PROMPT) (WAIT-INPUT))
 (54 "Test" (CLEAR))
@@ -2287,7 +2287,7 @@
 
 ; Additional ROM text missing from the delivered script; Japanese and formatting preserved.
 ; IDs above 2397 are ROM file offsets. Keep format tags and ALIGN/layout cues.
-; Offset-keyed records and CREDITS need injector/layout support before edits appear in-game.
+; Except yes/no (7421704), offset-keyed records and CREDITS still need injector/layout support.
 ; NAME-GRID and DIGIT-TABLE are character tables, not prose. Some dialogue may be unused.
 (1892 (CREDITS (5 "center" "Programmer") (9 "center" "Daichi Kawate") (11 "center" "Yasutaka Tokida") (13 "center" "Masafumi Ko")))
 (1895 (CREDITS (5 "center" "Music") (9 "center" "Hidenori Miyanaga") (11 "center" "Ryoe Takagi") (13 "center" "Masaya Tsunemoto")))
