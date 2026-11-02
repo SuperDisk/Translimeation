@@ -51,6 +51,22 @@ def export_ui(rom, output):
     tiles_offset, palette_offset = 0x751B90, 0x751AB0
     tiles = Decompressor(rom, tiles_offset).decompress()[0]
     palette = bytes(128) + Decompressor(rom, palette_offset).decompress()[0]
+    # These rectangles have no compression header or archive entry. The loader
+    # passes their dimensions directly to the map-copy routine at 08000D1C.
+    for name, offset, width, height, evidence, note in (
+            ('heading', 0x755344, 14, 4, '080d5f00..080d5f0c',
+             'Static adventure-log sign'),
+            ('slot-1', 0x7553B4, 28, 7, '080d79a8..080d79b2',
+             'Static save panel; name and numeric tiles are replaced at runtime'),
+            ('slot-2', 0x75553C, 28, 7, '080d7ac2..080d7acc',
+             'Static save panel; name and numeric tiles are replaced at runtime')):
+        tilemap = rom[offset:offset + width * height * 2]
+        path = f'file-menu-{name}-{offset:06x}.png'
+        render_map(tiles, tilemap, palette, width).save(output / path)
+        rows.append(dict(name=f'file-menu/{name}', preview=path,
+                         tiles=f'{tiles_offset:06x}', tilemap=f'{offset:06x}',
+                         palette=f'{palette_offset:06x}', evidence='080d5ebc..080d5ece; ' + evidence,
+                         note=note))
     for offset, evidence in (
             (0x756464, '080d6652'), (0x75651C, '080d66b4'),
             (0x7565BC, '080d733c literal'), (0x756770, '080d6a00 literal'),
@@ -64,6 +80,10 @@ def export_ui(rom, output):
                          tiles=f'{tiles_offset:06x}', tilemap=f'{offset:06x}',
                          palette=f'{palette_offset:06x}', evidence='080d5ebc..080d5ece; ' + evidence,
                          note='Static menu message layer; selection sprites and runtime text omitted'))
+    from graphics_ui_extra import export_extra_ui
+    rows.extend(export_extra_ui(rom, output, entries))
+    from graphics_hud import export_hud
+    rows.extend(export_hud(rom, output))
     with (output / 'ui.csv').open('w', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
         writer.writeheader()

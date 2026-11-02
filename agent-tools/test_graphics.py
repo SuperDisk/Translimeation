@@ -69,3 +69,18 @@ for expected_cell in timeline(commands, 190):
  call(cpu, 0x0800188c, context)
  assert cpu.mem_read(context+0xe, 1)[0] == expected_cell
 print('190 pot-title animation ticks match the original ROM interpreter')
+
+# Raw UI maps bypass the decompressor. Check their rectangle dimensions and
+# row stride against the actual copier that used to be missing from the export.
+cpu = create_cpu(rom)
+for source, width, height in ((0x755344, 14, 4), (0x7553B4, 28, 7),
+                              (0x756140, 28, 7), (0x757778, 4, 2)):
+ destination = 0x02020000
+ cpu.mem_write(destination, b'\xa5' * (height * 64 + 64))
+ call(cpu, 0x08000D1C, destination, 0x08000000 + source, width, height)
+ result = bytes(cpu.mem_read(destination, height * 64 + 64))
+ expected = bytearray(b'\xa5' * len(result))
+ for y in range(height):
+  expected[y*64:y*64+width*2] = rom[source+y*width*2:source+(y+1)*width*2]
+ assert result == expected, hex(source)
+print('4 direct UI rectangles match the original map copier, including untouched row padding')

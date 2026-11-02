@@ -153,13 +153,17 @@ def sprite_associations(rom, roots=ROOTS):
         pp, pn = 0, 0
         if palette_id is not None and 0 <= palette_id < len(entries):
             _, pp, pn = entries[palette_id]
+            resource = _expand(rom[pp:pp + pn])
+            if evidence.startswith('actor ') and (len(resource) < 32 or len(resource) > 512 or len(resource) % 32 or parse_cells(resource) is not None):
+                palette_evidence = 'descriptor palette entry is not a palette resource; special loader unresolved; grayscale fallback'
+                pp, pn = 0, 0
             pp += pal_skip
             pn -= pal_skip
             if pal_size is not None:
                 pn = min(pn, pal_size)
         if pn < 0:
             return
-        if palette_id is not None and not pp:
+        if palette_id is not None and not 0 <= palette_id < len(entries):
             palette_evidence = 'descriptor palette ID outside nested archive; special loader unresolved; grayscale fallback'
         association = dict(archive=key, tiles=f'{tp:06x}', cells=f'{cp:06x}',
                            palette=f'{pp:06x}' if pp else '', tiles_id=f'{tile_id:03x}',
@@ -250,6 +254,14 @@ def sprite_associations(rom, roots=ROOTS):
             emit(key, tile_id, i, palette_id,
                  'inferred adjacent tile/cell entries; OAM tile bounds checked during rendering',
                  'inferred adjacent palette; not verified by loader' if palette_id is not None else 'unknown; grayscale fallback')
+    # An actor with a special loader can leave generic descriptor fields zero.
+    # Never interpret a known tile/cell payload as colors just because +4 names it.
+    graphics_offsets = {r[field] for r in result for field in ('tiles', 'cells')}
+    for row in result:
+        if row['palette'] in graphics_offsets:
+            row['palette'] = ''
+            row['palette_size'] = 0
+            row['palette_evidence'] = 'descriptor palette entry is a tile/cell resource; special loader unresolved; grayscale fallback'
     return result
 
 

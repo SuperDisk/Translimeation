@@ -94,7 +94,7 @@ def export_resources(nodes, output):
 def gallery(output):
     """Build an offline gallery of reconstructed images, not diagnostic tile banks.
 
-    Optional text-review.csv contains local human review: target,status,note.
+    Optional text-review.csv contains local visual review: target,status,note.
     Targets are preview paths or tile:<hex offset>; statuses confirmed/possible/none.
     Missing reviews remain explicitly unreviewed, never inferred negative.
     """
@@ -152,6 +152,7 @@ def gallery(output):
             unresolved.append(dict(cells=row['offset'], tiles='',
                                    issue='No standalone tile-bank association; may share banks or require live VRAM',
                                    evidence=row['keys']))
+    missing_cells = list(unresolved)
     for row in sprites:
         if not row['palette_evidence'].startswith('verified') or row['warnings']:
             unresolved.append(dict(cells=row['cells'], tiles=row['tiles'],
@@ -173,25 +174,40 @@ article{background:#263947;padding:16px;overflow:hidden}article img{max-width:10
 article h2{font-size:18px;margin-top:0}small{display:block;margin:8px 0;color:#c2cbd2}.badge{color:#91e8b3}details{font-size:13px}p{max-width:1000px}article[hidden]{display:none}
 </style><h1>Slime graphics</h1>
 <p>Assembled backgrounds and sprite cells. World maps show base palette variant 0, without actors or event/animation substitutions. UI layers omit runtime text and counters. Sprite sheets preserve individual animation cells; they are not full scene screenshots.</p>
-<p>Unresolved palette/layout associations are hidden by default. “Not reviewed” is not a finding of no Japanese. <a href="inventory.csv">Resource inventory</a> · <a href="backgrounds/backgrounds.csv">Background mappings</a> · <a href="sprites/sprites.csv">Sprite mappings</a> · <a href="text-review.csv">Text review</a> · <a href="unresolved.csv">Unresolved associations</a></p>
+<p>Confirmed Japanese remains visible even when its original palette is unresolved. Other unresolved associations are hidden by default. “Not reviewed” is not a finding of no Japanese. <a href="inventory.csv">Resource inventory</a> · <a href="backgrounds/backgrounds.csv">Background mappings</a> · <a href="sprites/sprites.csv">Sprite mappings</a> · <a href="ui/ui.csv">UI mappings</a> · <a href="text-review.csv">Text review</a> · <a href="unresolved.csv">Unresolved associations</a></p>
 <header><input id="q" placeholder="Search name, offset or finding" size="30">
 <select id="category"><option value="">All types</option><option>World</option><option>Background</option><option>UI</option><option>Sprites</option></select>
 <select id="text"><option value="">All review statuses</option><option value="confirmed" selected>Japanese</option><option value="possible">Possible Japanese</option><option value="unreviewed">Not reviewed</option><option value="none">No Japanese seen</option></select>
 <label><input type="checkbox" id="uncertain">Include unresolved palettes/layouts</label><span id="count"></span></header><main>''']
+    counts = {status: sum(c['status'] == status for c in cards)
+              for status in ('confirmed', 'possible', 'none', 'unreviewed')}
+    esc = html.escape
+    summary = (f'<p>{len(cards)} preview groups: '
+                 f'{counts["confirmed"]} Japanese, {counts["possible"]} possible, '
+                 f'{counts["none"]} with no Japanese seen, {counts["unreviewed"]} awaiting review. '
+                 'Groups may share artwork or show animation variants.</p>')
+    if missing_cells:
+        gaps = '; '.join(f'{esc(r["evidence"])} (ROM {r["cells"]})' for r in missing_cells)
+        summary += ('<p>Remaining extraction gap: sprite cells without a verified tile source: '
+                     + gaps + '. These cannot yet be checked for lettering. '
+                     'Palette uncertainties for other reconstructed sprites are listed in '
+                     '<a href="unresolved.csv">unresolved associations</a>.</p>')
+    parts[0] = parts[0].replace('<header>', summary + '<header>', 1)
     for card in cards:
-        esc = html.escape
         paths = card['paths']
         parts.append(f'<article data-group="{esc(card["group"])}" data-status="{card["status"]}" data-known="{int(card["known"])}">'
                      f'<h2>{esc(card["name"])}</h2><span class="badge">{labels[card["status"]]}</span>'
-                     f'<small>{esc(card["offsets"])}</small>'
-                     f'<a href="{esc(paths[0])}"><img loading="lazy" src="{esc(paths[0])}"></a>'
-                     f'<p>{esc(card["note"])}</p><details><summary>Resources and other sheets</summary>'
+                     f'<small>{esc(card["offsets"])}</small>')
+        # Later animation sheets can contain lettering absent from sheet zero.
+        # Show all sheets instead of burying the additional ones in file links.
+        parts.extend(f'<a href="{esc(p)}"><img loading="lazy" src="{esc(p)}"></a>' for p in paths)
+        parts.append(f'<p>{esc(card["note"])}</p><details><summary>Resources and image files</summary>'
                      f'<p>{esc(card["evidence"])}</p>')
         parts.extend(f'<a href="{esc(p)}">{esc(Path(p).name)}</a> ' for p in paths)
         parts.append('</details></article>')
     parts.append('''</main><script>
 const q=document.querySelector('#q'),category=document.querySelector('#category'),text=document.querySelector('#text'),uncertain=document.querySelector('#uncertain');
-function filter(){let n=0;document.querySelectorAll('article').forEach(a=>{a.hidden=(!uncertain.checked&&a.dataset.known!=='1')||(category.value&&a.dataset.group!==category.value)||(text.value&&a.dataset.status!==text.value)||!a.textContent.toLowerCase().includes(q.value.toLowerCase());if(!a.hidden)n++});document.querySelector('#count').textContent=n+' previews'}
+function filter(){let n=0;document.querySelectorAll('article').forEach(a=>{a.hidden=(!uncertain.checked&&a.dataset.known!=='1'&&a.dataset.status!=='confirmed')||(category.value&&a.dataset.group!==category.value)||(text.value&&a.dataset.status!==text.value)||!a.textContent.toLowerCase().includes(q.value.toLowerCase());if(!a.hidden)n++});document.querySelector('#count').textContent=n+' previews'}
 for(const e of [q,category,text,uncertain])e.addEventListener('input',filter);filter();
 </script>''')
     (output / 'index.html').write_text('\n'.join(parts))
@@ -207,11 +223,25 @@ def extract_full(rom, output):
     for node in nodes.values():
         if parse_cells(node['raw']):
             node['kind'] = 'cells'
-    export_resources(nodes, output)
     extract(rom, output / 'known')
     export_backgrounds(rom, output / 'backgrounds')
     export_sprites(rom, output / 'sprites')
-    export_ui(rom, output / 'ui')
+    ui = export_ui(rom, output / 'ui')
+    # Raw UI rectangles have neither an archive entry nor a compression header.
+    # Include their source bytes in the inventory as well as assembled previews.
+    from PIL import Image
+    for row in ui:
+        offset = int(row['tilemap'], 16)
+        if offset in nodes:
+            continue
+        with Image.open(output / 'ui' / row['preview']) as im:
+            size = im.width * im.height // 64 * (1 if row['note'].startswith('Affine 8bpp') else 2)
+        if offset + size > len(rom):
+            raise ValueError(f'UI map outside ROM: {row["name"]}')
+        nodes[offset] = dict(offset=offset, size=size, keys=['ui/' + row['name']],
+                             evidence='loader-reconstructed-map', refs=[], kind='tilemap',
+                             raw=rom[offset:offset + size], decoded=None)
+    export_resources(nodes, output)
     export_pot(rom, output / 'pot-title')
     gallery(output)
 

@@ -183,9 +183,10 @@ def export_backgrounds(rom, output, scene_ids=None):
         layers = []
         # Scene109 installs 0807d499 in its init0808b9c8: only first map is
         # passed to the metatile renderer. Later bytes are special scene data.
-        layer_count = 1 if scene == 109 else min(2, len(data) // layer_size)
+        layer_count = 1 if scene in (109, 113) else min(2, len(data) // layer_size)
+        layer_indices = (1, 2) if scene == 4 else range(layer_count)
         metatile_offsets = set()
-        for layer in range(layer_count):
+        for layer in layer_indices:
             raw_map = data[layer * layer_size:(layer + 1) * layer_size]
             metatile_offsets.update(v for v, in struct.iter_unpack('<H', raw_map))
             (directory / f'layer-{layer}.metatiles').write_bytes(raw_map)
@@ -206,6 +207,8 @@ def export_backgrounds(rom, output, scene_ids=None):
              scene=scene, descriptor=f'{record:06x}', metatiles=f'{metatiles:06x}',
              metatile_range=f'{metatile_start:06x}+{metatile_size:x}', resources=f'resources/world-{scene:03d}',
              note=('Single world layer; scene init 0808b9c8 selects renderer 0807d499. ' if scene == 109 else '') + 'Base layers only; animated tile slots and event-dependent edits are not simulated')
+    from graphics_scene_overlays import export_scene_overlays
+    rows.extend(export_scene_overlays(rom, output))
     fields = ('name', 'preview', 'tiles', 'tilemap', 'palette', 'metatiles', 'scene', 'descriptor', 'metatile_range', 'resources', 'evidence', 'note')
     with (output / 'backgrounds.csv').open('w', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
